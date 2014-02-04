@@ -97,15 +97,34 @@ if(thisConfig.use === "ssh"){
 
 	c.on('error', function(err) {
 	  console.log('Connection :: error :: ' + err);
+	  c.connect({
+		  host: '192.168.0.101',
+		  port: 22,
+		  username: 'pi',
+		  password:"fleismann"
+		});
 	});
 	c.on('end', function() {
 	  console.log('Connection :: end');
+	  c.connect({
+		  host: '192.168.0.101',
+		  port: 22,
+		  username: 'pi',
+		  password:"fleismann"
+		});
 	});
 	c.on('close', function(had_error) {
 	  console.log('Connection :: close');
+	  c.connect({
+		  host: '192.168.0.101',
+		  port: 22,
+		  username: 'pi',
+		  password:"fleismann"
+		});
 	});
 
 
+	
 	c.connect({
 	  host: '192.168.0.101',
 	  port: 22,
