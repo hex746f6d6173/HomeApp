@@ -11,7 +11,7 @@ child = exec("whoami", function (error, stdout, stderr) {
 	    
 	  }else{
 
-
+	  }
 	  });
 
 app.use(express.static(__dirname + '/public'));
