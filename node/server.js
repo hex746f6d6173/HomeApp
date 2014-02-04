@@ -20,24 +20,29 @@ child = exec("whoami", function (error, stdout, stderr) {
 
 app.use(express.static(__dirname + '/public'));
 
-var flipSwitch = function(req, res){
-	console.log(""+req.params.brand+" "+req.params.code+" "+req.params.switch+" "+req.params.switchTo+"");
-	child = exec("cd /var/www/home/rc/ex/lights && sudo ./"+req.params.brand+" "+req.params.code+" "+req.params.switch+" "+req.params.switchTo+"", function (error, stdout, stderr) {
+var flipSwitch = function(q, fn){
+	console.log(""+q.brand+" "+q.code+" "+q.switch+" "+q.switchTo+"");
+
+	var switchTo = "on";
+	if(q.state === 0){switchTo = "off";}
+	var query = "cd /var/www/home/rc/ex/lights && sudo ./"+q.brand+" "+q.code+" "+q.switch+" "+switchTo+"";
+
+	console.log(query);
+
+	child = exec(query, function (error, stdout, stderr) {
 	  sys.print('stdout: ' + stdout);
 	  sys.print('stderr: ' + stderr);
 	  if (error !== null) {
 	    console.log('exec error: ' + error);
-	    res.send(JSON.stringify({"success":false}));
-		res.end();
+	    fn({success:false});
 	  }else{
 
-	  	res.send(JSON.stringify({"success":true}));
-		res.end();
+	  	fn({success:true});
 
 	  }
 	});
 
-	console.log(req.params);
+	console.log(q);
 	
 
 }
@@ -49,6 +54,18 @@ io.sockets.on('connection', function (socket) {
   socket.emit('switches', switches);
 
   socket.on('switch', function (data) {
-    console.log(data);
+	  if(switches[data.id].state === 1){
+	  	switches[data.id].state = 0;
+	  }else{
+	  	switches[data.id].state = 1;
+	  }
+	flipSwitch(switches[data.id], function(res){
+		if(res.success){
+			io.sockets.emit("switched", switches[data.id]);
+		}else{
+			console.log("error");
+		}
+	});
+    
   });
 });
