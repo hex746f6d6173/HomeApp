@@ -21,7 +21,7 @@ var flipSwitch = function(q, fn){
 
 	var switchTo = "on";
 	if(q.state === 0){switchTo = "off";}
-	var query = "cd /var/www/home/rc/ex/lights && sudo ./"+q.brand+" "+q.code+" "+q.switch+" "+switchTo+"";
+	var query = "cd /var/www/home/node/executables && sudo ./"+q.brand+" "+q.code+" "+q.switch+" "+switchTo+"";
 
 	console.log(query);
 	if(thisConfig.use === "ssh"){
