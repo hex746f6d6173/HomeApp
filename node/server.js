@@ -18,7 +18,7 @@ app.use(express.static(__dirname + '/public'));
 
 var flipSwitch = function(req, res){
 
-	child = exec("sudo /var/www/home/rc/ex/lights/"+req.params.brand+" "+req.params.code+" "+req.params.switch+" "+req.params.switchTo+"", function (error, stdout, stderr) {
+	child = exec("/var/www/home/rc/ex/lights/"+req.params.brand+" "+req.params.code+" "+req.params.switch+" "+req.params.switchTo+"", function (error, stdout, stderr) {
 	  sys.print('stdout: ' + stdout);
 	  sys.print('stderr: ' + stderr);
 	  if (error !== null) {
