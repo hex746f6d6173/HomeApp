@@ -7,6 +7,14 @@
 	"icon":"glyphicon glyphicon-off",
 	"state":0
 },{	
+	"id":5,
+	"name":"Lampjes",
+	"brand":"action",
+	"code":21,
+	"switch":"A",
+	"icon":"glyphicon glyphicon-off",
+	"state":0
+},{	
 	"id":2,
 	"name":"TV",
 	"brand":"elro",
