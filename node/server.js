@@ -6,6 +6,8 @@ var child;
 var server = app.listen(4000);
 var io = require('socket.io').listen(server);
 
+var switches = require("./config.json");
+
 child = exec("whoami", function (error, stdout, stderr) {
 	  sys.print('stdout: ' + stdout);
 	  sys.print('stderr: ' + stderr);
