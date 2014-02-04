@@ -23,7 +23,7 @@ $(document).ready(function(){
     //socket.emit('my other event', { my: 'data' });
     var html = "";
     $.each(data, function(x,y){
-    	html +='<a class="switch well" id="switch-'+x+'"><span class="'+y.icon+'"></span> '+y.name+'</a>';
+    	html +='<a class="switch well" id="switch-'+x+'"><h1><span class="'+y.icon+'"></span> '+y.name+'</h1></a>';
     });
 
     $(".switches").html(html);
@@ -58,7 +58,9 @@ $(document).ready(function(){
 	.switch{
 		display: block;
 	}
-
+	.switch h1{
+		color:black;
+	}
 </style>
 </head>
 <body>
