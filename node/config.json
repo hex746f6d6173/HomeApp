@@ -4,5 +4,6 @@
 	"brand":"elro",
 	"code":31,
 	"switch":"C",
-	"icon":"glyphicon glyphicon-off"
+	"icon":"glyphicon glyphicon-off",
+	"state":0
 }]
