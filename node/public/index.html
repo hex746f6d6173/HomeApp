@@ -1,1 +1,62 @@
-hoi
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+
+<script>
+
+$(document).ready(function(){
+
+  var socket = io.connect('http://localhost');
+  socket.on('switches', function (data) {
+    console.log(data);
+    //socket.emit('my other event', { my: 'data' });
+    var html = "";
+    $.each(data, function(x,y){
+    	html +='<div class="switch"><span class="'+y.icon+'"></span> '+y.name+' <a href="#" class="on">On</a> <a href="#" class="off">Off</a></div>';
+    });
+
+    $(".switches").html(html);
+
+  });
+  });
+</script>
+</head>
+<body>
+<div class="navbar navbar-inverse navbar-static-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Project name</a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+		<div class="container">
+			<div class="switches">
+				
+			</div>
+		</div>
+</body>
+</html>
