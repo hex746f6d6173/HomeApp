@@ -48,7 +48,7 @@ io.sockets.on('connection', function (socket) {
 
   socket.emit('switches', switches);
 
-  /*socket.on('my other event', function (data) {
+  socket.on('switch', function (data) {
     console.log(data);
-  });*/
+  });
 });

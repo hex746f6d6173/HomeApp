@@ -23,11 +23,25 @@ $(document).ready(function(){
     //socket.emit('my other event', { my: 'data' });
     var html = "";
     $.each(data, function(x,y){
-    	html +='<div class="switch"><span class="'+y.icon+'"></span> '+y.name+' <a href="#" class="on">On</a> <a href="#" class="off">Off</a></div>';
+    	html +='<div class="switch" data-uid="'+y.id+'"><span class="'+y.icon+'"></span> '+y.name+' <a href="#" class="on">On</a> <a href="#" class="off">Off</a></div>';
     });
 
     $(".switches").html(html);
 
+    $(".switch").each(function(){
+    	$(this).find(".on").click(function(e){
+    		e.preventDefault();
+
+    		socket.emit("switch", {id:$(this).parent().attr("data-uid"), to:"on"});
+    	});
+    });
+    $(".switch").each(function(){
+    	$(this).find(".off").click(function(e){
+    		e.preventDefault();
+
+    		socket.emit("switch", {id:$(this).parent().attr("data-uid"), to:"off"});
+    	});
+    });
   });
   });
 </script>
