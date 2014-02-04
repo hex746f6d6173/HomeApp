@@ -3,6 +3,8 @@ var app = express();
 var sys = require('sys')
 var exec = require('child_process').exec;
 var child;
+var server = app.listen(4000);
+var io = require('socket.io').listen(server);
 
 child = exec("whoami", function (error, stdout, stderr) {
 	  sys.print('stdout: ' + stdout);
@@ -12,7 +14,7 @@ child = exec("whoami", function (error, stdout, stderr) {
 	  }else{
 
 	  }
-	  });
+});
 
 app.use(express.static(__dirname + '/public'));
 
@@ -42,4 +44,3 @@ app.get('/switch/:brand/:code/:switch/:switchTo/', flipSwitch, function(req, res
 
 });
 
-app.listen(4000);
