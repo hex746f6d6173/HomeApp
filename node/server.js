@@ -99,7 +99,7 @@ if(thisConfig.use === "ssh"){
 	c.on('ready', function() {
 		console.log('Connection :: ready');
 		state.ssh = true;
-		sockets.emit('state', state);
+		io.sockets.emit('state', state);
 	});
 
 	c.on('error', function(err) {
@@ -111,7 +111,7 @@ if(thisConfig.use === "ssh"){
 		  password:"fleismann"
 		});
 	  state.ssh = false;
-	  sockets.emit('state', state);
+	  io.sockets.emit('state', state);
 	});
 	c.on('end', function() {
 	  console.log('Connection :: end');
@@ -122,7 +122,7 @@ if(thisConfig.use === "ssh"){
 		  password:"fleismann"
 		});
 	  state.ssh = false;
-	  sockets.emit('state', state);
+	  io.sockets.emit('state', state);
 	});
 	c.on('close', function(had_error) {
 	  console.log('Connection :: close');
@@ -133,7 +133,7 @@ if(thisConfig.use === "ssh"){
 		  password:"fleismann"
 		});
 	  state.ssh = false;
-	  sockets.emit('state', state);
+	  io.sockets.emit('state', state);
 	});
 	state.ssh = false;
 	sockets.emit('state', state);
