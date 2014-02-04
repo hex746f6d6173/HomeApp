@@ -10,6 +10,8 @@ var Connection = require('ssh2');
 
 var c = new Connection();
 
+var state = {ssh:false};
+
 var thisConfig = require("./this.json");
 
 var switches = require("./config.json");
@@ -85,6 +87,9 @@ io.sockets.on('connection', function (socket) {
 		});
     
   });
+
+  socket.emit('state', state);
+
 });
 
 console.log(thisConfig.use);
@@ -93,6 +98,8 @@ if(thisConfig.use === "ssh"){
 
 	c.on('ready', function() {
 		console.log('Connection :: ready');
+		state.ssh = true;
+		sockets.emit('state', state);
 	});
 
 	c.on('error', function(err) {
@@ -103,6 +110,8 @@ if(thisConfig.use === "ssh"){
 		  username: 'pi',
 		  password:"fleismann"
 		});
+	  state.ssh = false;
+	  sockets.emit('state', state);
 	});
 	c.on('end', function() {
 	  console.log('Connection :: end');
@@ -112,6 +121,8 @@ if(thisConfig.use === "ssh"){
 		  username: 'pi',
 		  password:"fleismann"
 		});
+	  state.ssh = false;
+	  sockets.emit('state', state);
 	});
 	c.on('close', function(had_error) {
 	  console.log('Connection :: close');
@@ -121,9 +132,11 @@ if(thisConfig.use === "ssh"){
 		  username: 'pi',
 		  password:"fleismann"
 		});
+	  state.ssh = false;
+	  sockets.emit('state', state);
 	});
-
-
+	state.ssh = false;
+	sockets.emit('state', state);
 	
 	c.connect({
 	  host: '192.168.0.101',

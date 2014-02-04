@@ -83,6 +83,19 @@ $(document).ready(function(){
 
   });
 
+
+  socket.on("state", function(data){
+
+   if(data.ssh){
+
+    $(".ssh").html('<i class="glyphicon glyphicon-ok" style="color:'+green+';"></i>');
+
+   }else{
+    $(".ssh").html('<i class="glyphicon glyphicon-remove" style="color:'+red+';"></i>');
+   }
+
+  });
+
   });
 </script>
 <style>
@@ -113,7 +126,7 @@ $(document).ready(function(){
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Home <span class="connection"></span></a>
+          <a class="navbar-brand" href="#">Home <span class="connection"></span><span class="ssh"></span></a>
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
