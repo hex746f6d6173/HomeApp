@@ -65,7 +65,7 @@ var flipSwitch = function(q, fn){
 
 }
 
-app.get('/switch/:brand/:code/:switch/:switchTo/', flipSwitch);
+//app.get('/switch/:brand/:code/:switch/:switchTo/', flipSwitch);
 
 io.sockets.on('connection', function (socket) {
 
