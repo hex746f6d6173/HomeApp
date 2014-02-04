@@ -60,10 +60,9 @@ io.sockets.on('connection', function (socket) {
 	  	switches[data.id].state = 1;
 	  }
 	flipSwitch(switches[data.id], function(res){
+		io.sockets.emit("switched", {switch:switches[data.id], id:data.id});
 		if(res.success){
-			io.sockets.emit("switched", switches[data.id]);
-		}else{
-			console.log("error");
+			
 		}
 	});
     
