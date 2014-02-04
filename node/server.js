@@ -40,7 +40,5 @@ var flipSwitch = function(req, res){
 
 }
 
-app.get('/switch/:brand/:code/:switch/:switchTo/', flipSwitch, function(req, res){
-
-});
+app.get('/switch/:brand/:code/:switch/:switchTo/', flipSwitch);
 
