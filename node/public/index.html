@@ -14,7 +14,7 @@
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
 
 <script>
-
+var red = "red", green = "green";
 $(document).ready(function(){
 
   var socket = io.connect('http://'+window.location.hostname);
@@ -23,7 +23,12 @@ $(document).ready(function(){
     //socket.emit('my other event', { my: 'data' });
     var html = "";
     $.each(data, function(x,y){
-    	html +='<a class="switch well" id="switch-'+x+'"><h1><span class="'+y.icon+'"></span> '+y.name+'</h1></a>';
+    	var color = red;
+	  	if(y.state === 1){
+	  		color = green;
+	  	}
+
+    	html +='<a class="switch well" id="switch-'+x+'" style="background:'+color+'"><h1><span class="'+y.icon+'"></span> '+y.name+'</h1></a>';
     });
 
     $(".switches").html(html);
@@ -42,12 +47,12 @@ $(document).ready(function(){
 
   socket.on("switched", function(data){
 
-  	var color = "red";
+  	var color = red;
   	if(data.switch.state === 1){
-  		color = "green";
+  		color = green;
   	}
 
-  	console.log($("#switch-"+data.id).css({"background":color}));
+  	$("#switch-"+data.id).css({"background":color});
 
   });
 
