@@ -233,29 +233,7 @@ $.getJSON("temp.php",function(data){
 		}
 			
 	});
-	$(".temp").click(function(){
-		var what=$(this).html();
-		if($("#setcel").hasClass("fade")){
-				
-		}else{
-			$("#setcel").addClass("fade");
-			$("#setcel").fadeIn().delay(5000).fadeOut(function(){$("#setcel").removeClass("fade");});
-		}
-		var value=$("#setcel").find("span").html();
-		var value=parseInt(value);
-		if(what=="+"){
-			$("#setcel").find("span").html(value+1);
-			$.getJSON("settemp.php?temp="+(value+1),function(){
-			});
-			
-		}else{
-			$("#setcel").find("span").html(value-1);
-			$.getJSON("settemp.php?temp="+(value-1),function(){
-			});
-		}
-		
-		
-	});
+	
 });
 document.ontouchmove = function(e){ 
     e.preventDefault(); 
@@ -281,25 +259,6 @@ HOME
 	</div>
 </div>
 
-<div id="a" class="group">
-
-<div class="label"><img src="Aluport-server-icon.png" style="height:17px;"/> Server <img src="" id="servers"/></div>
-<div class="buttons">
-<div class="switch server on" server="1" rel="null">ON <span>.</span></div>
-<div class="switch server off" server="0" rel="null">OFF <span>.</span></div>
-</div>
-</div>
-
-
-<div id="e" class="group">
-
-<div class="label"><img src="AirplayIcont.png" style="height:17px;"/> AirPlay</div>
-<div class="buttons">
-<div class="switch airplay on" rel="null">RES <span>.</span></div>
-</div>
-</div>
-
-
 <div id="b" class="group">
 
 <div class="label"><img src="bulb-icon.png" style="height:17px;"/> Spots</div>
@@ -308,14 +267,31 @@ HOME
 <div class="switch off" rel="b=elro&d=31&u=C&s=off">OFF <span>.</span></div>
 </div>
 </div>
+<div id="b" class="group">
 
-
-<!-- div id="c" class="group"> <div class="label">TV</div>
+<div class="label"><img src="bulb-icon.png" style="height:17px;"/> TV</div>
 <div class="buttons">
-<div class="switch on" rel="d=11111&u=4&s=1">ON <span>.</span></div>
-<div class="switch off" rel="d=11111&u=4&s=0">OFF <span>.</span></div>
+<div class="switch on" rel="b=elro&d=31&u=A&s=on">ON <span>.</span></div>
+<div class="switch off" rel="b=elro&d=31&u=A&s=off">OFF <span>.</span></div>
 </div>
-</div -->
+</div>
+<div id="b" class="group">
+
+<div class="label"><img src="bulb-icon.png" style="height:17px;"/> Mengpaneel</div>
+<div class="buttons">
+<div class="switch on" rel="b=elro&d=31&u=D&s=on">ON <span>.</span></div>
+<div class="switch off" rel="b=elro&d=31&u=D&s=off">OFF <span>.</span></div>
+</div>
+</div>
+<div id="b" class="group">
+
+<div class="label"><img src="bulb-icon.png" style="height:17px;"/> PC</div>
+<div class="buttons">
+<div class="switch on" rel="b=elro&d=31&u=B&s=on">ON <span>.</span></div>
+<div class="switch off" rel="b=elro&d=31&u=B&s=off">OFF <span>.</span></div>
+</div>
+</div>
+<!---
 <div id="c" class="group">
 <div class="label"><img src="bulb-icon.png" style="height:17px;"/> Bureau</div>
 <div class="buttons">
@@ -323,7 +299,7 @@ HOME
 <div class="switch off" rel="b=action&d=21&u=A&s=off">OFF <span>.</span></div>
 </div>
 </div>
-
+-->
 <div id="d" class="group">
 <div class="label"><img src="bulb-icon.png" style="height:17px;"/> Stroom</div>
 <div class="buttons">
@@ -340,8 +316,6 @@ HOME
 </div>
 </div>
 
-
-<iframe style="width:300px;height:225px;border:none;padding:0px;margin:0px;" src="http://pi.local/home/motion.php?q=1"></iframe>
 
 </div>
 </body>
