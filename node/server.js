@@ -5,7 +5,7 @@ app.use(express.static(__dirname + '/public'));
 
 var flipSwitch = function(req, res){
 
-	console.log(req);
+	console.log(req.params);
 
 }
 
