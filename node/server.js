@@ -136,7 +136,7 @@ if(thisConfig.use === "ssh"){
 	  io.sockets.emit('state', state);
 	});
 	state.ssh = false;
-	sockets.emit('state', state);
+	io.sockets.emit('state', state);
 	
 	c.connect({
 	  host: '192.168.0.101',
