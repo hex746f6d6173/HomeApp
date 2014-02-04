@@ -17,7 +17,7 @@ child = exec("whoami", function (error, stdout, stderr) {
 app.use(express.static(__dirname + '/public'));
 
 var flipSwitch = function(req, res){
-
+	console.log(""+req.params.brand+" "+req.params.code+" "+req.params.switch+" "+req.params.switchTo+"");
 	child = exec("/var/www/home/rc/ex/lights/"+req.params.brand+" "+req.params.code+" "+req.params.switch+" "+req.params.switchTo+"", function (error, stdout, stderr) {
 	  sys.print('stdout: ' + stdout);
 	  sys.print('stderr: ' + stderr);
