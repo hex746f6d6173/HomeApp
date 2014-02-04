@@ -35,7 +35,7 @@
 	"name":"PC",
 	"brand":"elro",
 	"code":31,
-	"switch":"A",
+	"switch":"B",
 	"icon":"glyphicon glyphicon-off",
 	"state":0
 }]
