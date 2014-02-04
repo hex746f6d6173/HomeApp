@@ -18,6 +18,32 @@ var red = "red", green = "green";
 $(document).ready(function(){
 
   var socket = io.connect('http://'+window.location.hostname);
+
+  socket.on('connect', function(){
+
+    $(".connection").html('<i class="glyphicon glyphicon-ok" style="color:'+green+';"></i>');
+
+  });
+
+  socket.on('connecting', function(){
+
+    $(".connection").html('<i class="glyphicon glyphicon-minus"></i>');
+
+  });
+
+  socket.on('connect_failed', function(){
+
+    $(".connection").html('<i class="glyphicon glyphicon-remove" style="color:'+red+';"></i>');
+
+  });
+  
+  socket.on('disconnect', function(){
+
+    $(".connection").html('<i class="glyphicon glyphicon-remove" style="color:'+red+';"></i>');
+
+  });
+
+
   socket.on('switches', function (data) {
     console.log(data);
     //socket.emit('my other event', { my: 'data' });
@@ -65,7 +91,10 @@ $(document).ready(function(){
 	}
 	.switch h1{
 		color:black;
+    margin: 0;
+    padding:0;
 	}
+
 </style>
 </head>
 <body>
@@ -78,7 +107,7 @@ $(document).ready(function(){
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Project name</a>
+          <a class="navbar-brand" href="#">Home <span class="connection"></span></a>
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
