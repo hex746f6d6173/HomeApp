@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<dwsync>
+<file name="Makefile" server="192.168.0.101" local="130274475033520962" remote="130036284000000000" Dst="1" />
+<file name="README.md" server="192.168.0.101" local="130274475033610958" remote="130036284000000000" Dst="1" />
+<file name="genLirc" server="192.168.0.101" local="130274475033930967" remote="130036284000000000" Dst="1" />
+<file name="genLirc.cpp" server="192.168.0.101" local="130274475037890972" remote="130036284000000000" Dst="1" />
+<file name="receive" server="192.168.0.101" local="130274475038100990" remote="130036284000000000" Dst="1" />
+<file name="receive.cpp" server="192.168.0.101" local="130274475038320958" remote="130036284000000000" Dst="1" />
+<file name="receiveElro" server="192.168.0.101" local="130274475038510964" remote="130036284000000000" Dst="1" />
+<file name="receiveElro.cpp" server="192.168.0.101" local="130274475038690952" remote="130036284000000000" Dst="1" />
+<file name="send" server="192.168.0.101" local="130274475038900973" remote="130036284000000000" Dst="1" />
+<file name="send.cpp" server="192.168.0.101" local="130274475039140950" remote="130036284000000000" Dst="1" />
+<file name="sendElro" server="192.168.0.101" local="130274475039320960" remote="130036284000000000" Dst="1" />
+<file name="sendElro.cpp" server="192.168.0.101" local="130274475039520966" remote="130036284000000000" Dst="1" />
+</dwsync>

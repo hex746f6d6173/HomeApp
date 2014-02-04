@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<dwsync>
+<file name="AirplayIcont.png" server="192.168.0.101" local="130274472629060973" remote="130063932000000000" Dst="1" />
+<file name="Aluport-server-icon.png" server="192.168.0.101" local="130274472629360958" remote="130063932000000000" Dst="1" />
+<file name="AirplayIcon.png" server="192.168.0.101" local="130274472629430971" remote="130063932000000000" Dst="1" />
+<file name="airplay.php" server="192.168.0.101" local="130274472634250975" remote="130063932000000000" Dst="1" />
+<file name="getimage.php" server="192.168.0.101" local="130274472634770963" remote="130063932000000000" Dst="1" />
+<file name="bulb-icon.png" server="192.168.0.101" local="130274472634860980" remote="130063932000000000" Dst="1" />
+<file name="compile.php" server="192.168.0.101" local="130274472635100993" remote="130077756000000000" Dst="1" />
+<file name="gettemp.json" server="192.168.0.101" local="130274472635450953" remote="130038876000000000" Dst="1" />
+<file name="heat.json" server="192.168.0.101" local="130274472635640971" remote="130076028000000000" Dst="1" />
+<file name="heat.png" server="192.168.0.101" local="130274472635850966" remote="130038876000000000" Dst="1" />
+<file name="host_check.php" server="192.168.0.101" local="130274472636070982" remote="130075164000000000" Dst="1" />
+<file name="index.html" server="192.168.0.101" local="130274472662930977" remote="130075164000000000" Dst="1" />
+<file name="ip.php" server="192.168.0.101" local="130274472663290972" remote="130063932000000000" Dst="1" />
+<file name="jquery.js" server="192.168.0.101" local="130274472664370973" remote="130037148000000000" Dst="1" />
+<file name="motion.php" server="192.168.0.101" local="130274474801540972" remote="130063932000000000" Dst="1" />
+<file name="motion_detected.php" server="192.168.0.101" local="130274474801860969" remote="130063932000000000" Dst="1" />
+<file name="network.php" server="192.168.0.101" local="130274474802120971" remote="130076892000000000" Dst="1" />
+<file name="notify.json" server="192.168.0.101" local="130274474802300949" remote="130075164000000000" Dst="1" />
+<file name="notify.php" server="192.168.0.101" local="130274474803050966" remote="130063932000000000" Dst="1" />
+<file name="server.php" server="192.168.0.101" local="130274474803350982" remote="130038876000000000" Dst="1" />
+<file name="serverstatus.json" server="192.168.0.101" local="130274474803960960" remote="130075164000000000" Dst="1" />
+<file name="serverstatus.php" server="192.168.0.101" local="130274474804290970" remote="130038876000000000" Dst="1" />
+<file name="settemp.php" server="192.168.0.101" local="130274474804880956" remote="130038876000000000" Dst="1" />
+<file name="status.json" server="192.168.0.101" local="130274474805040977" remote="130274427000000000" Dst="1" />
+<file name="status.php" server="192.168.0.101" local="130274474805680952" remote="130038876000000000" Dst="1" />
+<file name="statusgreen.png" server="192.168.0.101" local="130274474805890972" remote="130038876000000000" Dst="1" />
+<file name="statusjson.php" server="192.168.0.101" local="130274474806520964" remote="130038876000000000" Dst="1" />
+<file name="statusred.png" server="192.168.0.101" local="130274474806680968" remote="130038876000000000" Dst="1" />
+<file name="switch.php" server="192.168.0.101" local="130274474807360983" remote="130075164000000000" Dst="1" />
+<file name="temp.json" server="192.168.0.101" local="130274474807560964" remote="130088124000000000" Dst="1" />
+<file name="temp.php" server="192.168.0.101" local="130274474808190961" remote="130038876000000000" Dst="1" />
+<file name="temping.php" server="192.168.0.101" local="130274474808480979" remote="130038876000000000" Dst="1" />
+<file name="upload.php" server="192.168.0.101" local="130274474809050961" remote="130063932000000000" Dst="1" />
+<file name="weg.json" server="192.168.0.101" local="130274474809350975" remote="130076892000000000" Dst="1" />
+<file name="wol.php" server="192.168.0.101" local="130274474815510965" remote="130038876000000000" Dst="1" />
+</dwsync>
