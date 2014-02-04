@@ -11,7 +11,7 @@ using namespace std;
 
 int main(int argc, char **argv) 
 {
-	int pin_out = 0; // Pin out using wiringPi pin numbering scheme (15 = TxD / BCM GPIO 14, see https://projects.drogon.net/raspberry-pi/wiringpi/pins/)
+	int pin_out = 15; // Pin out using wiringPi pin numbering scheme (15 = TxD / BCM GPIO 14, see https://projects.drogon.net/raspberry-pi/wiringpi/pins/)
     int channel = 0;
     char socket = 'A';
     bool state = false;
