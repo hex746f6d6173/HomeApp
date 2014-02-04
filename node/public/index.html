@@ -15,7 +15,7 @@
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
 
 <script>
-var red = "red", green = "green";
+var red = "red", green = "green", orange = "orange";
 $(document).ready(function(){
 
   var socket = io.connect('http://'+window.location.hostname);
@@ -63,7 +63,7 @@ $(document).ready(function(){
     $(".switch").each(function(){
     	$(this).click(function(e){
     		e.preventDefault();
-
+        $(this).css({"background":orange});
     		socket.emit("switch", {id:$(this).attr("id").replace("switch-", "")});
     	});
     });
