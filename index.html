@@ -165,34 +165,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dadada', end
 <script src="jquery.js"></script>
 <script>
 function runtime(){
-	$.ajax({url:"statusjson.php", 
-		dataType:"json",
-		cache:false,
-		success:function(data){
-			$.each(data,function(x,y){
-				if(y==1){
-					$("#"+x).find(".on").css({color:"#55a0e8"}).addClass("active");
-					$("#"+x).find(".off").css({color:""}).removeClass("active");
-				}else{
-					$("#"+x).find(".off").css({color:"#55a0e8"}).addClass("active");
-					$("#"+x).find(".on").css({color:""}).removeClass("active");
-				}
-			});
-		}
-		});
-		$.getJSON("gettemp.json",function(data){
-			$("#cel").find("span").html(data);
-		});
-		$.getJSON("heat.json",function(data){
-			$("#heat").css({"opacity":data});
-		});
-		$.getJSON("serverstatus.json",function(data){
-			if(data.status=="1"){
-				$("#servers").attr({"src":"statusgreen.png"});
-			}else{
-				$("#servers").attr({"src":"statusred.png"});
-			}
-		});
+	
 
 }
 	setInterval(function(){
