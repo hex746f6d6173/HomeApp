@@ -6,6 +6,7 @@
   "dependencies": {
     "express": "3.x",
     "socket.io":"0.9.x",
-    "sys":"0.0.1"
+    "sys":"0.0.1",
+    "ssh2":"0.2.x"
   }
 }
