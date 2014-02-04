@@ -3,9 +3,14 @@ var app = express();
 
 app.use(express.static(__dirname + '/public'));
 
-app.get('/switch/:brand/:code/:switch/:switchTo/', function(req, res){
-  res.send('hello world');
-  console.log(req);
+var flipSwitch = function(req, res){
+
+	console.log(req);
+
+}
+
+app.get('/switch/:brand/:code/:switch/:switchTo/', flipSwitch, function(req, res){
+
 });
 
 app.listen(4000);
