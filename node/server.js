@@ -13,6 +13,8 @@ var flipSwitch = function(req, res){
 	  sys.print('stderr: ' + stderr);
 	  if (error !== null) {
 	    console.log('exec error: ' + error);
+	    res.send(JSON.stringify({"success":false}));
+		res.end();
 	  }else{
 
 	  	res.send(JSON.stringify({"success":true}));
