@@ -44,3 +44,11 @@ var flipSwitch = function(req, res){
 
 app.get('/switch/:brand/:code/:switch/:switchTo/', flipSwitch);
 
+io.sockets.on('connection', function (socket) {
+
+  socket.emit('switches', switches);
+
+  /*socket.on('my other event', function (data) {
+    console.log(data);
+  });*/
+});
