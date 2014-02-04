@@ -9,7 +9,7 @@
 
 <!-- Optional theme -->
 <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <!-- Latest compiled and minified JavaScript -->
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
 
@@ -23,21 +23,43 @@ $(document).ready(function(){
     //socket.emit('my other event', { my: 'data' });
     var html = "";
     $.each(data, function(x,y){
-    	html +='<div class="switch" data-uid="'+x+'"><span class="'+y.icon+'"></span> '+y.name+' <a href="#" class="on">On</a></div>';
+    	html +='<a class="switch well" id="switch-'+x+'"><span class="'+y.icon+'"></span> '+y.name+'</a>';
     });
 
     $(".switches").html(html);
 
     $(".switch").each(function(){
-    	$(this).find("a").click(function(e){
+    	$(this).click(function(e){
     		e.preventDefault();
 
-    		socket.emit("switch", {id:$(this).parent().attr("data-uid")});
+    		socket.emit("switch", {id:$(this).attr("id").replace("switch-", "")});
     	});
     });
+
+
+
   });
+
+  socket.on("switched", function(data){
+
+  	var color = "red";
+  	if(data.switch.state === 1){
+  		color = "green";
+  	}
+
+  	console.log($("#switch-"+data.id).css({"background":color}));
+
+  });
+
   });
 </script>
+<style>
+	
+	.switch{
+		display: block;
+	}
+
+</style>
 </head>
 <body>
 <div class="navbar navbar-inverse navbar-static-top" role="navigation">
