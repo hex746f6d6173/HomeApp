@@ -6,4 +6,28 @@
 	"switch":"C",
 	"icon":"glyphicon glyphicon-off",
 	"state":0
+},{	
+	"id":2,
+	"name":"TV",
+	"brand":"elro",
+	"code":31,
+	"switch":"A",
+	"icon":"glyphicon glyphicon-off",
+	"state":0
+},{	
+	"id":3,
+	"name":"Mengpaneel",
+	"brand":"elro",
+	"code":31,
+	"switch":"D",
+	"icon":"glyphicon glyphicon-off",
+	"state":0
+},{	
+	"id":4,
+	"name":"PC",
+	"brand":"elro",
+	"code":31,
+	"switch":"A",
+	"icon":"glyphicon glyphicon-off",
+	"state":0
 }]
