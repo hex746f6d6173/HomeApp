@@ -14,8 +14,6 @@ var express = require('express'),
 app.use(express.static(__dirname + '/public'));
 
 var flipSwitch = function(q, fn) {
-    console.log("" + q.brand + " " + q.code + " " + q.
-        switch +" " + q.switchTo + "");
 
     var switchTo = "on";
     if (q.state === 0) {
@@ -24,9 +22,7 @@ var flipSwitch = function(q, fn) {
     var query = "cd /var/www/home/node/executables && sudo ./" + q.brand + " " + q.code + " " + q.
     switch +" " + switchTo + "";
 
-    console.log(query);
     if (thisConfig.use === "ssh") {
-        console.log(query);
         c.exec(query, function(err, stream) {
             if (err) throw err;
 
@@ -66,9 +62,6 @@ var flipSwitch = function(q, fn) {
             }
         });
     }
-    console.log(q);
-
-
 }
 
 //app.get('/switch/:brand/:code/:switch/:switchTo/', flipSwitch);
