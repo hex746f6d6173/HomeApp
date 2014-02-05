@@ -1,82 +1,91 @@
-var red = "red", green = "green", orange = "orange";
-$(document).ready(function(){
+var red = "red",
+    green = "green",
+    orange = "orange";
+$(document).ready(function() {
 
-  var socket = io.connect('http://'+window.location.hostname);
+    var socket = io.connect('http://' + window.location.hostname);
 
-  socket.on('connect', function(){
+    socket.on('connect', function() {
 
-    $(".connection").html('<i class="glyphicon glyphicon-ok" style="color:'+green+';"></i>');
+        $(".connection").html('<i class="glyphicon glyphicon-ok" style="color:' + green + ';"></i>');
 
-  });
-
-  socket.on('connecting', function(){
-
-    $(".connection").html('<i class="glyphicon glyphicon-minus"></i>');
-    $(".ssh").html('');
-  });
-
-  socket.on('connect_failed', function(){
-
-    $(".connection").html('<i class="glyphicon glyphicon-remove" style="color:'+red+';"></i>');
-    $(".ssh").html('');
-  });
-  
-  socket.on('disconnect', function(){
-
-    $(".connection").html('<i class="glyphicon glyphicon-remove" style="color:'+red+';"></i>');
-    $(".ssh").html('');
-  });
-
-
-  socket.on('switches', function (data) {
-    console.log(data);
-    //socket.emit('my other event', { my: 'data' });
-    var html = "";
-    $.each(data, function(x,y){
-    	var color = red;
-	  	if(y.state === 1){
-	  		color = green;
-	  	}
-
-    	html +='<a class="switch well" id="switch-'+x+'" style="background:'+color+'"><h1><span class="'+y.icon+'"></span> '+y.name+'</h1></a>';
     });
 
-    $(".switches").html(html);
+    socket.on('connecting', function() {
 
-    $(".switch").each(function(){
-    	$(this).click(function(e){
-    		e.preventDefault();
-        $(this).css({"background":orange});
-    		socket.emit("switch", {id:$(this).attr("id").replace("switch-", "")});
-    	});
+        $(".connection").html('<i class="glyphicon glyphicon-minus"></i>');
+        $(".ssh").html('');
+    });
+
+    socket.on('connect_failed', function() {
+
+        $(".connection").html('<i class="glyphicon glyphicon-remove" style="color:' + red + ';"></i>');
+        $(".ssh").html('');
+    });
+
+    socket.on('disconnect', function() {
+
+        $(".connection").html('<i class="glyphicon glyphicon-remove" style="color:' + red + ';"></i>');
+        $(".ssh").html('');
     });
 
 
+    socket.on('switches', function(data) {
+        console.log(data);
+        //socket.emit('my other event', { my: 'data' });
+        var html = "";
+        $.each(data, function(x, y) {
+            var color = red;
+            if (y.state === 1) {
+                color = green;
+            }
 
-  });
+            html += '<a class="switch well" id="switch-' + x + '" style="background:' + color + '"><h1><span class="' + y.icon + '"></span> ' + y.name + '</h1></a>';
+        });
 
-  socket.on("switched", function(data){
+        $(".switches").html(html);
 
-  	var color = red;
-  	if(data.switch.state === 1){
-  		color = green;
-  	}
+        $(".switch").each(function() {
+            $(this).click(function(e) {
+                e.preventDefault();
+                $(this).css({
+                    "background": orange
+                });
+                socket.emit("switch", {
+                    id: $(this).attr("id").replace("switch-", "")
+                });
+            });
+        });
 
-  	$("#switch-"+data.id).css({"background":color});
-
-  });
 
 
-  socket.on("state", function(data){
+    });
 
-   if(data.ssh){
+    socket.on("switched", function(data) {
 
-    $(".ssh").html('<i class="glyphicon glyphicon-ok" style="color:'+green+';"></i>');
+        var color = red;
+        if (data.
+            switch.state === 1) {
+            color = green;
+        }
 
-   }else{
-    $(".ssh").html('<i class="glyphicon glyphicon-remove" style="color:'+red+';"></i>');
-   }
+        $("#switch-" + data.id).css({
+            "background": color
+        });
 
-  });
+    });
 
-  });
+
+    socket.on("state", function(data) {
+
+        if (data.ssh) {
+
+            $(".ssh").html('<i class="glyphicon glyphicon-ok" style="color:' + green + ';"></i>');
+
+        } else {
+            $(".ssh").html('<i class="glyphicon glyphicon-remove" style="color:' + red + ';"></i>');
+        }
+
+    });
+
+});
