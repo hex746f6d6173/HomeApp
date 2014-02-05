@@ -1,22 +1,15 @@
-var express = require('express');
-var app = express();
-var sys = require('sys')
-var exec = require('child_process').exec;
-var child;
-var server = app.listen(4000);
-var io = require('socket.io').listen(server);
-
-var Connection = require('ssh2');
-
-var c = new Connection();
-
-var state = {
-    ssh: false
-};
-
-var thisConfig = require("./this.json");
-
-var switches = require("./config.json");
+var express = require('express'),
+    app = express(),
+    sys = require('sys'),
+    exec = require('child_process').exec,
+    child, server = app.listen(4000),
+    io = require('socket.io').listen(server),
+    Connection = require('ssh2'),
+    c = new Connection(),
+    state = {
+        ssh: false
+    }, thisConfig = require("./this.json"),
+    switches = require("./config.json");
 
 app.use(express.static(__dirname + '/public'));
 
