@@ -1,5 +1,5 @@
 var red = "red",
-    green = "green",
+    green = "rgb(27,242,0)",
     orange = "orange";
 $(document).ready(function() {
 
