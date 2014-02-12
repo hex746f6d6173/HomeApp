@@ -254,4 +254,4 @@ setTimeout(function() {
 
     networkDiscovery();
 
-}, 10000);
+}, 10 * 60 * 1000);
