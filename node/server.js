@@ -124,6 +124,9 @@ io.sockets.on('connection', function(socket) {
                 switch: switches[data.id],
                 id: data.id
             });
+
+            localStorage.setItem("light-" + data.id, switches[data.id].state);
+
             if (res.success) {
 
             }
