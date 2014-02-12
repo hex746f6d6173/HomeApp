@@ -12,9 +12,17 @@ var express = require('express'),
         ssh: false
     }, thisConfig = require("./this.json"),
     switches = require("./config.json"),
-    speakeasy = require('speakeasy');
+    speakeasy = require('speakeasy'),
+    webhook = require('gitlab-webhook');
+
 
 app.use(express.static(__dirname + '/public'));
+
+app.gitlab('/gitlab', {
+    exec: 'git pull && npm install && forever restart server.js',
+    token: 'uyDNS6DoFZxCzHxf89pj',
+    branches: 'master'
+});
 
 state.ssh = false;
 state.sshPending = false;
