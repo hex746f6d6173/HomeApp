@@ -25,19 +25,14 @@ if (typeof localStorage === "undefined" || localStorage === null) {
 var i = 0;
 switches.forEach(function(item) {
 
-    console.log(switches[i]);
 
     var lState = localStorage.getItem("light-" + i);
-
-    console.log(lState);
 
     if (lState !== null) {
 
         switches[i].state = parseInt(lState);
 
     }
-
-    console.log(switches[i]);
 
     i++;
 });
