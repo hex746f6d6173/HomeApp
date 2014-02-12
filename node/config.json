@@ -71,5 +71,17 @@
         "ip": "192.168.0.15",
         "icon": "glyphicon glyphicon-phone",
         "state": 0
+    }, {
+        "id": 11,
+        "name": "Router Zolder",
+        "ip": "192.168.0.102",
+        "icon": "glyphicon glyphicon-phone",
+        "state": 0
+    }, {
+        "id": 12,
+        "name": "Printer",
+        "ip": "192.168.0.20",
+        "icon": "glyphicon glyphicon-phone",
+        "state": 0
     }]
 }
