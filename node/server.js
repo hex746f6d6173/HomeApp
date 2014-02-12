@@ -16,6 +16,33 @@ var express = require('express'),
     switches = require("./config.json"),
     speakeasy = require('speakeasy');
 
+
+
+if (typeof localStorage === "undefined" || localStorage === null) {
+    var LocalStorage = require('node-localstorage').LocalStorage;
+    localStorage = new LocalStorage('./scratch');
+}
+var i = 0;
+switches.forEach(function(item) {
+
+    console.log(switches[i]);
+
+    var lState = localStorage.getItem("light-" + i);
+
+    console.log(lState);
+
+    if (lState !== null) {
+
+        switches[i].state = parseInt(lState);
+
+    }
+
+    console.log(switches[i]);
+
+    i++;
+});
+
+
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 
@@ -124,6 +151,9 @@ io.sockets.on('connection', function(socket) {
                 switch: switches[data.id],
                 id: data.id
             });
+
+            localStorage.setItem("light-" + data.id, switches[data.id].state);
+
             if (res.success) {
 
             }
