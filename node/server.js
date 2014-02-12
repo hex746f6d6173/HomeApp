@@ -1,4 +1,6 @@
 var express = require('express'),
+    http = require('http'),
+    webhook = require('gitlab-webhook'),
     app = express(),
     sys = require('sys'),
     exec = require('child_process').exec,
@@ -14,7 +16,14 @@ var express = require('express'),
     switches = require("./config.json"),
     speakeasy = require('speakeasy');
 
+
 app.use(express.static(__dirname + '/public'));
+
+app.gitlab('/gitlab', {
+    exec: 'git pull && npm install && forever restart server.js',
+    token: 'uyDNS6DoFZxCzHxf89pj',
+    branches: 'master'
+});
 
 state.ssh = false;
 state.sshPending = false;
