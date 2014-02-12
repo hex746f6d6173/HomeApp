@@ -1,4 +1,6 @@
 var express = require('express'),
+    http = require('http'),
+    webhook = require('gitlab-webhook'),
     app = express(),
     sys = require('sys'),
     exec = require('child_process').exec,
@@ -12,8 +14,7 @@ var express = require('express'),
         ssh: false
     }, thisConfig = require("./this.json"),
     switches = require("./config.json"),
-    speakeasy = require('speakeasy'),
-    webhook = require('gitlab-webhook');
+    speakeasy = require('speakeasy');
 
 
 app.use(express.static(__dirname + '/public'));
