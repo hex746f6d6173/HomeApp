@@ -145,7 +145,7 @@ app.get('/switches', function(req, res) {
 
 io.sockets.on('connection', function(socket) {
     cConnect();
-    //networkDiscovery();
+    networkDiscovery();
     socket.emit('switches', switches);
     socket.emit('devices', config.devices);
 
