@@ -16,6 +16,7 @@ var express = require('express'),
     switches = require("./config.json"),
     speakeasy = require('speakeasy');
 
+console.log("WELL, HELLO");
 
 app.use(express.static(__dirname + '/public'));
 
