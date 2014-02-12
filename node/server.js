@@ -9,9 +9,24 @@ var express = require('express'),
     state = {
         ssh: false
     }, thisConfig = require("./this.json"),
-    switches = require("./config.json");
+    switches = require("./config.json"),
+    speakeasy = require('speakeasy');
 
 app.use(express.static(__dirname + '/public'));
+
+state.ssh = false;
+
+function cConnect() {
+    console.log("state", state);
+    if (!state.ssh) {
+        c.connect({
+            host: '192.168.0.101',
+            port: 22,
+            username: 'pi',
+            password: "fleismann"
+        });
+    }
+}
 
 var flipSwitch = function(q, fn) {
 
@@ -74,7 +89,7 @@ app.get('/switches', function(req, res) {
 });
 
 io.sockets.on('connection', function(socket) {
-
+    cConnect();
     socket.emit('switches', switches);
 
     socket.on('switch', function(data) {
@@ -124,23 +139,13 @@ if (thisConfig.use === "ssh") {
     c.on('close', function(had_error) {
         console.log('Connection :: close');
 
-        c.connect({
-            host: '192.168.0.101',
-            port: 22,
-            username: 'pi',
-            password: "fleismann"
-        });
+        cConnect();
         state.ssh = false;
         io.sockets.emit('state', state);
     });
     state.ssh = false;
     io.sockets.emit('state', state);
 
-    c.connect({
-        host: '192.168.0.101',
-        port: 22,
-        username: 'pi',
-        password: "fleismann"
-    });
+    cConnect();
 
 }
