@@ -19,6 +19,7 @@ var express = require('express'),
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 
+console.log("WELL, HELLO");
 
 app.use(express.static(__dirname + '/public'));
 
