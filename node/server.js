@@ -21,6 +21,8 @@ app.use(express.methodOverride());
 
 console.log("WELL, HELLO");
 
+console.log("Still should fix auth-system");
+
 app.use(express.static(__dirname + '/public'));
 
 app.gitlab('/gitlab', {
