@@ -9,6 +9,7 @@
         "sys": "0.0.1",
         "ssh2": "0.2.x",
         "speakeasy": "1.0.x",
-        "gitlab-webhook": "0.2.x"
+        "gitlab-webhook": "0.2.x",
+        "node-localstorage": "0.3.x"
     }
 }
