@@ -66,6 +66,13 @@ var flipSwitch = function(q, fn) {
 
 //app.get('/switch/:brand/:code/:switch/:switchTo/', flipSwitch);
 
+app.get('/switches', function(req, res) {
+
+    res.send(JSON.stringify(switches)).end();
+
+
+});
+
 io.sockets.on('connection', function(socket) {
 
     socket.emit('switches', switches);
