@@ -59,6 +59,35 @@ $(document).ready(function() {
 
     });
 
+    socket.on("devices", function(data) {
+        console.log(data);
+
+        var html = "";
+        $.each(data, function(x, y) {
+            var color = red;
+            if (y.state === 1) {
+                color = green;
+            }
+
+            html += '<span class="device well" id="device-' + x + '" style="background:' + color + '"><span class="' + y.icon + '"></span> ' + y.name + '</span>';
+        });
+
+        $(".devices").html(html);
+
+    });
+
+    socket.on("deviceChange", function(data) {
+        console.log(data);
+        var color = red;
+        if (data.state === 1) {
+            color = green;
+        }
+
+        $("#device-" + data.id).css({
+            "background": color
+        });
+    });
+
     socket.on("switched", function(data) {
 
         var color = red;
