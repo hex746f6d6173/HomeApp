@@ -31,8 +31,6 @@ $(document).ready(function() {
 
 
     socket.on('switches', function(data) {
-        console.log(data);
-        //socket.emit('my other event', { my: 'data' });
         var html = "";
         $.each(data, function(x, y) {
             var color = red;
