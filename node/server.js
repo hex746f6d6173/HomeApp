@@ -16,6 +16,9 @@ var express = require('express'),
     switches = require("./config.json"),
     speakeasy = require('speakeasy');
 
+app.use(express.bodyParser());
+app.use(express.methodOverride());
+
 
 app.use(express.static(__dirname + '/public'));
 
