@@ -48,16 +48,16 @@ var flipSwitch = function(q, fn) {
             if (err) throw err;
 
             stream.on('data', function(data, extended) {
-                console.log((extended === 'stderr' ? 'STDERR: ' : 'STDOUT: ') + data);
+                //console.log((extended === 'stderr' ? 'STDERR: ' : 'STDOUT: ') + data);
             });
             stream.on('end', function() {
-                console.log('Stream :: EOF');
+                //console.log('Stream :: EOF');
             });
             stream.on('close', function() {
-                console.log('Stream :: close');
+                //console.log('Stream :: close');
             });
             stream.on('exit', function(code, signal) {
-                console.log('Stream :: exit :: code: ' + code + ', signal: ' + signal);
+                //console.log('Stream :: exit :: code: ' + code + ', signal: ' + signal);
                 fn({
                     success: true
                 });
@@ -70,7 +70,7 @@ var flipSwitch = function(q, fn) {
             //sys.print('stdout: ' + stdout);
             //sys.print('stderr: ' + stderr);
             if (error !== null) {
-                console.log('exec error: ' + error);
+                //console.log('exec error: ' + error);
                 fn({
                     success: false
                 });
@@ -125,26 +125,26 @@ console.log(thisConfig.use);
 if (thisConfig.use === "ssh") {
 
     c.on('ready', function() {
-        console.log('Connection :: ready');
+        //console.log('Connection :: ready');
         state.ssh = true;
         state.sshPending = false;
         io.sockets.emit('state', state);
     });
 
     c.on('error', function(err) {
-        console.log('Connection :: error :: ' + err);
+        //console.log('Connection :: error :: ' + err);
         state.sshPending = false;
         state.ssh = false;
         io.sockets.emit('state', state);
     });
     c.on('end', function() {
-        console.log('Connection :: end');
+        //console.log('Connection :: end');
         state.sshPending = false;
         state.ssh = false;
         io.sockets.emit('state', state);
     });
     c.on('close', function(had_error) {
-        console.log('Connection :: close');
+        //console.log('Connection :: close');
         state.sshPending = false;
         cConnect();
         state.ssh = false;
