@@ -16,8 +16,7 @@ var express = require('express'),
     config = require("./config.json"),
     //speakeasy = require('speakeasy'),
     ping = require("net-ping"),
-    switches = config.switches,
-    pingSession = ping.createSession();
+    switches = config.switches;
 
 
 
@@ -206,6 +205,9 @@ if (thisConfig.use === "ssh") {
 
 function networkDiscovery() {
     var i = 0;
+
+    var pingSession = ping.createSession();
+
     config.devices.forEach(function(item) {
 
         var self = this;
