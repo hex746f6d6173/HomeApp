@@ -13,8 +13,11 @@ var express = require('express'),
     state = {
         ssh: false
     }, thisConfig = require("./this.json"),
-    switches = require("./config.json"),
-    speakeasy = require('speakeasy');
+    config = require("./config.json"),
+    //speakeasy = require('speakeasy'),
+    ping = require("net-ping"),
+    switches = config.switches,
+    pingSession = ping.createSession();
 
 
 
@@ -36,7 +39,6 @@ switches.forEach(function(item) {
 
     i++;
 });
-
 
 app.use(express.bodyParser());
 app.use(express.methodOverride());
@@ -71,7 +73,9 @@ function cConnect() {
     }
 }
 
-var flipSwitch = function(q, fn) {
+var flipSwitch = function(a, fn) {
+
+    var q = switches[a];
 
     var switchTo = "on";
     if (q.state === 0) {
@@ -79,6 +83,15 @@ var flipSwitch = function(q, fn) {
     }
     var query = "cd /var/www/home/node/executables && sudo ./" + q.brand + " " + q.code + " " + q.
     switch +" " + switchTo + "";
+
+    var fn = function() {
+        io.sockets.emit("switched", {
+            switch: switches[a],
+            id: a
+        });
+
+        localStorage.setItem("light-" + a, switches[a].state);
+    }
 
     if (thisConfig.use === "ssh") {
         c.exec(query, function(err, stream) {
@@ -134,6 +147,7 @@ app.get('/switches', function(req, res) {
 io.sockets.on('connection', function(socket) {
     cConnect();
     socket.emit('switches', switches);
+    socket.emit('devices', config.devices);
 
     socket.on('switch', function(data) {
         if (switches[data.id].state === 1) {
@@ -141,17 +155,8 @@ io.sockets.on('connection', function(socket) {
         } else {
             switches[data.id].state = 1;
         }
-        flipSwitch(switches[data.id], function(res) {
-            io.sockets.emit("switched", {
-                switch: switches[data.id],
-                id: data.id
-            });
+        flipSwitch(data.id, function(res) {
 
-            localStorage.setItem("light-" + data.id, switches[data.id].state);
-
-            if (res.success) {
-
-            }
         });
 
     });
@@ -196,3 +201,54 @@ if (thisConfig.use === "ssh") {
     cConnect();
 
 }
+
+
+
+function networkDiscovery() {
+    var i = 0;
+    config.devices.forEach(function(item) {
+
+        var self = this;
+
+        //console.log(item);
+
+        pingSession.pingHost(item.ip, function(error, target) {
+            if (error) {
+                var thisState = 0;
+            } else {
+                var thisState = 1;
+            }
+            console.log(error);
+            if (thisState != item.state) {
+
+                item.state = thisState;
+
+                io.sockets.emit('deviceChange', item);
+
+                if (item.state === 1) {
+                    if (item.onSwitchOn !== undefined) {
+                        eval(item.onSwitchOn);
+                    }
+                }
+                if (item.state === 0) {
+                    if (item.onSwitchOff !== undefined) {
+                        eval(item.onSwitchOn);
+                    }
+                }
+
+            }
+
+        });
+
+        i++;
+    });
+
+}
+
+networkDiscovery();
+
+setTimeout(function() {
+
+    networkDiscovery();
+
+}, 10000);
