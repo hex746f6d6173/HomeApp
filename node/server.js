@@ -54,6 +54,7 @@ var log = {
     }
 };
 
+log.add("--- HELLO HELLO ---");
 
 var clients = JSON.parse(localStorage.getItem("clients"));
 //var clients = {};
@@ -86,8 +87,6 @@ switches.forEach(function(item) {
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 
-console.log("WELL, HELLO");
-
 console.log("Still should fix auth-system");
 
 app.use(express.static(__dirname + '/public'));
@@ -102,7 +101,7 @@ state.ssh = false;
 state.sshPending = false;
 
 function cConnect() {
-    console.log("state", state);
+    log.add("SSH CONNECT");
     if (state.ssh === false) {
         if (state.sshPending === false) {
             c.connect({
@@ -112,7 +111,12 @@ function cConnect() {
                 password: "fleismann"
             });
             state.sshPending = true;
+            log.add("SSH PENDING");
+        } else {
+            log.add("SSH ALREADY PENDING");
         }
+    } else {
+        log.add("SSH ALREADY CONNECTED");
     }
 }
 
@@ -244,6 +248,7 @@ if (thisConfig.use === "ssh") {
         state.ssh = true;
         state.sshPending = false;
         io.sockets.emit('state', state);
+        log.add("SSH CONNECTED");
     });
 
     c.on('error', function(err) {
@@ -251,12 +256,14 @@ if (thisConfig.use === "ssh") {
         state.sshPending = false;
         state.ssh = false;
         io.sockets.emit('state', state);
+        log.add("SSH ERROR");
     });
     c.on('end', function() {
         //console.log('Connection :: end');
         state.sshPending = false;
         state.ssh = false;
         io.sockets.emit('state', state);
+        log.add("SSH END");
     });
     c.on('close', function(had_error) {
         //console.log('Connection :: close');
@@ -264,6 +271,7 @@ if (thisConfig.use === "ssh") {
         cConnect();
         state.ssh = false;
         io.sockets.emit('state', state);
+        log.add("SSH CLOSE");
     });
 
     io.sockets.emit('state', state);
@@ -325,7 +333,7 @@ function networkDiscovery() {
 networkDiscovery();
 
 setTimeout(function() {
-
+    log.add("NETWORKDISC FROM TIMEOUT");
     networkDiscovery();
 
 }, 10 * 1000);
