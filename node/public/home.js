@@ -59,6 +59,24 @@ $(document).ready(function() {
 
     });
 
+    socket.on("clients", function(data) {
+        data = JSON.parse(data);
+        console.log(data);
+
+        var html = "";
+        $.each(data, function(x, y) {
+            var color = red;
+            if (y === true) {
+                color = green;
+            }
+
+            html += '<span class="device well" id="device-' + x + '" style="background:' + color + '">' + x + '</span>';
+        });
+
+        $(".clients").html(html);
+
+    });
+
     socket.on("devices", function(data) {
         console.log(data);
 
