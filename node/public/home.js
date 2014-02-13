@@ -130,7 +130,27 @@ $(document).ready(function() {
 
     });
 
+    socket.on("log", function(data) {
+        console.log("LOG", data);
 
+        var log = "";
+        var i = 0;
+
+        $.each(data, function(x, y) {
+            if (i < 50) {
+                log = '<p class="l">' + y.time + ': ' + y.action + '</p>' + log;
+            }
+            i++;
+        });
+
+        $(".log").html(log);
+
+    });
+
+    socket.on("logAdd", function(y) {
+        console.log("logAdd", y);
+        $(".log").prepend('<p class="l">' + y.time + ': ' + y.action + '</p>');
+    });
     socket.on("state", function(data) {
 
         if (data.ssh) {

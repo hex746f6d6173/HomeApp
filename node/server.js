@@ -29,6 +29,33 @@ if (localStorage.getItem("clients") === null) {
     localStorage.setItem("clients", JSON.stringify({}));
 }
 
+if (localStorage.getItem("log") === null) {
+    localStorage.setItem("log", JSON.stringify([]));
+}
+
+
+var log = {
+    add: function(action) {
+        var time = new Date().getTime();
+        var previousLog = JSON.parse(localStorage.getItem("log"));
+
+        var element = {
+            time: time,
+            action: action
+        };
+
+        previousLog.push(element);
+
+        log.log = previousLog;
+
+        localStorage.setItem("log", JSON.stringify(previousLog));
+
+        io.sockets.emit("logAdd", element);
+    }
+};
+
+log.add("--- HELLO HELLO ---");
+
 var clients = JSON.parse(localStorage.getItem("clients"));
 //var clients = {};
 var client = {
@@ -60,8 +87,6 @@ switches.forEach(function(item) {
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 
-console.log("WELL, HELLO");
-
 console.log("Still should fix auth-system");
 
 app.use(express.static(__dirname + '/public'));
@@ -76,7 +101,7 @@ state.ssh = false;
 state.sshPending = false;
 
 function cConnect() {
-    console.log("state", state);
+    log.add("SSH CONNECT");
     if (state.ssh === false) {
         if (state.sshPending === false) {
             c.connect({
@@ -86,7 +111,12 @@ function cConnect() {
                 password: "fleismann"
             });
             state.sshPending = true;
+            log.add("SSH PENDING");
+        } else {
+            log.add("SSH ALREADY PENDING");
         }
+    } else {
+        log.add("SSH ALREADY CONNECTED");
     }
 }
 
@@ -101,6 +131,9 @@ var flipSwitch = function(a, fn) {
     var query = "cd /var/www/home/node/executables && sudo ./" + q.brand + " " + q.code + " " + q.
     switch +" " + switchTo + "";
 
+    log.add("FLIP " + q.brand + " " + q.code + " " + q.
+        switch +" " + switchTo + "");
+
     var fn = function() {
         io.sockets.emit("switched", {
             switch: switches[a],
@@ -113,7 +146,7 @@ var flipSwitch = function(a, fn) {
     if (thisConfig.use === "ssh") {
         c.exec(query, function(err, stream) {
             if (err) throw err;
-
+            log.add("EXEC COMMAND");
             stream.on('data', function(data, extended) {
                 //console.log((extended === 'stderr' ? 'STDERR: ' : 'STDOUT: ') + data);
             });
@@ -128,6 +161,7 @@ var flipSwitch = function(a, fn) {
                 fn({
                     success: true
                 });
+                log.add("EXEC COMMAND SUCCESS");
             });
 
         });
@@ -167,10 +201,18 @@ io.sockets.on('connection', function(socket) {
     socket.emit('switches', switches);
     socket.emit('devices', config.devices);
 
+    socket.emit('log',
+        log.log);
+
+    log.add("NEW CLIENT");
+
     var ip = "";
     socket.on('me', function(data) {
         ip = data;
         client.set(ip, true);
+
+        log.add("NEW CLIENT WITH NAME: " + ip);
+
         console.log("emit clients", clients);
         io.sockets.emit('clients', JSON.stringify(clients));
     });
@@ -206,6 +248,7 @@ if (thisConfig.use === "ssh") {
         state.ssh = true;
         state.sshPending = false;
         io.sockets.emit('state', state);
+        log.add("SSH CONNECTED");
     });
 
     c.on('error', function(err) {
@@ -213,12 +256,14 @@ if (thisConfig.use === "ssh") {
         state.sshPending = false;
         state.ssh = false;
         io.sockets.emit('state', state);
+        log.add("SSH ERROR");
     });
     c.on('end', function() {
         //console.log('Connection :: end');
         state.sshPending = false;
         state.ssh = false;
         io.sockets.emit('state', state);
+        log.add("SSH END");
     });
     c.on('close', function(had_error) {
         //console.log('Connection :: close');
@@ -226,6 +271,7 @@ if (thisConfig.use === "ssh") {
         cConnect();
         state.ssh = false;
         io.sockets.emit('state', state);
+        log.add("SSH CLOSE");
     });
 
     io.sockets.emit('state', state);
@@ -238,7 +284,7 @@ if (thisConfig.use === "ssh") {
 
 function networkDiscovery() {
     var i = 0;
-
+    log.add("NETWORKDISC EXEC");
     var pingSession = ping.createSession();
 
     config.devices.forEach(function(item) {
@@ -261,13 +307,17 @@ function networkDiscovery() {
                 io.sockets.emit('deviceChange', item);
 
                 if (item.state === 1) {
+                    log.add("NETWORKDISC " + item.name + " came online");
                     if (item.onSwitchOn !== undefined) {
                         eval(item.onSwitchOn);
+                        log.add("AUTOCOMMAND ON " + item.onSwitchOn);
                     }
                 }
                 if (item.state === 0) {
+                    log.add("NETWORKDISC " + item.name + " went offline");
                     if (item.onSwitchOff !== undefined) {
-                        eval(item.onSwitchOn);
+                        eval(item.onSwitchOff);
+                        log.add("AUTOCOMMAND OFF " + item.onSwitchOff);
                     }
                 }
 
@@ -283,7 +333,7 @@ function networkDiscovery() {
 networkDiscovery();
 
 setTimeout(function() {
-
+    log.add("NETWORKDISC FROM TIMEOUT");
     networkDiscovery();
 
 }, 10 * 1000);
