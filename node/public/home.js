@@ -9,6 +9,16 @@ $(document).ready(function() {
 
         $(".connection").html('<i class="glyphicon glyphicon-ok" style="color:' + green + ';"></i>');
 
+        if (localStorage.me === undefined || localStorage.me === "") {
+
+            var name = prompt("Geef mij een naam");
+            localStorage.me = name;
+            socket.emit("me", name);
+
+        } else {
+            socket.emit("me", localStorage.me);
+        }
+
     });
 
     socket.on('connecting', function() {
