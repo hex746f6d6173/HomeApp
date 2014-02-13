@@ -127,6 +127,9 @@ var flipSwitch = function(a, fn) {
     var query = "cd /var/www/home/node/executables && sudo ./" + q.brand + " " + q.code + " " + q.
     switch +" " + switchTo + "";
 
+    log.add("FLIP " + q.brand + " " + q.code + " " + q.
+        switch +" " + switchTo + "");
+
     var fn = function() {
         io.sockets.emit("switched", {
             switch: switches[a],
@@ -139,7 +142,7 @@ var flipSwitch = function(a, fn) {
     if (thisConfig.use === "ssh") {
         c.exec(query, function(err, stream) {
             if (err) throw err;
-
+            log.add("EXEC COMMAND");
             stream.on('data', function(data, extended) {
                 //console.log((extended === 'stderr' ? 'STDERR: ' : 'STDOUT: ') + data);
             });
@@ -154,6 +157,7 @@ var flipSwitch = function(a, fn) {
                 fn({
                     success: true
                 });
+                log.add("EXEC COMMAND SUCCESS");
             });
 
         });
@@ -272,7 +276,7 @@ if (thisConfig.use === "ssh") {
 
 function networkDiscovery() {
     var i = 0;
-
+    log.add("NETWORKDISC EXEC");
     var pingSession = ping.createSession();
 
     config.devices.forEach(function(item) {
@@ -298,12 +302,14 @@ function networkDiscovery() {
                     log.add("NETWORKDISC " + item.name + " came online");
                     if (item.onSwitchOn !== undefined) {
                         eval(item.onSwitchOn);
+                        log.add("AUTOCOMMAND ON " + item.onSwitchOn);
                     }
                 }
                 if (item.state === 0) {
                     log.add("NETWORKDISC " + item.name + " went offline");
                     if (item.onSwitchOff !== undefined) {
-                        eval(item.onSwitchOn);
+                        eval(item.onSwitchOff);
+                        log.add("AUTOCOMMAND OFF " + item.onSwitchOff);
                     }
                 }
 
