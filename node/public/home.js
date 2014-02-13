@@ -31,17 +31,17 @@ $(document).ready(function() {
 
 
     socket.on('switches', function(data) {
-        var html = "";
+        var html = "<div class=\"row\">";
         $.each(data, function(x, y) {
             var color = red;
             if (y.state === 1) {
                 color = green;
             }
 
-            html += '<a class="switch well" id="switch-' + x + '" style="background:' + color + '"><h4><span class="' + y.icon + '"></span> ' + y.name + '</h4></a>';
+            html += '<div class="col-md-3"><a class="switch well" id="switch-' + x + '" style="background:' + color + '"><h4><span class="' + y.icon + '"></span> ' + y.name + '</h4></a></div>';
         });
 
-        $(".switches").html(html);
+        $(".switches").html(html + "</div>");
 
         $(".switch").each(function() {
             $(this).click(function(e) {

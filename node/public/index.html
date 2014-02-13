@@ -36,6 +36,7 @@
     padding-left:10px;
     padding-right:10px;
     margin-right: 10px;
+    margin-bottom: 5px;
   }
 	.switch h4, .device span{
 		color:black;
@@ -50,7 +51,7 @@
     margin-top: 0px;
   }
   .panel{
-    background-color: #333;
+    background-color: #222;
   }
   .panel-default{
     border:none!important;
@@ -60,6 +61,16 @@
   }
   .devices .well:last-child{
     margin-bottom: 0px;
+  }
+  .switches .col-md-3{
+    margin-bottom: 10px;
+  }
+  .set{
+    background-color: #222;
+    padding:10px;
+  }
+  h3{
+    color:white;
   }
 </style>
 </head>
@@ -85,37 +96,11 @@
       </div>
     </div>
 		<div class="container">
-      <div class="panel-group" id="accordion">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                Devices
-              </a>
-            </h4>
-          </div>
-          <div id="collapseOne" class="panel-collapse collapse in">
-            <div class="panel-body">
-              <div class="devices"></div>
-            </div>
-          </div>
-        </div>
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                Switches
-              </a>
-            </h4>
-          </div>
-          <div id="collapseTwo" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div class="switches"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      <h3>Devices</h3>
+      <div class="devices set"></div>
+      <h3>Switches</h3>
+      <div class="switches set"></div>
+           
 			
       
 		</div>
