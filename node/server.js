@@ -29,8 +29,8 @@ if (localStorage.getItem("clients") === null) {
     localStorage.setItem("clients", JSON.stringify({}));
 }
 
-//var clients = JSON.parse(localStorage.getItem("clients"));
-var clients = {};
+var clients = JSON.parse(localStorage.getItem("clients"));
+//var clients = {};
 var client = {
     set: function(ip, state) {
         clients[ip] = state;
