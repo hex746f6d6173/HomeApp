@@ -1,7 +1,7 @@
 {
     "name": "home",
     "description": "home app for gpio",
-    "version": "0.0.1",
+    "version": "0.2",
     "private": true,
     "repository": {
         "type": "git",
@@ -16,6 +16,9 @@
         "speakeasy": "1.0.x",
         "gitlab-webhook": "0.2.x",
         "node-localstorage": "0.3.x",
-        "net-ping": "1.1.x"
+        "net-ping": "1.1.x",
+        "node-curl": "0.3.x",
+        "request": "2.x",
+        "requestify": "0.x"
     }
 }

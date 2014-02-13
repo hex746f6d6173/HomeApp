@@ -10,6 +10,9 @@ var express = require('express'),
     }),
     Connection = require('ssh2'),
     c = new Connection(),
+    curl = require("node-curl"),
+    request = require('request'),
+    requestify = require('requestify'),
     state = {
         ssh: false
     }, thisConfig = require("./this.json"),
@@ -18,6 +21,9 @@ var express = require('express'),
     ping = require("net-ping"),
     switches = config.switches;
 
+var ACCESS_KEY = "62f4c66393234ddaebd40f657698c7cd47ed4f89a9ff4c0b4061a8958e58";
+var SECRET_KEY = "11acaec93bdf45ebc11fb0e51340cc6a79cc4f83aa475ec6e8ff2b608cf3a3f6";
+var ENDPOINT = "https://api.push.co/1.0/";
 
 
 if (typeof localStorage === "undefined" || localStorage === null) {
@@ -32,7 +38,6 @@ if (localStorage.getItem("clients") === null) {
 if (localStorage.getItem("log") === null) {
     localStorage.setItem("log", JSON.stringify([]));
 }
-
 
 var log = {
     add: function(action) {
@@ -50,7 +55,20 @@ var log = {
 
         localStorage.setItem("log", JSON.stringify(previousLog));
 
-        io.sockets.emit("logAdd", element);
+        console.log(action);
+
+        var data = {
+            "message": action,
+            "api_key": ACCESS_KEY,
+            "api_secret": SECRET_KEY
+        };
+        var pushRequest = requestify.post('https://api.push.co/1.0/push/', data);
+        pushRequest.then(function(response) {
+            // Get the response body (JSON parsed or jQuery object for XMLs)
+            console.log("PUSH", response.getBody());
+            console.log("RESPONSE", response);
+        });
+
     }
 };
 
@@ -208,7 +226,7 @@ io.sockets.on('connection', function(socket) {
 
         log.add("NEW CLIENT WITH NAME: " + ip);
 
-        console.log("emit clients", clients);
+        //console.log("emit clients", clients);
         io.sockets.emit('clients', JSON.stringify(clients));
     });
 
@@ -228,14 +246,14 @@ io.sockets.on('connection', function(socket) {
 
     socket.on('disconnect', function() {
         client.set(ip, false);
-        console.log("emit clients", clients);
+        //console.log("emit clients", clients);
         io.sockets.emit('clients', JSON.stringify(clients));
         log.add("CLIENT BYE BYE " + ip);
     });
 
 });
 
-console.log(thisConfig.use);
+//console.log(thisConfig.use);
 
 if (thisConfig.use === "ssh") {
 
@@ -295,7 +313,7 @@ function networkDiscovery() {
             } else {
                 var thisState = 1;
             }
-            console.log(error);
+            //console.log(error);
             if (thisState != item.state) {
 
                 item.state = thisState;
