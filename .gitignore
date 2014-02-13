@@ -1,3 +1,4 @@
 node_modules
 this.json
 scratch
+*.log
