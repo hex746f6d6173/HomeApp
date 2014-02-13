@@ -235,6 +235,7 @@ io.sockets.on('connection', function(socket) {
         client.set(ip, false);
         console.log("emit clients", clients);
         io.sockets.emit('clients', JSON.stringify(clients));
+        log.add("CLIENT BYE BYE " + ip);
     });
 
 });
