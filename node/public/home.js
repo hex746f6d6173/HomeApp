@@ -79,8 +79,8 @@ $(document).ready(function() {
             if (y === true) {
                 color = green;
             }
-
-            html += '<span class="device well" id="device-' + x + '" style="background:' + color + '">' + x + '</span>';
+            if (x != "")
+                html += '<span class="device well" id="device-' + x + '" style="background:' + color + '">' + x + '</span>';
         });
 
         $(".clients").html(html);
