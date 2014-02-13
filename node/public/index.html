@@ -26,6 +26,7 @@
 		display: block;
     box-shadow: inset 0px 0px 10px 0px black;
     text-decoration: none;
+    padding:5px;
   }
   .device{
     display: inline-block;
@@ -36,7 +37,7 @@
     padding-right:10px;
     margin-right: 10px;
   }
-	.switch h1, .device h1{
+	.switch h4, .device span{
 		color:black;
     margin: 0;
     padding:0;
@@ -44,6 +45,21 @@
 	}
   .navbar-brand{
     color:white;
+  }
+  hr{
+    margin-top: 0px;
+  }
+  .panel{
+    background-color: #333;
+  }
+  .panel-default{
+    border:none!important;
+  }
+  .switches .well:last-child{
+    margin-bottom: 0px;
+  }
+  .devices .well:last-child{
+    margin-bottom: 0px;
   }
 </style>
 </head>
@@ -69,8 +85,38 @@
       </div>
     </div>
 		<div class="container">
-      <div class="devices"></div>
-			<div class="switches"></div>
+      <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                Devices
+              </a>
+            </h4>
+          </div>
+          <div id="collapseOne" class="panel-collapse collapse in">
+            <div class="panel-body">
+              <div class="devices"></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                Switches
+              </a>
+            </h4>
+          </div>
+          <div id="collapseTwo" class="panel-collapse collapse">
+            <div class="panel-body">
+              <div class="switches"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+			
       
 		</div>
 </body>

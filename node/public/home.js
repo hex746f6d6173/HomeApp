@@ -38,7 +38,7 @@ $(document).ready(function() {
                 color = green;
             }
 
-            html += '<a class="switch well" id="switch-' + x + '" style="background:' + color + '"><h1><span class="' + y.icon + '"></span> ' + y.name + '</h1></a>';
+            html += '<a class="switch well" id="switch-' + x + '" style="background:' + color + '"><h4><span class="' + y.icon + '"></span> ' + y.name + '</h4></a>';
         });
 
         $(".switches").html(html);
