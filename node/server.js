@@ -24,6 +24,23 @@ if (typeof localStorage === "undefined" || localStorage === null) {
     var LocalStorage = require('node-localstorage').LocalStorage;
     localStorage = new LocalStorage('./scratch');
 }
+
+if (localStorage.getItem("clients") === null) {
+    localStorage.setItem("clients", JSON.stringify({}));
+}
+
+var clients = JSON.parse(localStorage.getItem("clients"));
+var client = {
+    set: function(ip, state) {
+        clients[ip] = state;
+        localStorage.setItem("clients", JSON.stringify(clients));
+    },
+    get: function(ip) {
+        return clients[ip];
+    }
+};
+
+
 var i = 0;
 switches.forEach(function(item) {
 
@@ -149,6 +166,11 @@ io.sockets.on('connection', function(socket) {
     socket.emit('switches', switches);
     socket.emit('devices', config.devices);
 
+    var ip = socket.handshake.address.address;
+    client.set(ip, true);
+    console.log("emit clients", clients);
+    io.sockets.emit('clients', JSON.stringify(clients));
+
     socket.on('switch', function(data) {
         if (switches[data.id].state === 1) {
             switches[data.id].state = 0;
@@ -162,6 +184,12 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.emit('state', state);
+
+    socket.on('disconnect', function() {
+        client.set(ip, false);
+        console.log("emit clients", clients);
+        io.sockets.emit('clients', JSON.stringify(clients));
+    });
 
 });
 

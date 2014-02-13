@@ -31,17 +31,17 @@ $(document).ready(function() {
 
 
     socket.on('switches', function(data) {
-        var html = "";
+        var html = "<div class=\"row\">";
         $.each(data, function(x, y) {
             var color = red;
             if (y.state === 1) {
                 color = green;
             }
 
-            html += '<a class="switch well" id="switch-' + x + '" style="background:' + color + '"><h1><span class="' + y.icon + '"></span> ' + y.name + '</h1></a>';
+            html += '<div class="col-md-3"><a class="switch well" id="switch-' + x + '" style="background:' + color + '"><h4><span class="' + y.icon + '"></span> ' + y.name + '</h4></a></div>';
         });
 
-        $(".switches").html(html);
+        $(".switches").html(html + "</div>");
 
         $(".switch").each(function() {
             $(this).click(function(e) {
@@ -56,6 +56,24 @@ $(document).ready(function() {
         });
 
 
+
+    });
+
+    socket.on("clients", function(data) {
+        data = JSON.parse(data);
+        console.log(data);
+
+        var html = "";
+        $.each(data, function(x, y) {
+            var color = red;
+            if (y === true) {
+                color = green;
+            }
+
+            html += '<span class="device well" id="device-' + x + '" style="background:' + color + '">' + x + '</span>';
+        });
+
+        $(".clients").html(html);
 
     });
 
