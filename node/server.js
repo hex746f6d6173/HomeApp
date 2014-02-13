@@ -30,6 +30,7 @@ if (localStorage.getItem("clients") === null) {
 }
 
 var clients = JSON.parse(localStorage.getItem("clients"));
+//var clients = {};
 var client = {
     set: function(ip, state) {
         clients[ip] = state;
@@ -166,10 +167,13 @@ io.sockets.on('connection', function(socket) {
     socket.emit('switches', switches);
     socket.emit('devices', config.devices);
 
-    var ip = socket.handshake.address.address;
-    client.set(ip, true);
-    console.log("emit clients", clients);
-    io.sockets.emit('clients', JSON.stringify(clients));
+    var ip = "";
+    socket.on('me', function(data) {
+        ip = data;
+        client.set(ip, true);
+        console.log("emit clients", clients);
+        io.sockets.emit('clients', JSON.stringify(clients));
+    });
 
     socket.on('switch', function(data) {
         if (switches[data.id].state === 1) {

@@ -9,6 +9,16 @@ $(document).ready(function() {
 
         $(".connection").html('<i class="glyphicon glyphicon-ok" style="color:' + green + ';"></i>');
 
+        if (localStorage.me === undefined || localStorage.me === "") {
+
+            var name = prompt("Geef mij een naam");
+            localStorage.me = name;
+            socket.emit("me", name);
+
+        } else {
+            socket.emit("me", localStorage.me);
+        }
+
     });
 
     socket.on('connecting', function() {
@@ -69,8 +79,8 @@ $(document).ready(function() {
             if (y === true) {
                 color = green;
             }
-
-            html += '<span class="device well" id="device-' + x + '" style="background:' + color + '">' + x + '</span>';
+            if (x != "")
+                html += '<span class="device well" id="device-' + x + '" style="background:' + color + '">' + x + '</span>';
         });
 
         $(".clients").html(html);
