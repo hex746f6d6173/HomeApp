@@ -29,6 +29,32 @@ if (localStorage.getItem("clients") === null) {
     localStorage.setItem("clients", JSON.stringify({}));
 }
 
+if (localStorage.getItem("log") === null) {
+    localStorage.setItem("log", JSON.stringify([]));
+}
+
+
+var log = {
+    add: function(action) {
+        var time = new Date().getTime();
+        var previousLog = JSON.parse(localStorage.getItem("log"));
+
+        var element = {
+            time: time,
+            action: action
+        };
+
+        previousLog.push(element);
+
+        log.log = previousLog;
+
+        localStorage.setItem("log", JSON.stringify(previousLog));
+
+        io.sockets.emit("logAdd", element);
+    }
+};
+
+
 var clients = JSON.parse(localStorage.getItem("clients"));
 //var clients = {};
 var client = {
@@ -167,10 +193,18 @@ io.sockets.on('connection', function(socket) {
     socket.emit('switches', switches);
     socket.emit('devices', config.devices);
 
+    socket.emit('log',
+        log.log);
+
+    log.add("NEW CLIENT");
+
     var ip = "";
     socket.on('me', function(data) {
         ip = data;
         client.set(ip, true);
+
+        log.add("NEW CLIENT WITH NAME: " + ip);
+
         console.log("emit clients", clients);
         io.sockets.emit('clients', JSON.stringify(clients));
     });
@@ -261,11 +295,13 @@ function networkDiscovery() {
                 io.sockets.emit('deviceChange', item);
 
                 if (item.state === 1) {
+                    log.add("NETWORKDISC " + item.name + " came online");
                     if (item.onSwitchOn !== undefined) {
                         eval(item.onSwitchOn);
                     }
                 }
                 if (item.state === 0) {
+                    log.add("NETWORKDISC " + item.name + " went offline");
                     if (item.onSwitchOff !== undefined) {
                         eval(item.onSwitchOn);
                     }

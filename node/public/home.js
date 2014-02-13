@@ -130,6 +130,22 @@ $(document).ready(function() {
 
     });
 
+    socket.on("log", function(data) {
+        console.log("LOG", data);
+
+        var log = "";
+        var i = 0;
+
+        $.each(data, function(x, y) {
+            if (i < 50) {
+                log += '<p class="l">' + y.time + ': ' + y.action + '</p>';
+            }
+            i++;
+        });
+
+        $(".log").html(log);
+
+    });
 
     socket.on("state", function(data) {
 
