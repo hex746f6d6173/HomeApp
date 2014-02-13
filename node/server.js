@@ -10,6 +10,7 @@ var express = require('express'),
     }),
     Connection = require('ssh2'),
     c = new Connection(),
+    curl = require("node-curl"),
     state = {
         ssh: false
     }, thisConfig = require("./this.json"),
@@ -18,6 +19,11 @@ var express = require('express'),
     ping = require("net-ping"),
     switches = config.switches;
 
+//curl 'https://boxcar-api.io/api/push?publishkey=pGXTzs9al0CRNmW7kkyvccXQ3baQIpd_Ya4gAGjVUyJafqQlXn6BL-6VogXFUTM6&signature=3745d0706ae8f6749e2cc8879edf369602780bb2' -H Content-Type:application/json -d '{"id":"111","aps":{"alert":"Hello world!"},"expires":1392322558,"tags":["@all"]}' 
+
+var ACCESS_KEY = "pGXTzs9al0CRNmW7kkyvccXQ3baQIpd_Ya4gAGjVUyJafqQlXn6BL-6VogXFUTM6";
+var SECRET_KEY = "boR73on1T8bKj8zsQjvT3AXH6-o4ow4Fl7cRG324CRPip1s0JLFmSYmfqSzbN-B0";
+var ENDPOINT = "https://boxcar-api.io/";
 
 
 if (typeof localStorage === "undefined" || localStorage === null) {
@@ -32,7 +38,6 @@ if (localStorage.getItem("clients") === null) {
 if (localStorage.getItem("log") === null) {
     localStorage.setItem("log", JSON.stringify([]));
 }
-
 
 var log = {
     add: function(action) {
