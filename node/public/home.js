@@ -15,6 +15,7 @@ $(document).ready(function() {
             localStorage.me = name;
             socket.emit("me", name);
 
+
         } else {
             socket.emit("me", localStorage.me);
         }
@@ -79,7 +80,7 @@ $(document).ready(function() {
             if (y === true) {
                 color = green;
             }
-            if (x != "")
+            if (x != "" && x != null)
                 html += '<span class="device well" id="device-' + x + '" style="background:' + color + '">' + x + '</span>';
         });
 
