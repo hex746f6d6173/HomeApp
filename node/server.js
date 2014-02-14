@@ -11,6 +11,8 @@ var express = require('express'),
     Connection = require('ssh2'),
     c = new Connection(),
     curl = require("node-curl"),
+    request = require('request'),
+    requestify = require('requestify'),
     state = {
         ssh: false
     }, thisConfig = require("./this.json"),
@@ -19,11 +21,9 @@ var express = require('express'),
     ping = require("net-ping"),
     switches = config.switches;
 
-//curl 'https://boxcar-api.io/api/push?publishkey=pGXTzs9al0CRNmW7kkyvccXQ3baQIpd_Ya4gAGjVUyJafqQlXn6BL-6VogXFUTM6&signature=3745d0706ae8f6749e2cc8879edf369602780bb2' -H Content-Type:application/json -d '{"id":"111","aps":{"alert":"Hello world!"},"expires":1392322558,"tags":["@all"]}' 
-
-var ACCESS_KEY = "pGXTzs9al0CRNmW7kkyvccXQ3baQIpd_Ya4gAGjVUyJafqQlXn6BL-6VogXFUTM6";
-var SECRET_KEY = "boR73on1T8bKj8zsQjvT3AXH6-o4ow4Fl7cRG324CRPip1s0JLFmSYmfqSzbN-B0";
-var ENDPOINT = "https://boxcar-api.io/";
+var ACCESS_KEY = "62f4c66393234ddaebd40f657698c7cd47ed4f89a9ff4c0b4061a8958e58";
+var SECRET_KEY = "11acaec93bdf45ebc11fb0e51340cc6a79cc4f83aa475ec6e8ff2b608cf3a3f6";
+var ENDPOINT = "https://api.push.co/1.0/";
 
 
 if (typeof localStorage === "undefined" || localStorage === null) {
@@ -55,7 +55,21 @@ var log = {
 
         localStorage.setItem("log", JSON.stringify(previousLog));
 
-        io.sockets.emit("logAdd", element);
+        console.log("POST:");
+
+        var data = {
+            message: action,
+            api_key: ACCESS_KEY,
+            api_secret: SECRET_KEY
+        };
+        console.log(data);
+        requestify.post('https://api.push.co/1.0/push', data)
+            .then(function(response) {
+                // Get the response body (JSON parsed or jQuery object for XMLs)
+                console.log("PUSH", response.getBody());
+                console.log("RESPONSE", response);
+            });
+
     }
 };
 
