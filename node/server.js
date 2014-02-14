@@ -109,12 +109,7 @@ function cConnect() {
     log.add("SSH CONNECT");
     if (state.ssh === false) {
         if (state.sshPending === false) {
-            c.connect({
-                host: '192.168.0.101',
-                port: 22,
-                username: 'pi',
-                password: "fleismann"
-            });
+            c.connect(thisConfig.sshCred);
             state.sshPending = true;
             log.add("SSH PENDING");
         } else {
