@@ -1,13 +1,12 @@
 {
     "name": "home",
     "description": "home app for gpio",
-    "version": "0.2",
+    "version": "0.2.1",
     "private": true,
     "repository": {
         "type": "git",
         "url": "https://git.tomasharkema.nl/root/raspberrypi.git"
     },
-    "version": "0.1.6.3",
     "dependencies": {
         "express": "3.x",
         "socket.io": "0.9.x",
