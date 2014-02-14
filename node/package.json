@@ -1,7 +1,6 @@
 {
     "name": "home",
     "description": "home app for gpio",
-    "version": "0.3",
     "private": true,
     "repository": {
         "type": "git",
