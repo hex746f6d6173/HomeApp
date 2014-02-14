@@ -224,10 +224,11 @@ io.sockets.on('connection', function(socket) {
     var ip = "";
     socket.on('me', function(data) {
         ip = data;
-        client.set(ip, true);
+        if (ip != "null") {
+            client.set(ip, true);
 
-        log.add("NEW CLIENT WITH NAME: " + ip);
-
+            log.add("NEW CLIENT WITH NAME: " + ip);
+        }
         //console.log("emit clients ", clients);
         io.sockets.emit('clients', JSON.stringify(clients));
     });

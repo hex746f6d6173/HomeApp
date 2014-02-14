@@ -12,10 +12,9 @@ $(document).ready(function() {
         if (localStorage.me === undefined || localStorage.me === "") {
 
             var name = prompt("Geef mij een naam");
-            if (name !== null) {
-                localStorage.me = name;
-                socket.emit("me", name);
-            }
+            localStorage.me = name;
+            socket.emit("me", name);
+
 
         } else {
             socket.emit("me", localStorage.me);
@@ -81,7 +80,7 @@ $(document).ready(function() {
             if (y === true) {
                 color = green;
             }
-            if (x != "")
+            if (x != "" && x != null)
                 html += '<span class="device well" id="device-' + x + '" style="background:' + color + '">' + x + '</span>';
         });
 
