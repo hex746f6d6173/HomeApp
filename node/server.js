@@ -321,14 +321,14 @@ function networkDiscovery() {
                 if (item.state === 1) {
                     log.add("NETWORKDISC " + item.name + " came online");
                     if (item.onSwitchOn !== undefined) {
-                        eval(item.onSwitchOn);
+                        //eval(item.onSwitchOn);
                         log.add("AUTOCOMMAND ON " + item.onSwitchOn);
                     }
                 }
                 if (item.state === 0) {
                     log.add("NETWORKDISC " + item.name + " went offline");
                     if (item.onSwitchOff !== undefined) {
-                        eval(item.onSwitchOff);
+                        //eval(item.onSwitchOff);
                         log.add("AUTOCOMMAND OFF " + item.onSwitchOff);
                     }
                 }
