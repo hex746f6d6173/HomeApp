@@ -12,8 +12,10 @@ $(document).ready(function() {
         if (localStorage.me === undefined || localStorage.me === "") {
 
             var name = prompt("Geef mij een naam");
-            localStorage.me = name;
-            socket.emit("me", name);
+            if (name !== null) {
+                localStorage.me = name;
+                socket.emit("me", name);
+            }
 
         } else {
             socket.emit("me", localStorage.me);
