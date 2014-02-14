@@ -55,20 +55,19 @@ var log = {
 
         localStorage.setItem("log", JSON.stringify(previousLog));
 
-        console.log("POST:");
+        console.log(action);
 
         var data = {
-            message: action,
-            api_key: ACCESS_KEY,
-            api_secret: SECRET_KEY
+            "message": action,
+            "api_key": ACCESS_KEY,
+            "api_secret": SECRET_KEY
         };
-        console.log(data);
-        requestify.post('https://api.push.co/1.0/push', data)
-            .then(function(response) {
-                // Get the response body (JSON parsed or jQuery object for XMLs)
-                console.log("PUSH", response.getBody());
-                console.log("RESPONSE", response);
-            });
+        var pushRequest = requestify.post('https://api.push.co/1.0/push/', data);
+        pushRequest.then(function(response) {
+            // Get the response body (JSON parsed or jQuery object for XMLs)
+            console.log("PUSH", response.getBody());
+            console.log("RESPONSE", response);
+        });
 
     }
 };
@@ -227,7 +226,7 @@ io.sockets.on('connection', function(socket) {
 
         log.add("NEW CLIENT WITH NAME: " + ip);
 
-        console.log("emit clients", clients);
+        //console.log("emit clients", clients);
         io.sockets.emit('clients', JSON.stringify(clients));
     });
 
@@ -247,14 +246,14 @@ io.sockets.on('connection', function(socket) {
 
     socket.on('disconnect', function() {
         client.set(ip, false);
-        console.log("emit clients", clients);
+        //console.log("emit clients", clients);
         io.sockets.emit('clients', JSON.stringify(clients));
         log.add("CLIENT BYE BYE " + ip);
     });
 
 });
 
-console.log(thisConfig.use);
+//console.log(thisConfig.use);
 
 if (thisConfig.use === "ssh") {
 
@@ -314,7 +313,7 @@ function networkDiscovery() {
             } else {
                 var thisState = 1;
             }
-            console.log(error);
+            //console.log(error);
             if (thisState != item.state) {
 
                 item.state = thisState;
