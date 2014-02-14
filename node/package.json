@@ -15,7 +15,6 @@
         "speakeasy": "1.x",
         "gitlab-webhook": "0.x",
         "node-localstorage": "0.3.x",
-        "net-ping": "1.x",
-        "requestify": "0.x"
+        "net-ping": "1.x"
     }
 }

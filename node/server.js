@@ -10,7 +10,7 @@ var express = require('express'),
     }),
     Connection = require('ssh2'),
     c = new Connection(),
-    requestify = require('requestify'),
+    request = require("request"),
     state = {
         ssh: false
     }, thisConfig = require("./this.json"),
@@ -38,7 +38,7 @@ if (localStorage.getItem("log") === null) {
 }
 
 var log = {
-    add: function(action) {
+    add: function(action, not) {
         var time = new Date().getTime();
         var previousLog = JSON.parse(localStorage.getItem("log"));
 
@@ -53,24 +53,28 @@ var log = {
 
         localStorage.setItem("log", JSON.stringify(previousLog));
 
+        io.sockets.emit("logAdd", element);
+
         console.log(action);
-
-        var data = {
-            "message": action,
-            "api_key": ACCESS_KEY,
-            "api_secret": SECRET_KEY
-        };
-        var pushRequest = requestify.post('https://api.push.co/1.0/push/', data);
-        pushRequest.then(function(response) {
-            // Get the response body (JSON parsed or jQuery object for XMLs)
-            console.log("PUSH", response.getBody());
-            console.log("RESPONSE", response);
-        });
-
+        if (not === true) {
+            request({
+                uri: "https://api.push.co/1.0/push/",
+                method: "POST",
+                form: {
+                    "message": action,
+                    "api_key": ACCESS_KEY,
+                    "api_secret": SECRET_KEY,
+                    "url": "http://home.tomasharkema.nl",
+                    "view_type": '1'
+                }
+            }, function(error, response, body) {
+                log.add("NOTIFICATION SEND");
+            });
+        }
     }
 };
 
-log.add("--- HELLO HELLO ---");
+log.add("---HELLO HELLO---");
 
 var clients = JSON.parse(localStorage.getItem("clients"));
 //var clients = {};
@@ -103,7 +107,7 @@ switches.forEach(function(item) {
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 
-console.log("Still should fix auth-system");
+console.log("Still should fix auth - system");
 
 app.use(express.static(__dirname + '/public'));
 
@@ -144,7 +148,7 @@ var flipSwitch = function(a, fn) {
 
     log.add("FLIP " + q.brand + " " + q.code + " " + q.
         switch +" " + switchTo + "");
-
+    log.add("Zet " + q.name + " " + switchTo, true);
     var fn = function() {
         io.sockets.emit("switched", {
             switch: switches[a],
@@ -224,7 +228,7 @@ io.sockets.on('connection', function(socket) {
 
         log.add("NEW CLIENT WITH NAME: " + ip);
 
-        //console.log("emit clients", clients);
+        //console.log("emit clients ", clients);
         io.sockets.emit('clients', JSON.stringify(clients));
     });
 
@@ -244,9 +248,9 @@ io.sockets.on('connection', function(socket) {
 
     socket.on('disconnect', function() {
         client.set(ip, false);
-        //console.log("emit clients", clients);
+        //console.log("emit clients ", clients);
         io.sockets.emit('clients', JSON.stringify(clients));
-        log.add("CLIENT BYE BYE " + ip);
+        log.add("CLIENT BYE BYE" + ip);
     });
 
 });
@@ -321,15 +325,15 @@ function networkDiscovery() {
                 if (item.state === 1) {
                     log.add("NETWORKDISC " + item.name + " came online");
                     if (item.onSwitchOn !== undefined) {
-                        //eval(item.onSwitchOn);
-                        log.add("AUTOCOMMAND ON " + item.onSwitchOn);
+                        eval(item.onSwitchOn);
+                        log.add("AUTOCOMMAND ON " + item.onSwitchOn, true);
                     }
                 }
                 if (item.state === 0) {
                     log.add("NETWORKDISC " + item.name + " went offline");
                     if (item.onSwitchOff !== undefined) {
-                        //eval(item.onSwitchOff);
-                        log.add("AUTOCOMMAND OFF " + item.onSwitchOff);
+                        eval(item.onSwitchOff);
+                        log.add("AUTOCOMMAND OFF " + item.onSwitchOff, true);
                     }
                 }
 
