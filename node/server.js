@@ -10,8 +10,6 @@ var express = require('express'),
     }),
     Connection = require('ssh2'),
     c = new Connection(),
-    curl = require("node-curl"),
-    request = require('request'),
     requestify = require('requestify'),
     state = {
         ssh: false
