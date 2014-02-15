@@ -282,6 +282,7 @@ io.sockets.on('connection', function(socket) {
         child = exec("git pull", function(error, stdout, stderr) {
             log.add(stdout);
             if (stdout == "Already up-to-date.") {
+                log.add("DO RESTART");
                 childd = exec("forever restartall", function(error, stdout, stderr) {});
             }
         });
