@@ -224,6 +224,15 @@ app.get('/temp/:t', function(req, res) {
     }
 });
 
+app.get('/pir/:a/:b', function(req, res) {
+
+    res.send(JSON.stringify(req.params.a)).end();
+
+
+    log.add("PIR UPDATE: " + req.params.a + ", " + req.params.b);
+
+});
+
 io.sockets.on('connection', function(socket) {
     cConnect();
     networkDiscovery();
