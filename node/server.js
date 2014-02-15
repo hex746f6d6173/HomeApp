@@ -268,6 +268,14 @@ io.sockets.on('connection', function(socket) {
 
     });
 
+    socket.on("refresh", function() {
+        log.add("SSH MANUAL");
+        //c.end();
+        c.connect(thisConfig.sshCred);
+        state.sshPending = true;
+        log.add("SSH FROM MAN PENDING");
+    });
+
     socket.emit('state', state);
 
     socket.on('disconnect', function() {

@@ -171,5 +171,9 @@ $(document).ready(function() {
 
     });
 
+    $(".refresh").click(function() {
+        socket.emit("refresh", true);
+    });
+
 
 });
