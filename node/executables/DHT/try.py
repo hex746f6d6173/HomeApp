@@ -34,8 +34,8 @@ while(True):
  
   # Append the data in the spreadsheet, including a timestamp
   try:
-    print "http://home.tomasharkema.nl/temp/"+temp+"/";
-    urllib2.urlopen("http://home.tomasharkema.nl/temp/"+temp+"/").read()
+    print "http://home.tomasharkema.nl/temp/%.1f/" % temp
+    urllib2.urlopen("http://home.tomasharkema.nl/temp/%.1f/" % temp).read()
   except:
     print "Unable to append data.  Check your connection?"
     sys.exit()
