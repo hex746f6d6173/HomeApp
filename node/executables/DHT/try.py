@@ -5,7 +5,7 @@ import re
 import sys
 import time
 import datetime
-import urllib2
+import requests
 # ===========================================================================
 # Google Account Details
 # ===========================================================================
@@ -35,7 +35,7 @@ while(True):
   # Append the data in the spreadsheet, including a timestamp
   try:
     print "http://home.tomasharkema.nl/temp/%.1f/" % temp
-    urllib2.urlopen("http://home.tomasharkema.nl/temp/%.1f/" % temp).read()
+    r = requests.get("http://home.tomasharkema.nl/temp/%.1f/" % temp)
   except:
     print "Unable to append data.  Check your connection?"
     sys.exit()
