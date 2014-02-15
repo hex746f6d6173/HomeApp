@@ -173,6 +173,8 @@ $(document).ready(function() {
 
     socket.on("switched", function(data) {
 
+        console.log("SWITCH", data);
+
         var color = red;
         if (data.
             switch.state === 1) {
