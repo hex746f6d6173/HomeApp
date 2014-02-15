@@ -40,6 +40,4 @@ while(True):
     print "Unable to append data.  Check your connection?"
     sys.exit()
 
-  # Wait 30 seconds before continuing
-  print "Wrote a row to %s" % spreadsheet
   time.sleep(30)
