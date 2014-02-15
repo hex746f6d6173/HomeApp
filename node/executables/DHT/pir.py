@@ -13,5 +13,6 @@ while True:
         print("PIR ALARM!")
         r = requests.get("http://home.tomasharkema.nl/pir/1/1/")
     else:
+    	print("PIR NO ALARM!")
     	r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
     time.sleep(0.5)
