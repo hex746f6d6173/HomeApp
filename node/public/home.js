@@ -164,4 +164,12 @@ $(document).ready(function() {
 
     });
 
+    socket.on('temp', function(data) {
+        console.log("TEMP", data);
+
+        $(".temp").html(data);
+
+    });
+
+
 });

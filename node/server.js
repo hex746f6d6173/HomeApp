@@ -23,6 +23,7 @@ var ACCESS_KEY = "62f4c66393234ddaebd40f657698c7cd47ed4f89a9ff4c0b4061a8958e58";
 var SECRET_KEY = "11acaec93bdf45ebc11fb0e51340cc6a79cc4f83aa475ec6e8ff2b608cf3a3f6";
 var ENDPOINT = "https://api.push.co/1.0/";
 
+var temp = 19;
 
 if (typeof localStorage === "undefined" || localStorage === null) {
     var LocalStorage = require('node-localstorage').LocalStorage;
@@ -55,7 +56,7 @@ var log = {
 
         io.sockets.emit("logAdd", element);
 
-        console.log(action);
+        //console.log(action);
         if (not === true) {
             request({
                 uri: "https://api.push.co/1.0/push/",
@@ -210,14 +211,24 @@ app.get('/switches', function(req, res) {
 
 });
 
+app.get('/temp/:t', function(req, res) {
+
+    res.send(JSON.stringify(req.params.t)).end();
+
+    temp = parseInt(req.params.t);
+
+    log.add("TEMPRATUUR UPDATE: " + temp);
+    io.sockets.emit('temp', temp);
+});
+
 io.sockets.on('connection', function(socket) {
     cConnect();
     networkDiscovery();
     socket.emit('switches', switches);
     socket.emit('devices', config.devices);
+    socket.emit('temp', temp);
 
-    socket.emit('log',
-        log.log);
+    socket.emit('log', log.log);
 
     log.add("NEW CLIENT");
 
