@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import time
 import RPi.GPIO as io
 io.setmode(io.BCM)
