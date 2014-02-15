@@ -5,7 +5,6 @@ import re
 import sys
 import time
 import datetime
-import gspread
 import urllib2
 # ===========================================================================
 # Google Account Details
