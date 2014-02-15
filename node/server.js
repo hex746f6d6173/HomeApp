@@ -55,7 +55,7 @@ var log = {
 
         io.sockets.emit("logAdd", element);
 
-        console.log(action);
+        //console.log(action);
         if (not === true) {
             request({
                 uri: "https://api.push.co/1.0/push/",
@@ -346,6 +346,44 @@ function networkDiscovery() {
     });
 
 }
+
+function getTemprature() {
+
+    var query = "cd /var/www/home/node/executables/DHT && sudo sudo ./Adafruit_DHT 11 4";
+
+    console.log("CHECK TEMPRATURE")
+
+    c.exec(query, function(err, stream) {
+        if (err) throw err;
+        log.add("EXEC TEMP COMMAND");
+        stream.on('data', function(data, extended) {
+            //console.log((extended === 'stderr' ? 'STDERR: ' : 'STDOUT: ') + data);
+
+            console.log((extended === 'stderr' ? '' : '') + data);
+
+        });
+        stream.on('end', function() {
+            console.log('Stream :: EOF');
+        });
+        stream.on('close', function() {
+            console.log('Stream :: close');
+        });
+        stream.on('exit', function(code, signal) {
+            console.log('Stream :: exit :: code: ' + code + ', signal: ' + signal);
+
+            log.add("EXEC COMMAND SUCCESS");
+        });
+
+    });
+
+}
+
+setTimeout(function() {
+    /*setInterval(function() {
+        getTemprature();
+    }, 3000);*/
+
+}, 10000);
 
 networkDiscovery();
 
