@@ -149,6 +149,7 @@ var flipSwitch = function(a, to, fn) {
             switchTo = "off";
         }
     } else {
+        q.state = to;
         var switchTo = "on";
         if (to === 0) {
             switchTo = "off";
