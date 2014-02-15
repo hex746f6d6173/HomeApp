@@ -215,10 +215,13 @@ app.get('/temp/:t', function(req, res) {
 
     res.send(JSON.stringify(req.params.t)).end();
 
-    temp = parseInt(req.params.t);
+    if (req.params.t != temp) {
 
-    log.add("TEMPRATUUR UPDATE: " + temp);
-    io.sockets.emit('temp', temp);
+        temp = parseInt(req.params.t);
+
+        log.add("TEMPRATUUR UPDATE: " + temp);
+        io.sockets.emit('temp', temp);
+    }
 });
 
 io.sockets.on('connection', function(socket) {
