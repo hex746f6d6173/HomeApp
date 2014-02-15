@@ -26,7 +26,7 @@ body{
     padding:0;
     text-decoration: none;
 	}
-  .alarm, .trigger, .temp{
+  .alarm, .trigger, .tempwrap{
     display: inline-block;
     box-shadow: inset 0px 0px 10px 0px black;
     text-decoration: none;
