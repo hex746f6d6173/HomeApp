@@ -281,11 +281,13 @@ io.sockets.on('connection', function(socket) {
         // executes `pwd`
         child = exec("git pull", function(error, stdout, stderr) {
             log.add(stdout);
-            if (stdout == "Already up-to-date.") {
-                log.add("DO RESTART");
-                childd = exec("forever restartall", function(error, stdout, stderr) {});
-            }
         });
+
+        child.close(function() {
+            log.add("DO RESTART");
+            childd = exec("forever restartall", function(error, stdout, stderr) {});
+        });
+
     });
 
     socket.emit('state', state);
