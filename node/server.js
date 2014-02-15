@@ -274,6 +274,9 @@ io.sockets.on('connection', function(socket) {
         child = exec("git pull && forever restart server.js", function(error, stdout, stderr) {
             sys.print('stdout: ' + stdout);
             sys.print('stderr: ' + stderr);
+
+            log.add('stdout: ' + stdout + ", stderr: " + stderr);
+
             if (error !== null) {
                 console.log('exec error: ' + error);
             }
