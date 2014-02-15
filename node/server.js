@@ -264,10 +264,10 @@ app.get('/pir/:a/:b', function(req, res) {
                         if (triggerArm === 1) {
 
                             flipSwitch(item.
-                                switch, item.to, function() {
+                                switch, item.to, function(a) {
 
 
-
+                                    console.log("JAJAJAJA", a);
                                 });
                         }
                     }, item.delay);
@@ -306,9 +306,9 @@ app.get('/pir/:a/:b', function(req, res) {
 
                         if (triggerArm === 1) {
                             flipSwitch(item.
-                                switch, item.to, function() {
+                                switch, item.to, function(a) {
 
-
+                                    console.log("JAJAJAJA", a);
 
                                 });
                         }
