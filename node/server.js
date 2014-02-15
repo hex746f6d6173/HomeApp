@@ -76,6 +76,14 @@ var log = {
 };
 
 log.add("---HELLO HELLO---");
+var version = "";
+child = exec("git describe", function(error, stdout, stderr) {
+    version = stdout;
+    log.add(version);
+    console.log("VERSION: " + version);
+});
+
+
 
 var clients = JSON.parse(localStorage.getItem("clients"));
 //var clients = {};
@@ -271,14 +279,10 @@ io.sockets.on('connection', function(socket) {
     socket.on("refresh", function() {
         log.add("SSH MANUAL");
         // executes `pwd`
-        child = exec("git pull && forever restart server.js", function(error, stdout, stderr) {
-            sys.print('stdout: ' + stdout);
-            sys.print('stderr: ' + stderr);
-
-            log.add('stdout: ' + stdout + ", stderr: " + stderr);
-
-            if (error !== null) {
-                console.log('exec error: ' + error);
+        child = exec("git pull", function(error, stdout, stderr) {
+            log.add(stdout);
+            if (stdout == "Already up-to-date.") {
+                childd = exec("forever restartall", function(error, stdout, stderr) {});
             }
         });
     });
