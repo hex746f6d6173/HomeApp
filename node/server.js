@@ -23,6 +23,9 @@ var ACCESS_KEY = "62f4c66393234ddaebd40f657698c7cd47ed4f89a9ff4c0b4061a8958e58";
 var SECRET_KEY = "11acaec93bdf45ebc11fb0e51340cc6a79cc4f83aa475ec6e8ff2b608cf3a3f6";
 var ENDPOINT = "https://api.push.co/1.0/";
 
+var alarmArm = 0,
+    triggerArm = 0;
+
 var temp = 19;
 
 if (typeof localStorage === "undefined" || localStorage === null) {
@@ -34,25 +37,18 @@ if (localStorage.getItem("clients") === null) {
     localStorage.setItem("clients", JSON.stringify({}));
 }
 
-if (localStorage.getItem("log") === null) {
-    localStorage.setItem("log", JSON.stringify([]));
-}
 
 var log = {
+    log: [],
     add: function(action, not) {
         var time = new Date().getTime();
-        var previousLog = JSON.parse(localStorage.getItem("log"));
 
         var element = {
             time: time,
             action: action
         };
 
-        previousLog.push(element);
-
-        log.log = previousLog;
-
-        localStorage.setItem("log", JSON.stringify(previousLog));
+        log.log.push(element);
 
         io.sockets.emit("logAdd", element);
 
@@ -144,13 +140,19 @@ function cConnect() {
     }
 }
 
-var flipSwitch = function(a, fn) {
+var flipSwitch = function(a, to, fn) {
 
     var q = switches[a];
-
-    var switchTo = "on";
-    if (q.state === 0) {
-        switchTo = "off";
+    if (to === false) {
+        var switchTo = "on";
+        if (q.state === 0) {
+            switchTo = "off";
+        }
+    } else {
+        var switchTo = "on";
+        if (to === 0) {
+            switchTo = "off";
+        }
     }
     var query = "cd /var/www/home/node/executables && sudo ./" + q.brand + " " + q.code + " " + q.
     switch +" " + switchTo + "";
@@ -234,10 +236,85 @@ app.get('/temp/:t', function(req, res) {
 
 app.get('/pir/:a/:b', function(req, res) {
 
-    res.send(JSON.stringify(req.params.a)).end();
-
-
     log.add("PIR UPDATE: " + req.params.a + ", " + req.params.b);
+
+    if (req.params.b == 1) {
+
+
+
+        if (config.PIR.onDetectYes !== undefined) {
+
+            config.PIR.onDetectYes.forEach(function(item) {
+
+                if (item.type == "switch" && triggerArm === 1) {
+
+                    console.log("ITEM, FLIP", item);
+
+                    log.add("AUTO COMMAND DELAY" + item.delay);
+
+                    setTimeout(function() {
+
+                        if (triggerArm === 1) {
+
+                            flipSwitch(item.
+                                switch, item.to, function() {
+
+
+
+                                });
+                        }
+                    }, item.delay);
+
+                }
+
+                if (item.type == "alarm" && alarmArm === 1) {
+
+                    console.log("ITEM, ALARM", item);
+
+                    log.add(item.message, true);
+
+                }
+
+            });
+
+        }
+
+    } else {
+        if (config.PIR.onDetectNo !== undefined) {
+            config.PIR.onDetectNo.forEach(function(item) {
+
+                if (item.type == "switch" && triggerArm === 1) {
+
+                    console.log("ITEM, FLIP", item);
+
+                    log.add("AUTO COMMAND DELAY" + item.delay);
+                    setTimeout(function() {
+
+                        if (triggerArm === 1) {
+                            flipSwitch(item.
+                                switch, item.to, function() {
+
+
+
+                                });
+                        }
+                    }, item.delay);
+
+                }
+
+                if (item.type == "alarm" && alarmArm === 1) {
+
+                    console.log("ITEM, ALARM", item);
+
+                    log.add(item.message, true);
+
+                }
+
+            });
+        }
+    }
+
+    res.send(JSON.stringify(req.params.a)).end();
 
 });
 
@@ -247,6 +324,9 @@ io.sockets.on('connection', function(socket) {
     socket.emit('switches', switches);
     socket.emit('devices', config.devices);
     socket.emit('temp', temp);
+
+    socket.emit('alarmArm', alarmArm);
+    socket.emit('triggerArm', triggerArm);
 
     socket.emit('log', log.log);
 
@@ -270,9 +350,33 @@ io.sockets.on('connection', function(socket) {
         } else {
             switches[data.id].state = 1;
         }
-        flipSwitch(data.id, function(res) {
+        flipSwitch(data.id, false, function(res) {
 
         });
+
+    });
+
+    socket.on('setAlarm', function(data) {
+        alarmArm = data;
+        io.sockets.emit("alarmArm", alarmArm);
+
+        if (alarmArm === 1) {
+            log.add("Alarm is armed!", true);
+        } else {
+            log.add("Alarm is dearmed!", true);
+        }
+
+    });
+
+    socket.on('setTrigger', function(data) {
+        triggerArm = data;
+        io.sockets.emit("triggerArm", triggerArm);
+
+        if (triggerArm === 1) {
+            log.add("Trigger is armed!", true);
+        } else {
+            log.add("Trigger is dearmed!", true);
+        }
 
     });
 
