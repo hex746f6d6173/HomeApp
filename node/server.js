@@ -270,10 +270,17 @@ io.sockets.on('connection', function(socket) {
 
     socket.on("refresh", function() {
         log.add("SSH MANUAL");
-        //c.end();
-        c.connect(thisConfig.sshCred);
-        state.sshPending = true;
-        log.add("SSH FROM MAN PENDING");
+        // executes `pwd`
+        child = exec("git pull && forever restart server.js", function(error, stdout, stderr) {
+            sys.print('stdout: ' + stdout);
+            sys.print('stderr: ' + stderr);
+
+            log.add('stdout: ' + stdout + ", stderr: " + stderr);
+
+            if (error !== null) {
+                console.log('exec error: ' + error);
+            }
+        });
     });
 
     socket.emit('state', state);
