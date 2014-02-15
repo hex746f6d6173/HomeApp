@@ -235,6 +235,8 @@ app.get('/temp/:t', function(req, res) {
 });
 var persistState = 0;
 var timeSwitch = 0;
+var timeOutFunction = "a";
+
 app.get('/pir/:a/:b', function(req, res) {
 
     log.add("PIR UPDATE: " + req.params.a + ", " + req.params.b);
@@ -253,7 +255,11 @@ app.get('/pir/:a/:b', function(req, res) {
 
                     log.add("AUTO COMMAND DELAY" + item.delay);
 
-                    setTimeout(function() {
+                    if (timeOutFunction != "a") {
+                        clearTimeout(timeOutFunction);
+                    }
+
+                    timeOutFunction = setTimeout(function() {
 
                         if (triggerArm === 1) {
 
@@ -291,7 +297,12 @@ app.get('/pir/:a/:b', function(req, res) {
                     console.log("ITEM, FLIP", item);
 
                     log.add("AUTO COMMAND DELAY" + item.delay);
-                    setTimeout(function() {
+
+                    if (timeOutFunction != "a") {
+                        clearTimeout(timeOutFunction);
+                    }
+
+                    timeOutFunction = setTimeout(function() {
 
                         if (triggerArm === 1) {
                             flipSwitch(item.
