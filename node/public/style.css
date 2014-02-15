@@ -26,6 +26,17 @@ body{
     padding:0;
     text-decoration: none;
 	}
+  .alarm, .trigger{
+    display: inline-block;
+    box-shadow: inset 0px 0px 10px 0px black;
+    text-decoration: none;
+    padding:5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-right: 10px;
+    margin-bottom: 5px;
+    color:black;
+  }
   .navbar-brand{
     color:white;
   }

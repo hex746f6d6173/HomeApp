@@ -116,6 +116,60 @@ $(document).ready(function() {
             "background": color
         });
     });
+    var alarmArm = 0;
+    socket.on("alarmArm", function(data) {
+
+        console.log("alarmArm", data);
+
+        var color = red;
+        if (data === 1) {
+            color = green;
+        }
+
+        alarmArm = data;
+
+        $(".alarm").css({
+            background: color
+        });
+
+    });
+
+    $(".alarm").click(function() {
+        if (alarmArm === 1) {
+            setA = 0;
+        } else {
+            setA = 1;
+        }
+        socket.emit("setAlarm", setA);
+    });
+
+    var triggerArm = 0;
+    socket.on("triggerArm", function(data) {
+
+        console.log("triggerArm", data);
+
+        var color = red;
+        if (data === 1) {
+            color = green;
+        }
+
+        triggerArm = data;
+
+        $(".trigger").css({
+            background: color
+        });
+
+    });
+
+    $(".trigger").click(function() {
+        if (triggerArm === 1) {
+            setT = 0;
+        } else {
+            setT = 1;
+        }
+        console.log("Set trigger", setT);
+        socket.emit("setTrigger", setT);
+    });
 
     socket.on("switched", function(data) {
 
