@@ -233,14 +233,15 @@ app.get('/temp/:t', function(req, res) {
         io.sockets.emit('temp', temp);
     }
 });
-
+var persistState = 0;
+var timeSwitch = 0;
 app.get('/pir/:a/:b', function(req, res) {
 
     log.add("PIR UPDATE: " + req.params.a + ", " + req.params.b);
 
-    if (req.params.b == 1) {
-
-
+    if (req.params.b == 1 && persistState === 0 && (timeSwitch + 60000) < new Date().getTime()) {
+        persistState = 1;
+        timeSwitch = new Date().getTime();
 
         if (config.PIR.onDetectYes !== undefined) {
 
@@ -279,7 +280,9 @@ app.get('/pir/:a/:b', function(req, res) {
 
         }
 
-    } else {
+    } else if (req.params.b == 0 && persistState === 1 && (timeSwitch + 60000) < new Date().getTime()) {
+        persistState = 0;
+        timeSwitch = new Date().getTime();
         if (config.PIR.onDetectNo !== undefined) {
             config.PIR.onDetectNo.forEach(function(item) {
 
