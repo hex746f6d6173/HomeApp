@@ -7,12 +7,18 @@ io.setmode(io.BCM)
 pir_pin = 18
  
 io.setup(pir_pin, io.IN)         # activate input
- 
+
+state = 0;
+
 while True:
     if io.input(pir_pin):
-        print("PIR ALARM!")
-        r = requests.get("http://home.tomasharkema.nl/pir/1/1/")
+    	if (state == 0) :
+    		state = 1
+	        print("PIR ALARM!")
+	        r = requests.get("http://home.tomasharkema.nl/pir/1/1/")
     else:
-    	print("PIR NO ALARM!")
-    	r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
+    	if (state == 1) :
+    		state = 0
+	    	print("PIR NO ALARM!")
+	    	r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
     time.sleep(0.5)
