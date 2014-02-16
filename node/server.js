@@ -37,9 +37,11 @@ if (localStorage.getItem("clients") === null) {
     localStorage.setItem("clients", JSON.stringify({}));
 }
 
+if (localStorage.getItem("log") === null || localStorage.getItem("log") == "")
+    localStorage.setItem("log", "[]");
 
 var log = {
-    log: [],
+    log: JSON.parse(localStorage.getItem("log")),
     add: function(action, not) {
         var time = new Date().getTime();
 
@@ -49,6 +51,8 @@ var log = {
         };
 
         log.log.push(element);
+
+        localStorage.setItem("log", JSON.stringify(log.log));
 
         io.sockets.emit("logAdd", element);
 
@@ -61,7 +65,7 @@ var log = {
                     "message": action,
                     "api_key": ACCESS_KEY,
                     "api_secret": SECRET_KEY,
-                    "url": "http://home.tomasharkema.nl",
+                    "url": "http://home.tomasharkema.nl/push/" + time,
                     "view_type": '1'
                 }
             }, function(error, response, body) {
@@ -238,9 +242,9 @@ app.get('/temps', function(req, res) {
 });
 app.get('/temp/:t', function(req, res) {
     var time = new Date().getTime();
-    res.send(JSON.stringify(parseFloat(req.params.t))).end();
-
     var newTemp = parseFloat(req.params.t);
+
+    res.send(JSON.stringify(newTemp)).end();
 
     var Dtemp = temp - newTemp;
 
@@ -248,7 +252,7 @@ app.get('/temp/:t', function(req, res) {
 
         if (req.params.t != temp) {
 
-            temp = parseFloat(req.params.t);
+            temp = newTemp;
 
             log.add("TEMPRATUUR UPDATE: " + temp);
             io.sockets.emit('temp', temp);
@@ -257,7 +261,7 @@ app.get('/temp/:t', function(req, res) {
             localStorage.setItem("temp", "[]");
         var temps = JSON.parse(localStorage.getItem("temp"));
 
-        temps.push([time, parseFloat(req.params.t)]);
+        temps.push([time, newTemp]);
 
         localStorage.setItem("temp", JSON.stringify(temps));
     } else {
@@ -269,8 +273,6 @@ var timeSwitch = 0;
 var timeOutFunction = "a";
 
 app.get('/pir/:a/:b', function(req, res) {
-
-    log.add("PIR UPDATE: " + req.params.a + ", " + req.params.b);
 
     if (req.params.b == 1 && persistState === 0 && (timeSwitch + 60000) < new Date().getTime()) {
         persistState = 1;
@@ -373,7 +375,19 @@ io.sockets.on('connection', function(socket) {
     socket.emit('alarmArm', alarmArm);
     socket.emit('triggerArm', triggerArm);
 
-    socket.emit('log', log.log);
+    var sendLog = [];
+
+    var i = 0;
+    var max = log.log.length;
+    var min = max - 100;
+    log.log.forEach(function(item) {
+        if (i > min && i < max) {
+            sendLog.push(item);
+        }
+        i++;
+    });
+
+    socket.emit('log', sendLog);
 
     log.add("NEW CLIENT");
 
@@ -385,7 +399,6 @@ io.sockets.on('connection', function(socket) {
 
             log.add("NEW CLIENT WITH NAME: " + ip);
         }
-        //console.log("emit clients ", clients);
         io.sockets.emit('clients', JSON.stringify(clients));
     });
 
@@ -432,7 +445,7 @@ io.sockets.on('connection', function(socket) {
             log.add(stdout);
         });
 
-        child.close(function() {
+        child.exit(function() {
             log.add("DO RESTART");
             childd = exec("forever restartall", function(error, stdout, stderr) {});
         });

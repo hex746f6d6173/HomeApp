@@ -194,10 +194,7 @@ $(document).ready(function() {
         var i = 0;
 
         $.each(data, function(x, y) {
-            if (i < 50) {
-                log = '<p class="l">' + jQuery.timeago(new Date(y.time)) + ': ' + y.action + '</p>' + log;
-            }
-            i++;
+            log = '<p class="l">' + jQuery.timeago(new Date(y.time)) + ': ' + y.action + '</p>' + log;
         });
 
         $(".log").html(log);
