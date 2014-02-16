@@ -236,13 +236,10 @@ app.get('/temps', function(req, res) {
         var thisTemp = parseFloat(item[1]);
         var thisHour = new Date(item[0]).getHours();
 
-        console.log(thisHour);
-
         if (thisHour != prevHour) {
 
             prevHour = thisHour;
 
-            console.log("Nieuw uur");
 
             if (hourArray.length > 0) {
                 var teller = 0;
