@@ -327,7 +327,6 @@ app.get('/pir/:a/:b', function(req, res) {
                 if (item.time === true) {
                     check = false;
                     item.between.forEach(function(betweenDiff) {
-                        log.add(t > betweenDiff[0] && t < betweenDiff[1], "T: ", t, betweenDiff[0], t, betweenDiff[1]);
                         if (t > betweenDiff[0] && t < betweenDiff[1])
                             check = true;
                     });
@@ -336,8 +335,6 @@ app.get('/pir/:a/:b', function(req, res) {
                 if (check) {
 
                     log.add("CHECK");
-
-                    log.add("TRIGGER ARM" + triggerArm + "" + item.type + "" + item.type == "switch");
                     if (item.type === "switch" && triggerArm === 1) {
 
 
