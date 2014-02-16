@@ -463,7 +463,9 @@ if (thisConfig.use === "ssh") {
     c.on('close', function(had_error) {
         //console.log('Connection :: close');
         state.sshPending = false;
-        cConnect();
+        setTimeout(function() {
+            cConnect();
+        }, 5000);
         state.ssh = false;
         io.sockets.emit('state', state);
         log.add("SSH CLOSE");
