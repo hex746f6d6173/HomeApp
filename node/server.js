@@ -260,6 +260,8 @@ app.get('/temp/:t', function(req, res) {
         temps.push([time, parseFloat(req.params.t)]);
 
         localStorage.setItem("temp", JSON.stringify(temps));
+    } else {
+        log.add("TEMPRATUUR NO UPDATE: " + newTemp + ", DIFF " + Dtemp);
     }
 });
 var persistState = 0;
