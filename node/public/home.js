@@ -173,6 +173,8 @@ $(document).ready(function() {
 
     socket.on("switched", function(data) {
 
+        console.log("SWITCH", data);
+
         var color = red;
         if (data.
             switch.state === 1) {
@@ -193,7 +195,7 @@ $(document).ready(function() {
 
         $.each(data, function(x, y) {
             if (i < 50) {
-                log = '<p class="l">' + y.time + ': ' + y.action + '</p>' + log;
+                log = '<p class="l">' + jQuery.timeago(new Date(y.time)) + ': ' + y.action + '</p>' + log;
             }
             i++;
         });
@@ -204,7 +206,7 @@ $(document).ready(function() {
 
     socket.on("logAdd", function(y) {
         console.log("logAdd", y);
-        $(".log").prepend('<p class="l">' + y.time + ': ' + y.action + '</p>');
+        $(".log").prepend('<p class="l">' + jQuery.timeago(new Date(y.time)) + ': ' + y.action + '</p>');
     });
     socket.on("state", function(data) {
 
@@ -228,6 +230,12 @@ $(document).ready(function() {
     $(".refresh").click(function() {
         socket.emit("refresh", true);
     });
-
+    $.getJSON("/temps", function(d) {
+        $.plot("#plot", [d], {
+            xaxis: {
+                mode: "time"
+            }
+        });
+    });
 
 });
