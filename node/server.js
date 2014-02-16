@@ -519,11 +519,11 @@ io.sockets.on('connection', function(socket) {
             console.log("GIT PULL", error, stdout, stderr);
         }).on('exit', function() {
             console.log("EXIT");
+            log.add("DO RESTART");
+            //childd = exec("forever restartall", function(error, stdout, stderr) {});
         });
 
         /*child.exit(function() {
-            log.add("DO RESTART");
-            childd = exec("forever restartall", function(error, stdout, stderr) {});
         });*/
 
     });
