@@ -333,10 +333,14 @@ app.get('/pir/:a/:b', function(req, res) {
                 }
                 log.add("AUTO COMMAND CHECK" + check);
                 if (check) {
+
+                    console.log("CHECK");
+
+                    console.log("TRIGGER ARM", item.type == "switch" && triggerArm === 1);
                     if (item.type == "switch" && triggerArm === 1) {
 
 
-
+                        console.log("SWICH");
 
                         console.log("ITEM, FLIP", item);
 
