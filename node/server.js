@@ -17,16 +17,13 @@ var express = require('express'),
     config = require("./config.json"),
     //speakeasy = require('speakeasy'),
     ping = require("net-ping"),
-    switches = config.switches;
-
-var ACCESS_KEY = "62f4c66393234ddaebd40f657698c7cd47ed4f89a9ff4c0b4061a8958e58";
-var SECRET_KEY = "11acaec93bdf45ebc11fb0e51340cc6a79cc4f83aa475ec6e8ff2b608cf3a3f6";
-var ENDPOINT = "https://api.push.co/1.0/";
-
-var alarmArm = 0,
-    triggerArm = 0;
-
-var temp = 19;
+    switches = config.switches,
+    ACCESS_KEY = "62f4c66393234ddaebd40f657698c7cd47ed4f89a9ff4c0b4061a8958e58",
+    SECRET_KEY = "11acaec93bdf45ebc11fb0e51340cc6a79cc4f83aa475ec6e8ff2b608cf3a3f6",
+    ENDPOINT = "https://api.push.co/1.0/",
+    alarmArm = 0,
+    triggerArm = 0,
+    temp = 19;
 
 if (typeof localStorage === "undefined" || localStorage === null) {
     var LocalStorage = require('node-localstorage').LocalStorage;
@@ -325,40 +322,47 @@ app.get('/pir/:a/:b', function(req, res) {
         if (config.PIR.onDetectYes !== undefined) {
 
             config.PIR.onDetectYes.forEach(function(item) {
+                var check = true;
+                if (item.time !== undefined)
+                    check = (t < item.till && t > item.from);
+                log.add("AUTO COMMAND CHECK" + check);
+                if (check) {
+                    if (item.type == "switch" && triggerArm === 1) {
 
-                if (item.type == "switch" && triggerArm === 1) {
+                        var t = new Date().getHours();
 
-                    console.log("ITEM, FLIP", item);
 
-                    log.add("AUTO COMMAND DELAY" + item.delay);
+                        console.log("ITEM, FLIP", item);
 
-                    if (timeOutFunction != "a") {
-                        clearTimeout(timeOutFunction);
+                        log.add("AUTO COMMAND DELAY" + item.delay);
+
+                        if (timeOutFunction != "a") {
+                            clearTimeout(timeOutFunction);
+                        }
+
+
+
+                        timeOutFunction = setTimeout(function() {
+
+                            if (triggerArm === 1) {
+
+                                flipSwitch(item.
+                                    switch, item.to, function(a) {
+                                        console.log("JAJAJAJA", a);
+                                    });
+                            }
+                        }, item.delay);
+
                     }
 
-                    timeOutFunction = setTimeout(function() {
+                    if (item.type == "alarm" && alarmArm === 1) {
 
-                        if (triggerArm === 1) {
+                        console.log("ITEM, ALARM", item);
 
-                            flipSwitch(item.
-                                switch, item.to, function(a) {
+                        log.add(item.message, true);
 
-
-                                    console.log("JAJAJAJA", a);
-                                });
-                        }
-                    }, item.delay);
-
+                    }
                 }
-
-                if (item.type == "alarm" && alarmArm === 1) {
-
-                    console.log("ITEM, ALARM", item);
-
-                    log.add(item.message, true);
-
-                }
-
             });
 
         }
@@ -369,38 +373,44 @@ app.get('/pir/:a/:b', function(req, res) {
         if (config.PIR.onDetectNo !== undefined) {
             config.PIR.onDetectNo.forEach(function(item) {
 
-                if (item.type == "switch" && triggerArm === 1) {
+                var check = true;
+                if (item.time !== undefined)
+                    check = (t < item.till && t > item.from);
+                log.add("AUTO COMMAND CHECK" + check);
+                if (check) {
 
-                    console.log("ITEM, FLIP", item);
+                    if (item.type == "switch" && triggerArm === 1) {
 
-                    log.add("AUTO COMMAND DELAY" + item.delay);
+                        console.log("ITEM, FLIP", item);
 
-                    if (timeOutFunction != "a") {
-                        clearTimeout(timeOutFunction);
+                        log.add("AUTO COMMAND DELAY" + item.delay);
+
+                        if (timeOutFunction != "a") {
+                            clearTimeout(timeOutFunction);
+                        }
+
+                        timeOutFunction = setTimeout(function() {
+
+                            if (triggerArm === 1) {
+                                flipSwitch(item.
+                                    switch, item.to, function(a) {
+
+                                        console.log("JAJAJAJA", a);
+
+                                    });
+                            }
+                        }, item.delay);
+
                     }
 
-                    timeOutFunction = setTimeout(function() {
+                    if (item.type == "alarm" && alarmArm === 1) {
 
-                        if (triggerArm === 1) {
-                            flipSwitch(item.
-                                switch, item.to, function(a) {
+                        console.log("ITEM, ALARM", item);
 
-                                    console.log("JAJAJAJA", a);
+                        log.add(item.message, true);
 
-                                });
-                        }
-                    }, item.delay);
-
+                    }
                 }
-
-                if (item.type == "alarm" && alarmArm === 1) {
-
-                    console.log("ITEM, ALARM", item);
-
-                    log.add(item.message, true);
-
-                }
-
             });
         }
     }

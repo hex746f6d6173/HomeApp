@@ -89,7 +89,10 @@
             "type": "switch",
             "switch": 0,
             "to": 1,
-            "delay": 1
+            "delay": 1,
+            "time": true,
+            "from": 19,
+            "till": 6
         }, {
             "type": "alarm",
             "message": "ALARM! AN INTRUDER DETECTED!!!"
