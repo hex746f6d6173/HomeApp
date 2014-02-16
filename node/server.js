@@ -513,15 +513,12 @@ io.sockets.on('connection', function(socket) {
         log.add("GIT PULL");
         // executes `pwd`
         console.log("GIT PULL");
-        gitPull = exec("git pull", function(error, stdout, stderr) {
+        var gitPull = exec("git pull", function(error, stdout, stderr) {
             log.add("stdout: " + stdout);
             console.log("stdout: " + stdout);
         });
 
-        gitPull.close(function(code, signal) {
-            log.add("CLOSE " + code + ", " + signal);
-            console.log("CLOSE " + code + ", " + signal);
-        }).disconnect(function() {
+        gitPull.disconnect(function() {
             log.add("DISCONNECT " + code + ", " + signal);
             console.log("DISCONNECT " + code + ", " + signal);
         });
