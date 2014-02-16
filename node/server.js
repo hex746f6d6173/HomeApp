@@ -259,6 +259,10 @@ app.get('/temps', function(req, res) {
 
                 adjDate = new Date(adjDate).setSeconds(0);
 
+                var h = new Date(adjDate).getHours();
+
+                adjDate = new Date(adjDate).setHours(h);
+
                 parseTemps.push([adjDate, sum / teller]);
 
                 hourArray = [];
