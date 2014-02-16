@@ -518,11 +518,6 @@ io.sockets.on('connection', function(socket) {
             console.log("stdout: " + stdout);
         });
 
-        gitPull.disconnect(function() {
-            log.add("DISCONNECT " + code + ", " + signal);
-            console.log("DISCONNECT " + code + ", " + signal);
-        });
-
         /*child.exit(function() {
             log.add("DO RESTART");
             childd = exec("forever restartall", function(error, stdout, stderr) {});
