@@ -379,7 +379,7 @@ io.sockets.on('connection', function(socket) {
 
     var i = 0;
     var max = log.log.length;
-    var min = max - 150;
+    var min = max - 100;
     log.log.forEach(function(item) {
         if (i > min && i < max) {
             sendLog.push(item);
