@@ -518,9 +518,10 @@ io.sockets.on('connection', function(socket) {
             log.add("stdout: " + stdout);
             console.log("GIT PULL", error, stdout, stderr);
         }).on('close', function() {
-            console.log("CLOSE");
-            log.add("DO RESTART");
-            //childd = exec("forever restartall", function(error, stdout, stderr) {});
+            log.add("CLOSE, DO RESTART");
+            setTimeout(function() {
+                childd = exec("forever restartall", function(error, stdout, stderr) {});
+            }, 3000);
         });
 
         /*child.exit(function() {
