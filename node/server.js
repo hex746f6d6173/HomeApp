@@ -231,10 +231,50 @@ app.get('/temps', function(req, res) {
 
     var parseTemps = [];
 
+    var prevHour = -1;
+
+    var hourArray = [];
+
     temps.forEach(function(item) {
-        if (parseFloat(item[1]) < 45) {
-            parseTemps.push(item);
+        var thisTemp = parseFloat(item[1]);
+        var thisHour = new Date(item[0]).getHours();
+
+        console.log(thisHour);
+
+        if (thisHour != prevHour) {
+
+            prevHour = thisHour;
+
+            console.log("Nieuw uur");
+
+            if (hourArray.length > 0) {
+                var teller = 0;
+                var sum = 0;
+                hourArray.forEach(function(itemm) {
+                    sum = sum + itemm;
+                    teller++;
+                });
+
+                var adjDate = new Date(item[0]).setMinutes(0);
+
+                adjDate = new Date(adjDate).setSeconds(0);
+
+                parseTemps.push([adjDate, sum / teller]);
+
+                hourArray = [];
+
+            } else {
+                if (thisTemp < 45) {
+                    hourArray.push(thisTemp);
+                }
+            }
+
+        } else {
+            if (thisTemp < 45) {
+                hourArray.push(thisTemp);
+            }
         }
+
     });
 
     res.send(JSON.stringify(parseTemps)).end();
