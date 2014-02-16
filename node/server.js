@@ -74,7 +74,7 @@ var log = {
 
 log.add("---HELLO HELLO---");
 var version = "";
-child = exec("git describe", function(error, stdout, stderr) {
+exec("git describe", function(error, stdout, stderr) {
     version = stdout;
     log.add(version);
     console.log("VERSION: " + version);
@@ -505,16 +505,24 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on("refresh", function() {
-        log.add("SSH MANUAL");
+        log.add("GIT PULL");
         // executes `pwd`
-        child = exec("git pull", function(error, stdout, stderr) {
-            log.add(stdout);
+        gitPull = exec("git pull", function(error, stdout, stderr) {
+            log.add("stdout: " + stdout);
         });
 
-        child.exit(function() {
+        gitPull.exit(function(code, signal) {
+            log.add("EXIT " + code + ", " + signal);
+        }).close(function(code, signal) {
+            log.add("CLOSE " + code + ", " + signal);
+        }).disconnect(function() {
+            log.add("DISCONNECT " + code + ", " + signal);
+        });
+
+        /*child.exit(function() {
             log.add("DO RESTART");
             childd = exec("forever restartall", function(error, stdout, stderr) {});
-        });
+        });*/
 
     });
 
