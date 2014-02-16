@@ -23,7 +23,8 @@ var express = require('express'),
     ENDPOINT = "https://api.push.co/1.0/",
     alarmArm = 0,
     triggerArm = 0,
-    temp = 19;
+    temp = 19,
+    pulling = false;
 
 if (typeof localStorage === "undefined" || localStorage === null) {
     var LocalStorage = require('node-localstorage').LocalStorage;
@@ -493,29 +494,48 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on("refresh", function() {
-        log.add("GIT PULL");
-        // executes `pwd`
-        console.log("GIT PULL");
-        io.sockets.emit("refreshE", {
-            event: "refresh"
-        });
-        exec("git pull", function(error, stdout, stderr) {
-            log.add("stdout: " + stdout);
-            console.log("GIT PULL", error, stdout, stderr);
+        if (!pulling) {
+            log.add("GIT PULL");
+            // executes `pwd`
+            console.log("GIT PULL");
             io.sockets.emit("refreshE", {
-                event: "refreshdata",
-                data: stdout
+                event: "refresh"
             });
-        }).on('close', function() {
-            io.sockets.emit("refreshE", {
-                event: "restart"
-            });
-            log.add("CLOSE, DO RESTART");
-            setTimeout(function() {
-                childd = exec("forever restartall", function(error, stdout, stderr) {});
-            }, 3000);
-        });
+            pulling = true;
+            exec("git pull", function(error, stdout, stderr) {
+                log.add("stdout: " + stdout);
+                console.log("GIT PULL", error, stdout, stderr);
+                io.sockets.emit("refreshE", {
+                    event: "refreshdata",
+                    data: stdout
+                });
+            }).on('close', function() {
+                pulling = false;
 
+                exec("git describe", function(error, stdout, stderr) {
+                    var newVersion = stdout;
+                    log.add("New version" + version);
+                    console.log("VERSION: " + version);
+
+                    if (newVersion != version) {
+                        io.sockets.emit("refreshE", {
+                            event: "restart"
+                        });
+                        log.add("Updated to: " + newVersion, true);
+                        setTimeout(function() {
+                            childd = exec("forever restartall", function(error, stdout, stderr) {});
+                        }, 10000);
+                    } else {
+                        log.add("No updated to: " + newVersion + ", same version");
+                    }
+
+                });
+
+
+            });
+        } else {
+            log.add("ALREADY PULLING");
+        }
         /*child.exit(function() {
         });*/
 
