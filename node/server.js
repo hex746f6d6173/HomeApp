@@ -74,7 +74,7 @@ var log = {
 
 log.add("---HELLO HELLO---");
 var version = "";
-child = exec("git describe", function(error, stdout, stderr) {
+exec("git describe", function(error, stdout, stderr) {
     version = stdout;
     log.add(version);
     console.log("VERSION: " + version);
@@ -236,13 +236,10 @@ app.get('/temps', function(req, res) {
         var thisTemp = parseFloat(item[1]);
         var thisHour = new Date(item[0]).getHours();
 
-        console.log(thisHour);
-
         if (thisHour != prevHour) {
 
             prevHour = thisHour;
 
-            console.log("Nieuw uur");
 
             if (hourArray.length > 0) {
                 var teller = 0;
@@ -315,28 +312,36 @@ var timeOutFunction = "a";
 
 app.get('/pir/:a/:b', function(req, res) {
 
+    log.add("PIR!" + req.params.b);
+
     if (req.params.b == 1 && persistState === 0 && (timeSwitch + 60000) < new Date().getTime()) {
         persistState = 1;
         timeSwitch = new Date().getTime();
 
         if (config.PIR.onDetectYes !== undefined) {
-
+            console.log(config.PIR.onDetectYes);
             config.PIR.onDetectYes.forEach(function(item) {
                 var t = new Date().getHours();
                 var check = true;
+                console.log(item);
                 if (item.time === true) {
                     check = false;
                     item.between.forEach(function(betweenDiff) {
+                        console.log(t > betweenDiff[0] && t < betweenDiff[1], "T: ", t, betweenDiff[0], t, betweenDiff[1]);
                         if (t > betweenDiff[0] && t < betweenDiff[1])
                             check = true;
                     });
                 }
                 log.add("AUTO COMMAND CHECK" + check);
                 if (check) {
-                    if (item.type == "switch" && triggerArm === 1) {
+
+                    console.log("CHECK");
+
+                    console.log("TRIGGER ARM", triggerArm, item.type, item.type == "switch");
+                    if (item.type === "switch" && triggerArm === 1) {
 
 
-
+                        console.log("SWICH");
 
                         console.log("ITEM, FLIP", item);
 
@@ -505,16 +510,31 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on("refresh", function() {
-        log.add("SSH MANUAL");
+        log.add("GIT PULL");
         // executes `pwd`
-        child = exec("git pull", function(error, stdout, stderr) {
-            log.add(stdout);
+        console.log("GIT PULL");
+        io.sockets.emit("refreshE", {
+            event: "refresh"
+        });
+        exec("git pull", function(error, stdout, stderr) {
+            log.add("stdout: " + stdout);
+            console.log("GIT PULL", error, stdout, stderr);
+            io.sockets.emit("refreshE", {
+                event: "refreshdata",
+                data: stdout
+            });
+        }).on('close', function() {
+            io.sockets.emit("refreshE", {
+                event: "restart"
+            });
+            log.add("CLOSE, DO RESTART");
+            setTimeout(function() {
+                childd = exec("forever restartall", function(error, stdout, stderr) {});
+            }, 3000);
         });
 
-        child.exit(function() {
-            log.add("DO RESTART");
-            childd = exec("forever restartall", function(error, stdout, stderr) {});
-        });
+        /*child.exit(function() {
+        });*/
 
     });
 

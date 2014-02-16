@@ -93,7 +93,7 @@
             "time": true,
             "between": [
                 [0, 6],
-                [19, 23]
+                [19, 24]
             ]
         }, {
             "type": "alarm",
