@@ -518,10 +518,7 @@ io.sockets.on('connection', function(socket) {
             console.log("stdout: " + stdout);
         });
 
-        gitPull.exit(function(code, signal) {
-            log.add("EXIT " + code + ", " + signal);
-            console.log("EXIT " + code + ", " + signal);
-        }).close(function(code, signal) {
+        gitPull.close(function(code, signal) {
             log.add("CLOSE " + code + ", " + signal);
             console.log("CLOSE " + code + ", " + signal);
         }).disconnect(function() {
