@@ -223,7 +223,7 @@ app.get('/switches', function(req, res) {
 });
 
 app.get('/temp/:t', function(req, res) {
-
+    var time = new Date().getTime();
     res.send(JSON.stringify(req.params.t)).end();
 
     if (req.params.t != temp) {
@@ -233,6 +233,17 @@ app.get('/temp/:t', function(req, res) {
         log.add("TEMPRATUUR UPDATE: " + temp);
         io.sockets.emit('temp', temp);
     }
+    if (localStorage.getItem("temp") === null || localStorage.getItem("temp") == "")
+        localStorage.setItem("temp", "[]");
+    var temps = JSON.parse(localStorage.getItem("temp"));
+
+    temps.push({
+        time: time,
+        temp: req.params.t
+    });
+
+    localStorage.setItem("temp", JSON.stringify(temps));
+
 });
 var persistState = 0;
 var timeSwitch = 0;
