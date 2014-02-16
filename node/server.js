@@ -315,6 +315,8 @@ var timeOutFunction = "a";
 
 app.get('/pir/:a/:b', function(req, res) {
 
+    log.add("PIR!" + req.params.b);
+
     if (req.params.b == 1 && persistState === 0 && (timeSwitch + 60000) < new Date().getTime()) {
         persistState = 1;
         timeSwitch = new Date().getTime();
