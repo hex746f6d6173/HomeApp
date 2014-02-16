@@ -240,7 +240,11 @@ app.get('/temp/:t', function(req, res) {
     var time = new Date().getTime();
     res.send(JSON.stringify(parseFloat(req.params.t))).end();
 
-    if (parseFloat(req.params.t) < 45) {
+    var newTemp = parseFloat(req.params.t);
+
+    var Dtemp = temp - newTemp;
+
+    if (newTemp < 45 && Dtemp < 5 && Dtemp > -5) {
 
         if (req.params.t != temp) {
 
