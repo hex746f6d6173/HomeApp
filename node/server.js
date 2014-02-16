@@ -322,14 +322,19 @@ app.get('/pir/:a/:b', function(req, res) {
         if (config.PIR.onDetectYes !== undefined) {
 
             config.PIR.onDetectYes.forEach(function(item) {
+                var t = new Date().getHours();
                 var check = true;
-                if (item.time !== undefined)
-                    check = (t < item.till && t > item.from);
-                log.add("AUTO COMMAND CHECK" + check);
+                if (item.time === true) {
+                    check = false;
+                    item.between.forEach(function(betweenDiff) {
+                        if (t > betweenDiff[0] && t < betweenDiff[1])
+                            check = true;
+                    });
+                }
                 if (check) {
                     if (item.type == "switch" && triggerArm === 1) {
 
-                        var t = new Date().getHours();
+
 
 
                         console.log("ITEM, FLIP", item);
@@ -373,10 +378,16 @@ app.get('/pir/:a/:b', function(req, res) {
         if (config.PIR.onDetectNo !== undefined) {
             config.PIR.onDetectNo.forEach(function(item) {
 
+                var t = new Date().getHours();
                 var check = true;
-                if (item.time !== undefined)
-                    check = (t < item.till && t > item.from);
-                log.add("AUTO COMMAND CHECK" + check);
+                if (item.time === true) {
+                    check = false;
+                    item.between.forEach(function(betweenDiff) {
+                        if (t > betweenDiff[0] && t < betweenDiff[1])
+                            check = true;
+                    });
+                }
+
                 if (check) {
 
                     if (item.type == "switch" && triggerArm === 1) {
