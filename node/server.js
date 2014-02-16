@@ -319,31 +319,19 @@ app.get('/pir/:a/:b', function(req, res) {
         timeSwitch = new Date().getTime();
 
         if (config.PIR.onDetectYes !== undefined) {
-            log.add(config.PIR.onDetectYes);
             config.PIR.onDetectYes.forEach(function(item) {
                 var t = new Date().getHours();
                 var check = true;
-                log.add(item);
                 if (item.time === true) {
                     check = false;
                     item.between.forEach(function(betweenDiff) {
-                        log.add(t > betweenDiff[0] && t < betweenDiff[1], "T: ", t, betweenDiff[0], t, betweenDiff[1]);
-                        if (t > betweenDiff[0] && t < betweenDiff[1])
+                        if (t >= betweenDiff[0] && t <= betweenDiff[1])
                             check = true;
                     });
                 }
-                log.add("AUTO COMMAND CHECK" + check);
                 if (check) {
 
-                    log.add("CHECK");
-
-                    log.add("TRIGGER ARM" + triggerArm + "" + item.type + "" + item.type == "switch");
                     if (item.type === "switch" && triggerArm === 1) {
-
-
-                        log.add("SWICH");
-
-                        log.add("ITEM, FLIP", item);
 
                         log.add("AUTO COMMAND DELAY" + item.delay);
 
@@ -368,8 +356,6 @@ app.get('/pir/:a/:b', function(req, res) {
 
                     if (item.type == "alarm" && alarmArm === 1) {
 
-                        log.add("ITEM, ALARM", item);
-
                         log.add(item.message, true);
 
                     }
@@ -389,16 +375,13 @@ app.get('/pir/:a/:b', function(req, res) {
                 if (item.time === true) {
                     check = false;
                     item.between.forEach(function(betweenDiff) {
-                        if (t > betweenDiff[0] && t < betweenDiff[1])
+                        if (t >= betweenDiff[0] && t <= betweenDiff[1])
                             check = true;
                     });
                 }
-                log.add("AUTO COMMAND CHECK" + check);
                 if (check) {
 
                     if (item.type == "switch" && triggerArm === 1) {
-
-                        console.log("ITEM, FLIP", item);
 
                         log.add("AUTO COMMAND DELAY" + item.delay);
 
