@@ -375,7 +375,19 @@ io.sockets.on('connection', function(socket) {
     socket.emit('alarmArm', alarmArm);
     socket.emit('triggerArm', triggerArm);
 
-    socket.emit('log', log.log);
+    var sendLog = [];
+
+    var i = 0;
+    var max = log.log.length;
+    var min = max - 150;
+    log.log.forEach(function(item) {
+        if (i > min && i < max) {
+            sendLog.push(item);
+        }
+        i++;
+    });
+
+    socket.emit('log', sendLog);
 
     log.add("NEW CLIENT");
 
@@ -387,7 +399,6 @@ io.sockets.on('connection', function(socket) {
 
             log.add("NEW CLIENT WITH NAME: " + ip);
         }
-        //console.log("emit clients ", clients);
         io.sockets.emit('clients', JSON.stringify(clients));
     });
 
