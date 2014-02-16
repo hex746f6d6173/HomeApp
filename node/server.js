@@ -37,9 +37,11 @@ if (localStorage.getItem("clients") === null) {
     localStorage.setItem("clients", JSON.stringify({}));
 }
 
+if (localStorage.getItem("log") === null || localStorage.getItem("log") == "")
+    localStorage.setItem("log", "[]");
 
 var log = {
-    log: [],
+    log: JSON.parse(localStorage.getItem("log")),
     add: function(action, not) {
         var time = new Date().getTime();
 
@@ -49,6 +51,8 @@ var log = {
         };
 
         log.log.push(element);
+
+        localStorage.setItem("log", JSON.stringify(log.log));
 
         io.sockets.emit("logAdd", element);
 
@@ -61,7 +65,7 @@ var log = {
                     "message": action,
                     "api_key": ACCESS_KEY,
                     "api_secret": SECRET_KEY,
-                    "url": "http://home.tomasharkema.nl",
+                    "url": "http://home.tomasharkema.nl/push/" + time,
                     "view_type": '1'
                 }
             }, function(error, response, body) {
@@ -430,7 +434,7 @@ io.sockets.on('connection', function(socket) {
             log.add(stdout);
         });
 
-        child.close(function() {
+        child.exit(function() {
             log.add("DO RESTART");
             childd = exec("forever restartall", function(error, stdout, stderr) {});
         });
