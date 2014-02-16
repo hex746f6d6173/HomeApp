@@ -160,7 +160,7 @@ var flipSwitch = function(a, to, fn) {
 
     log.add("FLIP " + q.brand + " " + q.code + " " + q.
         switch +" " + switchTo + "");
-    log.add("Zet " + q.name + " " + switchTo, true);
+    //log.add("Zet " + q.name + " " + switchTo, true);
     var fn = function() {
         io.sockets.emit("switched", {
             switch: switches[a],
@@ -223,30 +223,40 @@ app.get('/switches', function(req, res) {
 });
 app.get('/temps', function(req, res) {
 
+    var temps = JSON.parse(localStorage.getItem("temp"));
 
+    var parseTemps = [];
 
-    res.send(localStorage.getItem("temp")).end();
+    temps.forEach(function(item) {
+        if (parseFloat(item[1]) < 45) {
+            parseTemps.push(item);
+        }
+    });
+
+    res.send(JSON.stringify(parseTemps)).end();
 
 });
 app.get('/temp/:t', function(req, res) {
     var time = new Date().getTime();
-    res.send(JSON.stringify(req.params.t)).end();
+    res.send(JSON.stringify(parseFloat(req.params.t))).end();
 
-    if (req.params.t != temp) {
+    if (parseFloat(req.params.t) < 45) {
 
-        temp = parseInt(req.params.t);
+        if (req.params.t != temp) {
 
-        log.add("TEMPRATUUR UPDATE: " + temp);
-        io.sockets.emit('temp', temp);
+            temp = parseFloat(req.params.t);
+
+            log.add("TEMPRATUUR UPDATE: " + temp);
+            io.sockets.emit('temp', temp);
+        }
+        if (localStorage.getItem("temp") === null || localStorage.getItem("temp") == "")
+            localStorage.setItem("temp", "[]");
+        var temps = JSON.parse(localStorage.getItem("temp"));
+
+        temps.push([time, parseFloat(req.params.t)]);
+
+        localStorage.setItem("temp", JSON.stringify(temps));
     }
-    if (localStorage.getItem("temp") === null || localStorage.getItem("temp") == "")
-        localStorage.setItem("temp", "[]");
-    var temps = JSON.parse(localStorage.getItem("temp"));
-
-    temps.push([time, req.params.t]);
-
-    localStorage.setItem("temp", JSON.stringify(temps));
-
 });
 var persistState = 0;
 var timeSwitch = 0;
