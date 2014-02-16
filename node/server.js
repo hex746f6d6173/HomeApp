@@ -319,15 +319,15 @@ app.get('/pir/:a/:b', function(req, res) {
         timeSwitch = new Date().getTime();
 
         if (config.PIR.onDetectYes !== undefined) {
-            console.log(config.PIR.onDetectYes);
+            log.add(config.PIR.onDetectYes);
             config.PIR.onDetectYes.forEach(function(item) {
                 var t = new Date().getHours();
                 var check = true;
-                console.log(item);
+                log.add(item);
                 if (item.time === true) {
                     check = false;
                     item.between.forEach(function(betweenDiff) {
-                        console.log(t > betweenDiff[0] && t < betweenDiff[1], "T: ", t, betweenDiff[0], t, betweenDiff[1]);
+                        log.add(t > betweenDiff[0] && t < betweenDiff[1], "T: ", t, betweenDiff[0], t, betweenDiff[1]);
                         if (t > betweenDiff[0] && t < betweenDiff[1])
                             check = true;
                     });
@@ -335,15 +335,15 @@ app.get('/pir/:a/:b', function(req, res) {
                 log.add("AUTO COMMAND CHECK" + check);
                 if (check) {
 
-                    console.log("CHECK");
+                    log.add("CHECK");
 
-                    console.log("TRIGGER ARM", triggerArm, item.type, item.type == "switch");
+                    log.add("TRIGGER ARM", triggerArm, item.type, item.type == "switch");
                     if (item.type === "switch" && triggerArm === 1) {
 
 
-                        console.log("SWICH");
+                        log.add("SWICH");
 
-                        console.log("ITEM, FLIP", item);
+                        log.add("ITEM, FLIP", item);
 
                         log.add("AUTO COMMAND DELAY" + item.delay);
 
@@ -368,7 +368,7 @@ app.get('/pir/:a/:b', function(req, res) {
 
                     if (item.type == "alarm" && alarmArm === 1) {
 
-                        console.log("ITEM, ALARM", item);
+                        log.add("ITEM, ALARM", item);
 
                         log.add(item.message, true);
 
