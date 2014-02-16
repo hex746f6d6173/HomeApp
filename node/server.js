@@ -337,7 +337,7 @@ app.get('/pir/:a/:b', function(req, res) {
 
                     log.add("CHECK");
 
-                    log.add("TRIGGER ARM", triggerArm, item.type, item.type == "switch");
+                    log.add("TRIGGER ARM" + triggerArm + "" + item.type + "" + item.type == "switch");
                     if (item.type === "switch" && triggerArm === 1) {
 
 
