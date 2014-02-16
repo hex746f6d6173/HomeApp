@@ -21,7 +21,9 @@ $(document).ready(function() {
         }
 
     });
-
+    socket.on('refreshE', function(data) {
+        console.log('refreshE', data);
+    })
     socket.on('connecting', function() {
 
         $(".connection").html('<i class="glyphicon glyphicon-minus"></i>');

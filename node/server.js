@@ -513,11 +513,16 @@ io.sockets.on('connection', function(socket) {
         log.add("GIT PULL");
         // executes `pwd`
         console.log("GIT PULL");
-
+        io.sockets.emit("refreshE", {
+            event: "refresh"
+        });
         exec("git pull", function(error, stdout, stderr) {
             log.add("stdout: " + stdout);
             console.log("GIT PULL", error, stdout, stderr);
         }).on('close', function() {
+            io.sockets.emit("refreshE", {
+                event: "restart"
+            });
             log.add("CLOSE, DO RESTART");
             setTimeout(function() {
                 childd = exec("forever restartall", function(error, stdout, stderr) {});
