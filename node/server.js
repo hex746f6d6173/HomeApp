@@ -334,7 +334,7 @@ app.get('/pir/:a/:b', function(req, res) {
                 log.add("AUTO COMMAND CHECK" + check);
                 if (check) {
 
-                    log.add("CHECK");
+                    log.add("CHECK: " + item.type);
                     if (item.type === "switch" && triggerArm === 1) {
 
 
@@ -364,8 +364,6 @@ app.get('/pir/:a/:b', function(req, res) {
                     }
 
                     if (item.type == "alarm" && alarmArm === 1) {
-
-                        log.add("ITEM, ALARM", item);
 
                         log.add(item.message, true);
 
