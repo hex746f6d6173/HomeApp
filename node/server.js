@@ -517,8 +517,8 @@ io.sockets.on('connection', function(socket) {
         exec("git pull", function(error, stdout, stderr) {
             log.add("stdout: " + stdout);
             console.log("GIT PULL", error, stdout, stderr);
-        }).on('exit', function() {
-            console.log("EXIT");
+        }).on('close', function() {
+            console.log("CLOSE");
             log.add("DO RESTART");
             //childd = exec("forever restartall", function(error, stdout, stderr) {});
         });
