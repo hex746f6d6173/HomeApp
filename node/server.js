@@ -327,6 +327,7 @@ app.get('/pir/:a/:b', function(req, res) {
                 if (item.time === true) {
                     check = false;
                     item.between.forEach(function(betweenDiff) {
+                        console.log(t > betweenDiff[0] && t < betweenDiff[1], "T: ", t, betweenDiff[0], t, betweenDiff[1]);
                         if (t > betweenDiff[0] && t < betweenDiff[1])
                             check = true;
                     });
