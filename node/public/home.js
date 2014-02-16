@@ -230,6 +230,12 @@ $(document).ready(function() {
     $(".refresh").click(function() {
         socket.emit("refresh", true);
     });
-
+    $.getJSON("/temps", function(d) {
+        $.plot("#plot", [d], {
+            xaxis: {
+                mode: "time"
+            }
+        });
+    });
 
 });

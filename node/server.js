@@ -221,7 +221,13 @@ app.get('/switches', function(req, res) {
 
 
 });
+app.get('/temps', function(req, res) {
 
+
+
+    res.send(localStorage.getItem("temp")).end();
+
+});
 app.get('/temp/:t', function(req, res) {
     var time = new Date().getTime();
     res.send(JSON.stringify(req.params.t)).end();
@@ -237,10 +243,7 @@ app.get('/temp/:t', function(req, res) {
         localStorage.setItem("temp", "[]");
     var temps = JSON.parse(localStorage.getItem("temp"));
 
-    temps.push({
-        time: time,
-        temp: req.params.t
-    });
+    temps.push([time, req.params.t]);
 
     localStorage.setItem("temp", JSON.stringify(temps));
 
