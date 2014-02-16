@@ -319,10 +319,11 @@ app.get('/pir/:a/:b', function(req, res) {
         timeSwitch = new Date().getTime();
 
         if (config.PIR.onDetectYes !== undefined) {
-
+            console.log(config.PIR.onDetectYes);
             config.PIR.onDetectYes.forEach(function(item) {
                 var t = new Date().getHours();
                 var check = true;
+                console.log(item);
                 if (item.time === true) {
                     check = false;
                     item.between.forEach(function(betweenDiff) {
