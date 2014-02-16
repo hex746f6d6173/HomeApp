@@ -331,6 +331,7 @@ app.get('/pir/:a/:b', function(req, res) {
                             check = true;
                     });
                 }
+                log.add("AUTO COMMAND CHECK" + check);
                 if (check) {
                     if (item.type == "switch" && triggerArm === 1) {
 
@@ -387,7 +388,7 @@ app.get('/pir/:a/:b', function(req, res) {
                             check = true;
                     });
                 }
-
+                log.add("AUTO COMMAND CHECK" + check);
                 if (check) {
 
                     if (item.type == "switch" && triggerArm === 1) {
