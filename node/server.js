@@ -512,11 +512,10 @@ io.sockets.on('connection', function(socket) {
     socket.on("refresh", function() {
         log.add("GIT PULL");
         // executes `pwd`
-        console.log("GIT PULL");
-        var gitPull = exec("git pull", function(error, stdout, stderr) {
+        console.log("GIT PULL", exec("git pull", function(error, stdout, stderr) {
             log.add("stdout: " + stdout);
             console.log("GIT PULL", error, stdout, stderr);
-        });
+        }));
 
         /*child.exit(function() {
             log.add("DO RESTART");
