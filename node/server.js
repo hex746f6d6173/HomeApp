@@ -519,6 +519,10 @@ io.sockets.on('connection', function(socket) {
         exec("git pull", function(error, stdout, stderr) {
             log.add("stdout: " + stdout);
             console.log("GIT PULL", error, stdout, stderr);
+            io.sockets.emit("refreshE", {
+                event: "refreshdata",
+                data: stdout
+            });
         }).on('close', function() {
             io.sockets.emit("refreshE", {
                 event: "restart"

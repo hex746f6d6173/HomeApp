@@ -23,6 +23,10 @@ $(document).ready(function() {
     });
     socket.on('refreshE', function(data) {
         console.log('refreshE', data);
+        if (data.event === "restart") {
+            if (confirm("Wil je herladen?"))
+                window.location.reload();
+        }
     })
     socket.on('connecting', function() {
 
