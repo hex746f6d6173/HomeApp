@@ -238,9 +238,9 @@ app.get('/temps', function(req, res) {
 });
 app.get('/temp/:t', function(req, res) {
     var time = new Date().getTime();
-    res.send(JSON.stringify(parseFloat(req.params.t))).end();
-
     var newTemp = parseFloat(req.params.t);
+
+    res.send(JSON.stringify(newTemp)).end();
 
     var Dtemp = temp - newTemp;
 
@@ -248,7 +248,7 @@ app.get('/temp/:t', function(req, res) {
 
         if (req.params.t != temp) {
 
-            temp = parseFloat(req.params.t);
+            temp = newTemp;
 
             log.add("TEMPRATUUR UPDATE: " + temp);
             io.sockets.emit('temp', temp);
@@ -257,7 +257,7 @@ app.get('/temp/:t', function(req, res) {
             localStorage.setItem("temp", "[]");
         var temps = JSON.parse(localStorage.getItem("temp"));
 
-        temps.push([time, parseFloat(req.params.t)]);
+        temps.push([time, newTemp]);
 
         localStorage.setItem("temp", JSON.stringify(temps));
     } else {
@@ -269,8 +269,6 @@ var timeSwitch = 0;
 var timeOutFunction = "a";
 
 app.get('/pir/:a/:b', function(req, res) {
-
-    log.add("PIR UPDATE: " + req.params.a + ", " + req.params.b);
 
     if (req.params.b == 1 && persistState === 0 && (timeSwitch + 60000) < new Date().getTime()) {
         persistState = 1;
