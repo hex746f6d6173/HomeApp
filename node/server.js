@@ -279,6 +279,25 @@ app.get('/temps', function(req, res) {
     res.send(JSON.stringify(parseTemps)).end();
 
 });
+app.get('/lights', function(req, res) {
+    res.send(localStorage.getItem("lightsLumen")).end();
+});
+app.get('/light/:l', function(req, res) {
+    var time = new Date().getTime();
+    var newLight = parseFloat(req.params.l);
+
+    res.send(JSON.stringify(newTemp)).end();
+
+    if (localStorage.getItem("lightsLumen") === null || localStorage.getItem("lightsLumen") == "")
+        localStorage.setItem("lightsLumen", "[]");
+    var lights = JSON.parse(localStorage.getItem("lightsLumen"));
+
+    lights.push([time, newLight]);
+
+    localStorage.setItem("temp", JSON.stringify(lights));
+
+});
+
 app.get('/temp/:t', function(req, res) {
     var time = new Date().getTime();
     var newTemp = parseFloat(req.params.t);
@@ -647,7 +666,7 @@ function checkRunningProcesses() {
     c.exec("pstree | grep py", function(err, stream) {
         stream.on('data', function(data, extended) {
             var str = "" + data + "";
-            var match = str.match(/pir.py|try.py/g);
+            var match = str.match(/pir.py|try.py|light.py/g);
             if (match.indexOf("pir.py") === -1) {
                 log.add("checkRunningProcesses start pir");
                 c.exec("cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log");
@@ -655,6 +674,10 @@ function checkRunningProcesses() {
             if (match.indexOf("try.py") === -1) {
                 log.add("checkRunningProcesses start try");
                 c.exec("cd /var/www/home/node/executables/DHT && ./try.py >> try.log");
+            }
+            if (match.indexOf("light.py") === -1) {
+                log.add("checkRunningProcesses start try");
+                c.exec("cd /var/www/home/node/executables/DHT && ./light.py >> light.log");
             }
         });
     });
