@@ -247,5 +247,11 @@ $(document).ready(function() {
             }
         });
     });
-
+    $.getJSON("/totalGraph", function(d) {
+        $.plot("#his", d, {
+            xaxis: {
+                mode: "time"
+            }
+        });
+    });
 });
