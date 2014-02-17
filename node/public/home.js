@@ -230,6 +230,13 @@ $(document).ready(function() {
 
     });
 
+    socket.on('lightsLume', function(data) {
+        console.log("lightsLume", data);
+
+        $(".lightsLume").html(data);
+
+    });
+
     $(".refresh").click(function() {
         socket.emit("refresh", true);
     });
