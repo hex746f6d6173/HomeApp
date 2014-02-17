@@ -644,15 +644,23 @@ function networkDiscovery() {
 }
 
 function checkRunningProcesses() {
-    log.add("checkRunningProcesses");
     c.exec("pstree | grep py", function(err, stream) {
         stream.on('data', function(data, extended) {
-            log.add("checkRunningProcesses: " + data);
+            var str = "" + data + "";
+            var match = str.match(/pir.py|try.py/g);
+            if (match.indexOf("pir.py") === -1) {
+                log.add("checkRunningProcesses start pir");
+                c.exec("cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log");
+            }
+            if (match.indexOf("try.py") === -1) {
+                log.add("checkRunningProcesses start try");
+                c.exec("cd /var/www/home/node/executables/DHT && ./try.py >> try.log");
+            }
         });
     });
 
 }
-checkRunningProcesses();
+
 setInterval(function() {
     checkRunningProcesses();
 }, 60000);
