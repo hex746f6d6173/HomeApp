@@ -631,6 +631,9 @@ function networkDiscovery() {
         var self = this;
 
         //console.log(item);
+        var time = new Date().getTime();
+        if (localStorage.getItem("deviceHis") === null || localStorage.getItem("deviceHis") == "")
+            localStorage.setItem("deviceHis", "{}");
 
         pingSession.pingHost(item.ip, function(error, target) {
             if (error) {
@@ -647,6 +650,17 @@ function networkDiscovery() {
 
                 if (item.state === 1) {
                     log.add("NETWORKDISC " + item.name + " came online");
+
+                    var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
+                    if (deviceHis[item.ip] === undefined)
+                        deviceHis[item.ip] = {};
+                    if (deviceHis[item.ip].graph === undefined)
+                        deviceHis[item.ip].graph = [];
+
+                    deviceHis[item.ip].graph.push([time, 1]);
+
+                    localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
+
                     if (item.onSwitchOn !== undefined) {
                         eval(item.onSwitchOn);
                         log.add("AUTOCOMMAND ON " + item.onSwitchOn, true);
@@ -654,6 +668,19 @@ function networkDiscovery() {
                 }
                 if (item.state === 0) {
                     log.add("NETWORKDISC " + item.name + " went offline");
+
+                    var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
+
+                    if (deviceHis[item.ip] === undefined)
+                        deviceHis[item.ip] = {};
+
+                    if (deviceHis[item.ip].graph === undefined)
+                        deviceHis[item.ip].graph = [];
+
+                    deviceHis[item.ip].graph.push([time, 0]);
+
+                    localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
+
                     if (item.onSwitchOff !== undefined) {
                         eval(item.onSwitchOff);
                         log.add("AUTOCOMMAND OFF " + item.onSwitchOff, true);
@@ -670,27 +697,31 @@ function networkDiscovery() {
 }
 
 function checkRunningProcesses() {
-    c.exec("pstree | grep py", function(err, stream) {
+
+    var cCheck = new Connection();
+    cCheck.connect(thisConfig.sshCred);
+    cCheck.exec("pstree | grep py", function(err, stream) {
         stream.on('data', function(data, extended) {
             var str = "" + data + "";
             var match = str.match(/pir.py|try.py|light.py/g);
+            console.log("match", match, data);
             if (match.indexOf("pir.py") === -1) {
                 log.add("checkRunningProcesses start pir");
-                c.exec("cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log");
+                var pirExec = cCheck.exec("cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log");
+
             }
             if (match.indexOf("try.py") === -1) {
                 log.add("checkRunningProcesses start try");
-                c.exec("cd /var/www/home/node/executables/DHT && ./try.py >> try.log");
+                var tryExec = cCheck.exec("cd /var/www/home/node/executables/DHT && ./try.py >> try.log");
             }
             if (match.indexOf("light.py") === -1) {
-                log.add("checkRunningProcesses start try");
-                c.exec("cd /var/www/home/node/executables/DHT && ./light.py >> light.log");
+                log.add("checkRunningProcesses start lights");
+                var lightExec = cCheck.exec("cd /var/www/home/node/executables/DHT && ./light.py >> light.log");
             }
         });
     });
 
 }
-
 setInterval(function() {
     checkRunningProcesses();
 }, 60000);
