@@ -363,7 +363,7 @@ var timeOutFunction = "a";
 
 app.get('/pir/:a/:b', function(req, res) {
 
-    log.add("PIR!" + req.params.b);
+    log.add("PIR! " + req.params.b);
 
     if (localStorage.getItem("pir") === null || localStorage.getItem("pir") == "")
         localStorage.setItem("pir", "[]");
