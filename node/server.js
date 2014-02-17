@@ -511,7 +511,7 @@ io.sockets.on('connection', function(socket) {
                 });
             }).on('close', function() {
                 pulling = false;
-
+                cConnect();
                 exec("git describe", function(error, stdout, stderr) {
                     var newVersion = stdout;
                     log.add("New version" + version);
@@ -536,8 +536,6 @@ io.sockets.on('connection', function(socket) {
         } else {
             log.add("ALREADY PULLING");
         }
-        /*child.exit(function() {
-        });*/
 
     });
 
@@ -645,6 +643,19 @@ function networkDiscovery() {
 
 }
 
+function checkRunningProcesses() {
+    log.add("checkRunningProcesses");
+    c.exec("pstree | grep py", function(err, stream) {
+        stream.on('data', function(data, extended) {
+            log.add("checkRunningProcesses: " + data);
+        });
+    });
+
+}
+checkRunningProcesses();
+setInterval(function() {
+    checkRunningProcesses();
+}, 60000);
 networkDiscovery();
 
 setTimeout(function() {
