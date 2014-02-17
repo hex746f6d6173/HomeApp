@@ -299,7 +299,7 @@ app.get('/light/:l', function(req, res) {
     lightsLume = newLight;
 
     io.sockets.emit("lightsLume", lightsLume);
-
+    log.add("LIGHT UPDATE: " + lightsLume);
     localStorage.setItem("lightsLumen", JSON.stringify(lights));
 
 });
