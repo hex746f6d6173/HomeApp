@@ -631,6 +631,9 @@ function networkDiscovery() {
         var self = this;
 
         //console.log(item);
+        var time = new Date().getTime();
+        if (localStorage.getItem("deviceHis") === null || localStorage.getItem("deviceHis") == "")
+            localStorage.setItem("deviceHis", "{}");
 
         pingSession.pingHost(item.ip, function(error, target) {
             if (error) {
@@ -647,6 +650,14 @@ function networkDiscovery() {
 
                 if (item.state === 1) {
                     log.add("NETWORKDISC " + item.name + " came online");
+
+                    var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
+                    if (deviceHis[item.ip].graph === undefined)
+                        deviceHis[item.ip].graph = [];
+                    deviceHis[item.ip].graph.push([time, 1]);
+
+                    localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
+
                     if (item.onSwitchOn !== undefined) {
                         eval(item.onSwitchOn);
                         log.add("AUTOCOMMAND ON " + item.onSwitchOn, true);
@@ -654,6 +665,16 @@ function networkDiscovery() {
                 }
                 if (item.state === 0) {
                     log.add("NETWORKDISC " + item.name + " went offline");
+
+                    var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
+
+                    if (deviceHis[item.ip].graph === undefined)
+                        deviceHis[item.ip].graph = [];
+
+                    deviceHis[item.ip].graph.push([time, 0]);
+
+                    localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
+
                     if (item.onSwitchOff !== undefined) {
                         eval(item.onSwitchOff);
                         log.add("AUTOCOMMAND OFF " + item.onSwitchOff, true);
@@ -683,14 +704,13 @@ function checkRunningProcesses() {
                 c.exec("cd /var/www/home/node/executables/DHT && ./try.py >> try.log");
             }
             if (match.indexOf("light.py") === -1) {
-                log.add("checkRunningProcesses start try");
+                log.add("checkRunningProcesses start lights");
                 c.exec("cd /var/www/home/node/executables/DHT && ./light.py >> light.log");
             }
         });
     });
 
 }
-
 setInterval(function() {
     checkRunningProcesses();
 }, 60000);
