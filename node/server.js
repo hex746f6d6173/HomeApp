@@ -283,6 +283,31 @@ app.get('/temps', function(req, res) {
 app.get('/lights', function(req, res) {
     res.send(localStorage.getItem("lightsLumen")).end();
 });
+app.get('/deviceHis', function(req, res) {
+    res.send(localStorage.getItem("deviceHis")).end();
+});
+app.get('/totalGraph', function(req, res) {
+    var ret = [];
+
+    var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
+
+    for (var key in deviceHis) {
+        var item = deviceHis[key];
+        ret.push({
+            label: "Device History " + key,
+            data: item.graph
+        });
+    }
+
+    ret.push({
+        label: "PIR history",
+        data: JSON.parse(localStorage.getItem("pir"))
+    });
+
+    localStorage.getItem("lightsLumen")
+
+    res.send(ret).end();
+});
 app.get('/light/:l', function(req, res) {
     var time = new Date().getTime();
     var newLight = parseFloat(req.params.l);
@@ -339,6 +364,22 @@ var timeOutFunction = "a";
 app.get('/pir/:a/:b', function(req, res) {
 
     log.add("PIR!" + req.params.b);
+
+    if (localStorage.getItem("pir") === null || localStorage.getItem("pir") == "")
+        localStorage.setItem("pir", "[]");
+    var time = new Date().getTime();
+
+    var pirs = JSON.parse(localStorage.getItem("pir"));
+
+    if (req.params.b == 1) {
+        pirs.push([time, 0]);
+        pirs.push([time + 1, 1]);
+    } else {
+        pirs.push([time, 1]);
+        pirs.push([time + 1, 0]);
+    }
+
+    localStorage.setItem("pir", JSON.stringify(pirs));
 
     if (req.params.b == 1 && persistState === 0 && (timeSwitch + 60000) < new Date().getTime()) {
         persistState = 1;
@@ -441,7 +482,7 @@ app.get('/pir/:a/:b', function(req, res) {
         }
     }
 
-    res.send(JSON.stringify(req.params.a)).end();
+    res.send(JSON.stringify(req.params.b)).end();
 
 });
 
@@ -652,12 +693,12 @@ function networkDiscovery() {
                     log.add("NETWORKDISC " + item.name + " came online");
 
                     var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
-                    if (deviceHis[item.ip] === undefined)
-                        deviceHis[item.ip] = {};
-                    if (deviceHis[item.ip].graph === undefined)
-                        deviceHis[item.ip].graph = [];
-
-                    deviceHis[item.ip].graph.push([time, 1]);
+                    if (deviceHis[item.name] === undefined)
+                        deviceHis[item.name] = {};
+                    if (deviceHis[item.name].graph === undefined)
+                        deviceHis[item.name].graph = [];
+                    deviceHis[item.name].graph.push([time, 0]);
+                    deviceHis[item.name].graph.push([time + 1, 1]);
 
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
@@ -671,13 +712,14 @@ function networkDiscovery() {
 
                     var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
 
-                    if (deviceHis[item.ip] === undefined)
-                        deviceHis[item.ip] = {};
+                    if (deviceHis[item.name] === undefined)
+                        deviceHis[item.name] = {};
 
-                    if (deviceHis[item.ip].graph === undefined)
-                        deviceHis[item.ip].graph = [];
+                    if (deviceHis[item.name].graph === undefined)
+                        deviceHis[item.name].graph = [];
 
-                    deviceHis[item.ip].graph.push([time, 0]);
+                    deviceHis[item.name].graph.push([time, 1]);
+                    deviceHis[item.name].graph.push([time + 1, 0]);
 
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
