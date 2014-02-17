@@ -286,7 +286,7 @@ app.get('/light/:l', function(req, res) {
     var time = new Date().getTime();
     var newLight = parseFloat(req.params.l);
 
-    res.send(JSON.stringify(newTemp)).end();
+    res.send(JSON.stringify(newLight)).end();
 
     if (localStorage.getItem("lightsLumen") === null || localStorage.getItem("lightsLumen") == "")
         localStorage.setItem("lightsLumen", "[]");
