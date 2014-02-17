@@ -24,7 +24,8 @@ var express = require('express'),
     alarmArm = 0,
     triggerArm = 0,
     temp = 19,
-    pulling = false;
+    pulling = false,
+    lightsLume = 0;
 
 if (typeof localStorage === "undefined" || localStorage === null) {
     var LocalStorage = require('node-localstorage').LocalStorage;
@@ -285,16 +286,21 @@ app.get('/lights', function(req, res) {
 app.get('/light/:l', function(req, res) {
     var time = new Date().getTime();
     var newLight = parseFloat(req.params.l);
-
+    console.log("LIGHTS: ", newLight);
     res.send(JSON.stringify(newLight)).end();
 
     if (localStorage.getItem("lightsLumen") === null || localStorage.getItem("lightsLumen") == "")
         localStorage.setItem("lightsLumen", "[]");
+
     var lights = JSON.parse(localStorage.getItem("lightsLumen"));
 
     lights.push([time, newLight]);
 
-    localStorage.setItem("temp", JSON.stringify(lights));
+    lightsLume = newLight;
+
+    io.sockets.emit("lightsLume", lightsLume);
+
+    localStorage.setItem("lightsLumen", JSON.stringify(lights));
 
 });
 
@@ -445,6 +451,7 @@ io.sockets.on('connection', function(socket) {
     socket.emit('switches', switches);
     socket.emit('devices', config.devices);
     socket.emit('temp', temp);
+    socket.emit("lightsLume", lightsLume);
 
     socket.emit('alarmArm', alarmArm);
     socket.emit('triggerArm', triggerArm);
