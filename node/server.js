@@ -372,11 +372,9 @@ app.get('/pir/:a/:b', function(req, res) {
     var pirs = JSON.parse(localStorage.getItem("pir"));
 
     if (req.params.b == 1) {
-        pirs.push([time, 0]);
-        pirs.push([time + 1, 1]);
-    } else {
         pirs.push([time, 1]);
-        pirs.push([time + 1, 0]);
+    } else {
+        pirs.push([time, 0]);
     }
 
     localStorage.setItem("pir", JSON.stringify(pirs));
