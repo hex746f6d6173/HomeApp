@@ -372,9 +372,9 @@ app.get('/pir/:a/:b', function(req, res) {
     var pirs = JSON.parse(localStorage.getItem("pir"));
 
     if (req.params.b == 1) {
-        pirs.push([time, 1]);
+        pirs.push([time, "1"]);
     } else {
-        pirs.push([time, 0]);
+        pirs.push([time, "0"]);
     }
 
     localStorage.setItem("pir", JSON.stringify(pirs));
@@ -719,7 +719,7 @@ function networkDiscovery() {
                         deviceHis[item.name] = {};
                     if (deviceHis[item.name].graph === undefined)
                         deviceHis[item.name].graph = [];
-                    deviceHis[item.name].graph.push([time, 1]);
+                    deviceHis[item.name].graph.push([time, "1"]);
 
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
@@ -739,7 +739,7 @@ function networkDiscovery() {
                     if (deviceHis[item.name].graph === undefined)
                         deviceHis[item.name].graph = [];
 
-                    deviceHis[item.name].graph.push([time, 0]);
+                    deviceHis[item.name].graph.push([time, "0"]);
 
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
