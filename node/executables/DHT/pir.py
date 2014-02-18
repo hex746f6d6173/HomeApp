@@ -24,7 +24,7 @@ while True:
             state = 0
             print("PIR NO ALARM!")
             ticks = time.time()
-            if(ticks > (previousTime + (1000*60*30))):
+            if(ticks > (previousTime + (1000*60*10))):
                 r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
                 
     time.sleep(0.5)
