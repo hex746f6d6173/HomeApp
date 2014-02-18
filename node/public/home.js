@@ -1,6 +1,23 @@
 var red = "red",
     green = "rgb(27,242,0)",
     orange = "orange";
+
+function plot() {
+    $.getJSON("/temps", function(d) {
+        $.plot("#plot", [d], {
+            xaxis: {
+                mode: "time"
+            }
+        });
+    });
+    $.getJSON("/totalGraph", function(d) {
+        $.plot("#his", d, {
+            xaxis: {
+                mode: "time"
+            }
+        });
+    });
+}
 $(document).ready(function() {
 
     var socket = io.connect('http://' + window.location.hostname);
@@ -241,20 +258,8 @@ $(document).ready(function() {
     $(".refresh").click(function() {
         socket.emit("refresh", true);
     });
+    plot();
     setTimeout(function() {
-        $.getJSON("/temps", function(d) {
-            $.plot("#plot", [d], {
-                xaxis: {
-                    mode: "time"
-                }
-            });
-        });
-        $.getJSON("/totalGraph", function(d) {
-            $.plot("#his", d, {
-                xaxis: {
-                    mode: "time"
-                }
-            });
-        });
+        plot();
     }, 10000);
 });
