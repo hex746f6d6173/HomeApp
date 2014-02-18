@@ -670,7 +670,7 @@ if (thisConfig.use === "ssh") {
         state.sshPending = false;
         setTimeout(function() {
             cConnect();
-        }, 5000);
+        }, 10000);
         state.ssh = false;
         io.sockets.emit('state', state);
         log.add("SSH CLOSE");
