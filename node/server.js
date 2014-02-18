@@ -578,7 +578,7 @@ io.sockets.on('connection', function(socket) {
                 cConnect();
             }).on('close', function() {
                 pulling = false;
-                cConnect();
+                c.end();
                 exec("git describe", function(error, stdout, stderr) {
                     var newVersion = stdout;
                     log.add("New version" + version);
@@ -594,6 +594,9 @@ io.sockets.on('connection', function(socket) {
                         }, 10000);
                     } else {
                         log.add("No updated to: " + newVersion + ", same version");
+                        setTimeout(function() {
+                            childd = exec("forever restartall", function(error, stdout, stderr) {});
+                        }, 10000);
                     }
 
                 });
