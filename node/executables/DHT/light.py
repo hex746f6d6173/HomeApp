@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 import serial
 import requests
 import time
@@ -7,7 +7,7 @@ state = 0;
 
 ser = serial.Serial('/dev/ttyACM0', 9600)
 while True:
-
+	time.sleep(0.1)
     temp =  ser.readline()
     temp = temp.rstrip()
 
@@ -18,5 +18,5 @@ while True:
         
         r = requests.get("http://home.tomasharkema.nl/light/"+temp+"/")
 	        
-	time.sleep(10)
+		time.sleep(3)
 	        
