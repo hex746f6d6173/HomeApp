@@ -740,25 +740,25 @@ function networkDiscovery() {
 
 function checkRunningProcesses() {
 
-    var cCheck = new Connection();
-    cCheck.connect(thisConfig.sshCred);
-    cCheck.exec("pstree | grep py", function(err, stream) {
+    //var cCheck = new Connection();
+    //cCheck.connect(thisConfig.sshCred);
+    c.exec("pstree | grep py", function(err, stream) {
         stream.on('data', function(data, extended) {
             var str = "" + data + "";
             var match = str.match(/pir.py|try.py|light.py/g);
             console.log("match", match, data);
             if (match.indexOf("pir.py") === -1) {
                 log.add("checkRunningProcesses start pir");
-                var pirExec = cCheck.exec("cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log");
+                //var pirExec = cCheck.exec("cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log");
 
             }
             if (match.indexOf("try.py") === -1) {
                 log.add("checkRunningProcesses start try");
-                var tryExec = cCheck.exec("cd /var/www/home/node/executables/DHT && ./try.py >> try.log");
+                //var tryExec = cCheck.exec("cd /var/www/home/node/executables/DHT && ./try.py >> try.log");
             }
             if (match.indexOf("light.py") === -1) {
                 log.add("checkRunningProcesses start lights");
-                var lightExec = cCheck.exec("cd /var/www/home/node/executables/DHT && ./light.py >> light.log");
+                //var lightExec = cCheck.exec("cd /var/www/home/node/executables/DHT && ./light.py >> light.log");
             }
         });
     });
