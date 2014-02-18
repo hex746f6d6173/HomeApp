@@ -24,8 +24,9 @@ $(document).ready(function() {
     socket.on('refreshE', function(data) {
         console.log('refreshE', data);
         if (data.event === "restart") {
-            if (confirm("Wil je herladen?"))
+            setTimeout(function() {
                 window.location.reload();
+            }, 10000);
         }
     })
     socket.on('connecting', function() {
