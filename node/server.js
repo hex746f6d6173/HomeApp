@@ -567,7 +567,7 @@ io.sockets.on('connection', function(socket) {
                 event: "refresh"
             });
             pulling = true;
-            c.exec("sudo cd /var/www/home && sudo git pull", function(err, stream) {
+            c.exec("cd /var/www/home && sudo git pull", function(err, stream) {
                 if (err) throw err;
                 log.add("PI GIT PULL");
 
