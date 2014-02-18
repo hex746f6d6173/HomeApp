@@ -324,7 +324,7 @@ app.get('/light/:l', function(req, res) {
     lightsLume = newLight;
 
     io.sockets.emit("lightsLume", lightsLume);
-    log.add("LIGHT UPDATE: " + lightsLume);
+    //log.add("LIGHT UPDATE: " + lightsLume);
     localStorage.setItem("lightsLumen", JSON.stringify(lights));
 
 });
@@ -363,7 +363,7 @@ var timeOutFunction = "a";
 
 app.get('/pir/:a/:b', function(req, res) {
 
-    log.add("PIR! " + req.params.b);
+    //log.add("PIR! " + req.params.b);
 
     if (localStorage.getItem("pir") === null || localStorage.getItem("pir") == "")
         localStorage.setItem("pir", "[]");
@@ -372,11 +372,9 @@ app.get('/pir/:a/:b', function(req, res) {
     var pirs = JSON.parse(localStorage.getItem("pir"));
 
     if (req.params.b == 1) {
-        pirs.push([time, 0]);
-        pirs.push([time + 1, 1]);
-    } else {
         pirs.push([time, 1]);
-        pirs.push([time + 1, 0]);
+    } else {
+        pirs.push([time, 0]);
     }
 
     localStorage.setItem("pir", JSON.stringify(pirs));
