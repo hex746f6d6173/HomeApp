@@ -567,6 +567,25 @@ io.sockets.on('connection', function(socket) {
                 event: "refresh"
             });
             pulling = true;
+            c.exec("sudo cd /var/www/home && sudo git pull", function(err, stream) {
+                if (err) throw err;
+                log.add("PI GIT PULL");
+
+                stream.on('data', function(data, extended) {
+                    log.add("PI GIT PULL DATA: " + data);
+                });
+                stream.on('end', function() {
+                    //console.log('Stream :: EOF');
+                });
+                stream.on('close', function() {
+                    //console.log('Stream :: close');
+                });
+                stream.on('exit', function(code, signal) {
+                    //console.log('Stream :: exit :: code: ' + code + ', signal: ' + signal);
+
+                });
+
+            });
             exec("git pull", function(error, stdout, stderr) {
                 log.add("stdout: " + stdout);
                 console.log("GIT PULL", error, stdout, stderr);
