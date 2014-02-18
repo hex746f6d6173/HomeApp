@@ -576,6 +576,7 @@ io.sockets.on('connection', function(socket) {
                     event: "refreshdata",
                     data: stdout
                 });
+                cConnect();
             }).on('close', function() {
                 pulling = false;
                 cConnect();
