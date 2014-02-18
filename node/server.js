@@ -700,14 +700,13 @@ function networkDiscovery() {
                         deviceHis[item.name] = {};
                     if (deviceHis[item.name].graph === undefined)
                         deviceHis[item.name].graph = [];
-                    deviceHis[item.name].graph.push([time, 0]);
-                    deviceHis[item.name].graph.push([time + 1, 1]);
+                    deviceHis[item.name].graph.push([time, 1]);
 
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
                     if (item.onSwitchOn !== undefined) {
                         eval(item.onSwitchOn);
-                        log.add("AUTOCOMMAND ON " + item.onSwitchOn, true);
+                        log.add("AUTOCOMMAND ON " + item.name, true);
                     }
                 }
                 if (item.state === 0) {
@@ -721,14 +720,13 @@ function networkDiscovery() {
                     if (deviceHis[item.name].graph === undefined)
                         deviceHis[item.name].graph = [];
 
-                    deviceHis[item.name].graph.push([time, 1]);
-                    deviceHis[item.name].graph.push([time + 1, 0]);
+                    deviceHis[item.name].graph.push([time, 0]);
 
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
                     if (item.onSwitchOff !== undefined) {
                         eval(item.onSwitchOff);
-                        log.add("AUTOCOMMAND OFF " + item.onSwitchOff, true);
+                        log.add("AUTOCOMMAND OFF " + item.name, true);
                     }
                 }
 
