@@ -240,18 +240,20 @@ $(document).ready(function() {
     $(".refresh").click(function() {
         socket.emit("refresh", true);
     });
-    $.getJSON("/temps", function(d) {
-        $.plot("#plot", [d], {
-            xaxis: {
-                mode: "time"
-            }
+    setTimeout(function() {
+        $.getJSON("/temps", function(d) {
+            $.plot("#plot", [d], {
+                xaxis: {
+                    mode: "time"
+                }
+            });
         });
-    });
-    $.getJSON("/totalGraph", function(d) {
-        $.plot("#his", d, {
-            xaxis: {
-                mode: "time"
-            }
+        $.getJSON("/totalGraph", function(d) {
+            $.plot("#his", d, {
+                xaxis: {
+                    mode: "time"
+                }
+            });
         });
-    });
+    }, 10000);
 });
