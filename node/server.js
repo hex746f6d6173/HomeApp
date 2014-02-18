@@ -634,7 +634,7 @@ if (thisConfig.use === "ssh") {
         state.sshPending = false;
         state.ssh = false;
         io.sockets.emit('state', state);
-        log.add("SSH ERROR");
+        log.add("SSH ERROR " + err);
     });
     c.on('end', function() {
         //console.log('Connection :: end');
