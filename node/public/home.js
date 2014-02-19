@@ -18,7 +18,7 @@ function plot() {
         });
     });
     $.getJSON("/lights", function(d) {
-        $.plot("#lLights", d, {
+        $.plot("#lLights", [d], {
             xaxis: {
                 mode: "time"
             }
