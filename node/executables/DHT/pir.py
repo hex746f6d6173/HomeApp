@@ -12,6 +12,8 @@ state = 0;
 
 previousTime = 0;
 
+requests.get("http://home.tomasharkema.nl/pir/1/0/")
+
 while True:
     if io.input(pir_pin):
         if (state == 0) :
@@ -20,13 +22,13 @@ while True:
             previousTime = int(round(time.time() * 1000))
             r = requests.get("http://home.tomasharkema.nl/pir/1/1/")
     else:
-        print("PIR NO ALARM!")
         now = int(round(time.time() * 1000))
-        print(previousTime + (1000 * 60 * 15))
-        print(now)
-        print(";")
+        
         if ((previousTime + (1000 * 60 * 15)) < now):
             print("PIR NO ENTER!")
-            r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
+
+            if(state == 1):
+                state = 0
+                r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
                 
     time.sleep(0.5)
