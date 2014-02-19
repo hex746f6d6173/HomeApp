@@ -24,7 +24,7 @@ while True:
     else:
         now = int(round(time.time() * 1000))
         
-        if ((previousTime + (1000 * 60 * 15)) < now):
+        if ((previousTime + (1000 * 60 * 10)) < now):
             print("PIR NO ENTER!")
 
             if(state == 1):
