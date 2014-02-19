@@ -837,16 +837,21 @@ function checkRunningProcesses() {
             console.log("match", match, data);
             if (match.indexOf("pir.py") === -1) {
                 log.add("checkRunningProcesses start pir");
-                //var pirExec = cCheck.exec("cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log");
-
+                setTimeout(function() {
+                    c.exec("cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log");
+                }, 4000);
             }
             if (match.indexOf("try.py") === -1) {
                 log.add("checkRunningProcesses start try");
-                //var tryExec = cCheck.exec("cd /var/www/home/node/executables/DHT && ./try.py >> try.log");
+                setTimeout(function() {
+                    c.exec("cd /var/www/home/node/executables/DHT && ./try.py >> try.log");
+                }, 6000);
             }
             if (match.indexOf("light.py") === -1) {
                 log.add("checkRunningProcesses start lights");
-                //var lightExec = cCheck.exec("cd /var/www/home/node/executables/DHT && ./light.py >> light.log");
+                setTimeout(function() {
+                    c.exec("cd /var/www/home/node/executables/DHT && ./light.py >> light.log");
+                }, 8000);
             }
         });
     });
