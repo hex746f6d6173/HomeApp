@@ -281,7 +281,59 @@ app.get('/temps', function(req, res) {
 
 });
 app.get('/lights', function(req, res) {
-    res.send(localStorage.getItem("lightsLumen")).end();
+
+    var Lights = JSON.parse(localStorage.getItem("lightsLumen"));
+
+    var parseLights = [];
+
+    var prevHour = -1;
+
+    var hourArray = [];
+
+    Lights.forEach(function(item) {
+        var thisLight = parseFloat(item[1]);
+        var thisHour = new Date(item[0]).getHours();
+
+        if (thisHour != prevHour) {
+
+            prevHour = thisHour;
+
+
+            if (hourArray.length > 0) {
+                var teller = 0;
+                var sum = 0;
+                hourArray.forEach(function(itemm) {
+                    sum = sum + itemm;
+                    teller++;
+                });
+
+                var adjDate = new Date(item[0]).setMinutes(0);
+
+                adjDate = new Date(adjDate).setSeconds(0);
+
+                var h = new Date(adjDate).getHours();
+
+                adjDate = new Date(adjDate).setHours(h);
+                console.log(sum + "/" + teller);
+                parseLights.push([adjDate, sum / teller]);
+
+                hourArray = [];
+
+            } else {
+                hourArray.push(thisLight);
+
+            }
+
+        } else {
+            hourArray.push(thisLight);
+
+        }
+
+
+    });
+
+    res.send(parseLights).end();
+
 });
 app.get('/deviceHis', function(req, res) {
     res.send(localStorage.getItem("deviceHis")).end();
