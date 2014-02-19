@@ -10,7 +10,7 @@ io.setup(pir_pin, io.IN)         # activate input
 
 state = 0;
 
-previousTime = 0;
+previousTime = int(round(time.time() * 1000));
 
 requests.get("http://home.tomasharkema.nl/pir/1/0/")
 
