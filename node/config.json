@@ -91,7 +91,7 @@
             "to": 1,
             "delay": 1,
             "light": true,
-            "lessThan": 6
+            "less": 6
         }, {
             "type": "alarm",
             "message": "ALARM! AN INTRUDER DETECTED!!!"
@@ -100,12 +100,9 @@
             "type": "switch",
             "switch": 0,
             "to": 0,
-            "delay": 60000,
-            "time": true,
-            "between": [
-                [0, 6],
-                [19, 23]
-            ]
+            "delay": 0,
+            "light": true,
+            "less": 6
         }]
     }
 }
