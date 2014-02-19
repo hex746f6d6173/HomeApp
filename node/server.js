@@ -446,6 +446,12 @@ app.get('/pir/:a/:b', function(req, res) {
                             check = true;
                     });
                 }
+                if (item.light === true) {
+                    check = false;
+                    if (lightsLume < item.lessThan) {
+                        check = true;
+                    }
+                }
                 if (check) {
 
                     if (item.type === "switch" && triggerArm === 1) {
@@ -495,6 +501,12 @@ app.get('/pir/:a/:b', function(req, res) {
                         if (t >= betweenDiff[0] && t <= betweenDiff[1])
                             check = true;
                     });
+                }
+                if (item.light === true) {
+                    check = false;
+                    if (lightsLume < item.lessThan) {
+                        check = true;
+                    }
                 }
                 if (check) {
 
