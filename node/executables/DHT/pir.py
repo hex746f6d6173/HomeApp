@@ -21,8 +21,8 @@ while True:
             r = requests.get("http://home.tomasharkema.nl/pir/1/1/")
     else:
         print("PIR NO ALARM!")
-        now = int(round(time.time() * 1000));
-        print((previousTime + (1000 * 60 * 15)))
+        now = int(round(time.time() * 1000))
+        print(previousTime + (1000 * 60 * 15))
         print(now)
         print(";")
         if ((previousTime + (1000 * 60 * 15)) < now):
