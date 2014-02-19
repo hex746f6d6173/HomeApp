@@ -22,7 +22,7 @@ while True:
     else:
         print("PIR NO ALARM!")
         now = int(round(time.time() * 1000));
-        if ((previousTime +  (1000 * 60 * 15)) <  now):
+        if ((previousTime + (1000 * 60 * 15)) <  now):
             r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
                 
     time.sleep(0.5)
