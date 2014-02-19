@@ -17,6 +17,13 @@ function plot() {
             }
         });
     });
+    $.getJSON("/lights", function(d) {
+        $.plot("#lLights", d, {
+            xaxis: {
+                mode: "time"
+            }
+        });
+    });
 }
 $(document).ready(function() {
 
