@@ -415,7 +415,7 @@ var timeOutFunction = "a";
 
 app.get('/pir/:a/:b', function(req, res) {
 
-    //log.add("PIR! " + req.params.b);
+    log.add("PIR! " + req.params.b);
 
     if (localStorage.getItem("pir") === null || localStorage.getItem("pir") == "")
         localStorage.setItem("pir", "[]");
@@ -445,6 +445,14 @@ app.get('/pir/:a/:b', function(req, res) {
                         if (t >= betweenDiff[0] && t <= betweenDiff[1])
                             check = true;
                     });
+                }
+
+                if (item.light === true) {
+                    log.add("CHECK FOR LIGHT: " + lightsLume + " < " + item.less + "");
+                    check = false;
+                    if (lightsLume < item.less) {
+                        check = true;
+                    }
                 }
                 if (check) {
 
@@ -495,6 +503,14 @@ app.get('/pir/:a/:b', function(req, res) {
                         if (t >= betweenDiff[0] && t <= betweenDiff[1])
                             check = true;
                     });
+                }
+
+                if (item.light === true) {
+                    log.add("CHECK FOR LIGHT: " + lightsLume + " < " + item.less + "");
+                    check = false;
+                    if (lightsLume < item.less) {
+                        check = true;
+                    }
                 }
                 if (check) {
 
