@@ -685,7 +685,7 @@ io.sockets.on('connection', function(socket) {
                 event: "refresh"
             });
             pulling = true;
-            c.exec("cd /var/www/home/node && sudo git pull && npm install", function(err, stream) {
+            c.exec("cd /var/www/home/node && sudo git pull", function(err, stream) {
                 if (err) throw err;
                 log.add("PI GIT PULL");
 
@@ -704,7 +704,7 @@ io.sockets.on('connection', function(socket) {
                 });
 
             });
-            exec("git pull", function(error, stdout, stderr) {
+            exec("git pull && npm install", function(error, stdout, stderr) {
                 log.add("stdout: " + stdout);
                 console.log("GIT PULL", error, stdout, stderr);
                 io.sockets.emit("refreshE", {
