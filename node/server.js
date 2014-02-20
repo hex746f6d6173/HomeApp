@@ -865,6 +865,7 @@ function networkDiscovery() {
 
 app.get('/bigdata', function(req, res) {
 
+    var returnn = {};
 
     var pir = JSON.parse(localStorage.getItem("pir"));
 
@@ -893,7 +894,8 @@ app.get('/bigdata', function(req, res) {
                 thisItem.leng = thisItem.end - thisItem.begin;
 
                 thisItem.lengSec = thisItem.leng / 1000;
-
+                thisItem.lengMin = thisItem.leng / 1000 / 60;
+                thisItem.lengHour = thisItem.leng / 1000 / 60 / 60;
                 thisItem.beginHuman = new Date(thisItem.begin);
                 thisItem.endHuman = new Date(thisItem.end);
 
@@ -910,7 +912,35 @@ app.get('/bigdata', function(req, res) {
 
     });
 
-    res.send(times).end();
+    var previousDay = 0;
+    var secs = 0;
+    var dayLists = [];
+    times.forEach(function(item) {
+
+        if (previousDay === 0) {
+            previousDay = new Date(item.begin).getDay();
+        }
+
+        if (previousDay == new Date(item.begin).getDay()) {
+            secs = secs + item.lengSec;
+        } else {
+
+            dayLists.push({
+                day: new Date(item.begin),
+                secs: secs
+            });
+
+            previousDay = new Date(item.begin).getDay();
+
+        }
+
+
+    });
+
+    returnn.dayList = dayLists;
+    returnn.list = times;
+
+    res.send(returnn).end();
 
 });
 
