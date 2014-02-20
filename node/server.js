@@ -324,7 +324,7 @@ app.get('/light/:l', function(req, res) {
     lightsLume = newLight;
 
     io.sockets.emit("lightsLume", lightsLume);
-    //log.add("LIGHT UPDATE: " + lightsLume);
+    log.add("LIGHT UPDATE: " + lightsLume);
     localStorage.setItem("lightsLumen", JSON.stringify(lights));
 
 });
@@ -759,6 +759,57 @@ function networkDiscovery() {
     });
 
 }
+
+app.get('/bigdata', function(req, res) {
+
+
+    var pir = JSON.parse(localStorage.getItem("pir"));
+
+    var teller = 0;
+
+    var thisItem = {
+        begin: "",
+        end: ""
+    };
+
+    var times = [];
+
+    pir.forEach(function(item) {
+
+
+        if (item[1] == 1) {
+
+            if (thisItem.begin === "") {
+                thisItem.begin = item[0];
+            }
+        }
+
+        if (item[1] == 0) {
+            if (thisItem.begin !== "") {
+                thisItem.end = item[0];
+                thisItem.leng = thisItem.end - thisItem.begin;
+
+                thisItem.lengSec = thisItem.leng / 1000;
+
+                thisItem.beginHuman = new Date(thisItem.begin);
+                thisItem.endHuman = new Date(thisItem.end);
+
+                times.push(thisItem);
+                thisItem = {
+                    begin: "",
+                    end: ""
+                };
+            }
+
+        }
+
+        console.log(thisItem);
+
+    });
+
+    res.send(times).end();
+
+});
 
 function checkRunningProcesses() {
 
