@@ -234,47 +234,49 @@ app.get('/temps', function(req, res) {
 
     var hourArray = [];
 
+
+
     temps.forEach(function(item) {
         var thisTemp = parseFloat(item[1]);
         var thisHour = new Date(item[0]).getHours();
+        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 12))) {
+            if (thisHour != prevHour) {
 
-        if (thisHour != prevHour) {
-
-            prevHour = thisHour;
+                prevHour = thisHour;
 
 
-            if (hourArray.length > 0) {
-                var teller = 0;
-                var sum = 0;
-                hourArray.forEach(function(itemm) {
-                    sum = sum + itemm;
-                    teller++;
-                });
+                if (hourArray.length > 0) {
+                    var teller = 0;
+                    var sum = 0;
+                    hourArray.forEach(function(itemm) {
+                        sum = sum + itemm;
+                        teller++;
+                    });
 
-                var adjDate = new Date(item[0]).setMinutes(0);
+                    var adjDate = new Date(item[0]).setMinutes(0);
 
-                adjDate = new Date(adjDate).setSeconds(0);
+                    adjDate = new Date(adjDate).setSeconds(0);
 
-                var h = new Date(adjDate).getHours();
+                    var h = new Date(adjDate).getHours();
 
-                adjDate = new Date(adjDate).setHours(h);
+                    adjDate = new Date(adjDate).setHours(h);
 
-                parseTemps.push([adjDate, sum / teller]);
+                    parseTemps.push([adjDate, sum / teller]);
 
-                hourArray = [];
+                    hourArray = [];
+
+                } else {
+                    if (thisTemp < 45) {
+                        hourArray.push(thisTemp);
+                    }
+                }
 
             } else {
                 if (thisTemp < 45) {
                     hourArray.push(thisTemp);
                 }
             }
-
-        } else {
-            if (thisTemp < 45) {
-                hourArray.push(thisTemp);
-            }
         }
-
     });
 
     res.send(JSON.stringify(parseTemps)).end();
@@ -294,41 +296,43 @@ app.get('/lights', function(req, res) {
         var thisLight = parseFloat(item[1]);
         var thisHour = new Date(item[0]).getHours();
 
-        if (thisHour != prevHour) {
+        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 12))) {
 
-            prevHour = thisHour;
+            if (thisHour != prevHour) {
+
+                prevHour = thisHour;
 
 
-            if (hourArray.length > 0) {
-                var teller = 0;
-                var sum = 0;
-                hourArray.forEach(function(itemm) {
-                    sum = sum + itemm;
-                    teller++;
-                });
+                if (hourArray.length > 0) {
+                    var teller = 0;
+                    var sum = 0;
+                    hourArray.forEach(function(itemm) {
+                        sum = sum + itemm;
+                        teller++;
+                    });
 
-                var adjDate = new Date(item[0]).setMinutes(0);
+                    var adjDate = new Date(item[0]).setMinutes(0);
 
-                adjDate = new Date(adjDate).setSeconds(0);
+                    adjDate = new Date(adjDate).setSeconds(0);
 
-                var h = new Date(adjDate).getHours();
+                    var h = new Date(adjDate).getHours();
 
-                adjDate = new Date(adjDate).setHours(h);
-                console.log(sum + "/" + teller);
-                parseLights.push([adjDate, sum / teller]);
+                    adjDate = new Date(adjDate).setHours(h);
+                    console.log(sum + "/" + teller);
+                    parseLights.push([adjDate, sum / teller]);
 
-                hourArray = [];
+                    hourArray = [];
+
+                } else {
+                    hourArray.push(thisLight);
+
+                }
 
             } else {
                 hourArray.push(thisLight);
 
             }
-
-        } else {
-            hourArray.push(thisLight);
-
         }
-
 
     });
 
@@ -345,15 +349,37 @@ app.get('/totalGraph', function(req, res) {
 
     for (var key in deviceHis) {
         var item = deviceHis[key];
+
+        var devicePlot = [];
+
+        item.graph.forEach(function(item) {
+            if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 12)))
+                devicePlot.push(item);
+
+        });
+
+
+
         ret.push({
             label: "Device History " + key,
-            data: item.graph
+            data: devicePlot
         });
+
+
+
     }
+
+    var pir = JSON.parse(localStorage.getItem("pir"));
+    var pirData = [];
+    pir.forEach(function(item) {
+        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 12)))
+            pirData.push(item);
+
+    });
 
     ret.push({
         label: "PIR history",
-        data: JSON.parse(localStorage.getItem("pir"))
+        data: pirData
     });
 
     localStorage.getItem("lightsLumen")
@@ -431,7 +457,7 @@ app.get('/pir/:a/:b', function(req, res) {
 
     localStorage.setItem("pir", JSON.stringify(pirs));
 
-    if (req.params.b == 1 && persistState === 0 && (timeSwitch + 60000) < new Date().getTime()) {
+    if (req.params.b == 1 && persistState === 0) {
         persistState = 1;
         timeSwitch = new Date().getTime();
 
@@ -489,7 +515,7 @@ app.get('/pir/:a/:b', function(req, res) {
 
         }
 
-    } else if (req.params.b == 0 && persistState === 1 && (timeSwitch + 60000) < new Date().getTime()) {
+    } else if (req.params.b == 0 && persistState === 1) {
         persistState = 0;
         timeSwitch = new Date().getTime();
         if (config.PIR.onDetectNo !== undefined) {
@@ -751,6 +777,7 @@ if (thisConfig.use === "ssh") {
 }
 
 
+var itemDisc = {};
 
 function networkDiscovery() {
     var i = 0;
@@ -772,8 +799,14 @@ function networkDiscovery() {
             } else {
                 var thisState = 1;
             }
-            //console.log(error);
-            if (thisState != item.state) {
+
+            if (itemDisc[item.name] === undefined)
+                itemDisc[item.name] = -1;
+
+            console.log(error, thisState, itemDisc);
+            if (thisState != itemDisc[item.name]) {
+
+                itemDisc[item.name] = thisState;
 
                 item.state = thisState;
 
@@ -787,8 +820,9 @@ function networkDiscovery() {
                         deviceHis[item.name] = {};
                     if (deviceHis[item.name].graph === undefined)
                         deviceHis[item.name].graph = [];
-                    deviceHis[item.name].graph.push([time, "1"]);
 
+                    deviceHis[item.name].graph.push([time, "1"]);
+                    deviceHis[item.name].graph.push([time + 1, "0"]);
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
                     if (item.onSwitchOn !== undefined) {
@@ -801,6 +835,7 @@ function networkDiscovery() {
 
                     var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
 
+
                     if (deviceHis[item.name] === undefined)
                         deviceHis[item.name] = {};
 
@@ -808,6 +843,8 @@ function networkDiscovery() {
                         deviceHis[item.name].graph = [];
 
                     deviceHis[item.name].graph.push([time, "0"]);
+                    deviceHis[item.name].graph.push([time + 1, "1"]);
+                    console.log([time, "0"]);
 
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
@@ -838,7 +875,7 @@ function checkRunningProcesses() {
             if (match.indexOf("pir.py") === -1) {
                 log.add("checkRunningProcesses start pir");
                 setTimeout(function() {
-                    //c.exec("cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log");
+                    c.exec("cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log");
                 }, 4000);
             }
             if (match.indexOf("try.py") === -1) {
