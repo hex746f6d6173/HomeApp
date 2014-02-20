@@ -10,7 +10,6 @@ while True:
 
     temp = ser.readline()
     temp = temp.rstrip()
-
     print("http://home.tomasharkema.nl/light/"+temp+"/")
     r = requests.get("http://home.tomasharkema.nl/light/"+temp+"/")
     time.sleep(60)
