@@ -239,7 +239,7 @@ app.get('/temps', function(req, res) {
     temps.forEach(function(item) {
         var thisTemp = parseFloat(item[1]);
         var thisHour = new Date(item[0]).getHours();
-        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 12))) {
+        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
             if (thisHour != prevHour) {
 
                 prevHour = thisHour;
@@ -296,7 +296,7 @@ app.get('/lights', function(req, res) {
         var thisLight = parseFloat(item[1]);
         var thisHour = new Date(item[0]).getHours();
 
-        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 12))) {
+        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
 
             if (thisHour != prevHour) {
 
@@ -353,7 +353,7 @@ app.get('/totalGraph', function(req, res) {
         var devicePlot = [];
 
         item.graph.forEach(function(item) {
-            if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 12)))
+            if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24)))
                 devicePlot.push(item);
 
         });
@@ -372,7 +372,7 @@ app.get('/totalGraph', function(req, res) {
     var pir = JSON.parse(localStorage.getItem("pir"));
     var pirData = [];
     pir.forEach(function(item) {
-        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 12)))
+        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24)))
             pirData.push(item);
 
     });
@@ -441,7 +441,7 @@ var timeOutFunction = "a";
 
 app.get('/pir/:a/:b', function(req, res) {
 
-    log.add("PIR! " + req.params.b);
+    //log.add("PIR! " + req.params.b);
 
     if (localStorage.getItem("pir") === null || localStorage.getItem("pir") == "")
         localStorage.setItem("pir", "[]");
@@ -903,4 +903,4 @@ setTimeout(function() {
     log.add("NETWORKDISC FROM TIMEOUT");
     networkDiscovery();
 
-}, 10 * 1000);
+}, 60 * 1000);
