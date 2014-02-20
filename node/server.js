@@ -402,7 +402,7 @@ app.get('/light/:l', function(req, res) {
     lightsLume = newLight;
 
     io.sockets.emit("lightsLume", lightsLume);
-    //log.add("LIGHT UPDATE: " + lightsLume);
+    log.add("LIGHT UPDATE: " + lightsLume);
     localStorage.setItem("lightsLumen", JSON.stringify(lights));
 
 });
@@ -764,7 +764,7 @@ if (thisConfig.use === "ssh") {
         state.sshPending = false;
         setTimeout(function() {
             cConnect();
-        }, 5000);
+        }, 10000);
         state.ssh = false;
         io.sockets.emit('state', state);
         log.add("SSH CLOSE");
@@ -862,6 +862,87 @@ function networkDiscovery() {
     });
 
 }
+
+app.get('/bigdata', function(req, res) {
+
+    var returnn = {};
+
+    var pir = JSON.parse(localStorage.getItem("pir"));
+
+    var teller = 0;
+
+    var thisItem = {
+        begin: "",
+        end: ""
+    };
+
+    var times = [];
+
+    pir.forEach(function(item) {
+
+
+        if (item[1] == 1) {
+
+            if (thisItem.begin === "") {
+                thisItem.begin = item[0];
+            }
+        }
+
+        if (item[1] == 0) {
+            if (thisItem.begin !== "") {
+                thisItem.end = item[0];
+                thisItem.leng = thisItem.end - thisItem.begin;
+
+                thisItem.lengSec = thisItem.leng / 1000;
+                thisItem.lengMin = thisItem.leng / 1000 / 60;
+                thisItem.lengHour = thisItem.leng / 1000 / 60 / 60;
+                thisItem.beginHuman = new Date(thisItem.begin);
+                thisItem.endHuman = new Date(thisItem.end);
+
+                times.push(thisItem);
+                thisItem = {
+                    begin: "",
+                    end: ""
+                };
+            }
+
+        }
+
+        console.log(thisItem);
+
+    });
+
+    var previousDay = 0;
+    var secs = 0;
+    var dayLists = [];
+    times.forEach(function(item) {
+
+        if (previousDay === 0) {
+            previousDay = new Date(item.begin).getDay();
+        }
+
+        if (previousDay == new Date(item.begin).getDay()) {
+            secs = secs + item.lengSec;
+        } else {
+
+            dayLists.push({
+                day: new Date(item.begin),
+                secs: secs
+            });
+
+            previousDay = new Date(item.begin).getDay();
+
+        }
+
+
+    });
+
+    returnn.dayList = dayLists;
+    returnn.list = times;
+
+    res.send(returnn).end();
+
+});
 
 function checkRunningProcesses() {
 
