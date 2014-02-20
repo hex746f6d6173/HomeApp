@@ -15,7 +15,6 @@ var express = require('express'),
         ssh: false
     }, thisConfig = require("./this.json"),
     config = require("./config.json"),
-    //speakeasy = require('speakeasy'),
     ping = require("net-ping"),
     switches = config.switches,
     ACCESS_KEY = "62f4c66393234ddaebd40f657698c7cd47ed4f89a9ff4c0b4061a8958e58",
@@ -123,6 +122,15 @@ app.gitlab('/gitlab', {
     exec: 'git pull && npm install && forever restart server.js',
     token: 'uyDNS6DoFZxCzHxf89pj',
     branches: 'master'
+});
+var appcache = require('appcache-node');
+var cf = appcache.newCache([]);
+
+app.all('/app.cache', function(req, res) {
+    res.writeHead(200, {
+        'Content-Type': 'text/cache-manifest'
+    });
+    res.end(cf);
 });
 
 state.ssh = false;
