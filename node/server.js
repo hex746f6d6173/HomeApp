@@ -875,7 +875,7 @@ function checkRunningProcesses() {
             if (match.indexOf("pir.py") === -1) {
                 log.add("checkRunningProcesses start pir");
                 setTimeout(function() {
-                    c.exec("cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log");
+                    //c.exec("cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log");
                 }, 4000);
             }
             if (match.indexOf("try.py") === -1) {
