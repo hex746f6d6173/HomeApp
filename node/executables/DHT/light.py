@@ -11,8 +11,6 @@ while True:
     temp = ser.readline()
     temp = temp.rstrip()
 
-    if(temp != state):
-        state = temp;
-        print("http://home.tomasharkema.nl/light/"+temp+"/")
-        r = requests.get("http://home.tomasharkema.nl/light/"+temp+"/")
-        time.sleep(3)
+    print("http://home.tomasharkema.nl/light/"+temp+"/")
+    r = requests.get("http://home.tomasharkema.nl/light/"+temp+"/")
+    time.sleep(60)
