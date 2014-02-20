@@ -7,6 +7,14 @@ function plot() {
         $.plot("#plot", [d], {
             xaxis: {
                 mode: "time"
+            },
+            series: {
+                lines: {
+                    show: true
+                },
+                points: {
+                    show: true
+                }
             }
         });
     });
@@ -14,6 +22,14 @@ function plot() {
         $.plot("#his", d, {
             xaxis: {
                 mode: "time"
+            },
+            series: {
+                lines: {
+                    show: true
+                },
+                points: {
+                    show: true
+                }
             }
         });
     });
@@ -21,6 +37,14 @@ function plot() {
         $.plot("#lLights", [d], {
             xaxis: {
                 mode: "time"
+            },
+            series: {
+                lines: {
+                    show: true
+                },
+                points: {
+                    show: true
+                }
             }
         });
     });

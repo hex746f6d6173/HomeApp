@@ -10,7 +10,7 @@ io.setup(pir_pin, io.IN)         # activate input
 
 state = 0;
 
-previousTime = 0;
+previousTime = int(round(time.time() * 1000));
 
 requests.get("http://home.tomasharkema.nl/pir/1/0/")
 
@@ -24,11 +24,11 @@ while True:
     else:
         now = int(round(time.time() * 1000))
         
-        if ((previousTime + (1000 * 60 * 15)) < now):
+        if ((previousTime + (1000 * 60 * 10)) < now):
             print("PIR NO ENTER!")
-
-            if(state == 1):
-                state = 0
+            if (state == 1):
                 r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
+
+        state = 0
                 
     time.sleep(0.5)
