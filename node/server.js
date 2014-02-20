@@ -123,15 +123,30 @@ app.gitlab('/gitlab', {
     token: 'uyDNS6DoFZxCzHxf89pj',
     branches: 'master'
 });
-var appcache = require('appcache-node');
-var cf = appcache.newCache([]);
+var offline = require('connect-offline');
 
-app.all('/app.cache', function(req, res) {
-    res.writeHead(200, {
-        'Content-Type': 'text/cache-manifest'
-    });
-    res.end(cf);
-});
+app.use(offline({
+    manifest_path: "/application.manifest",
+    files: [{
+        dir: '/public/css/',
+        prefix: '/css/'
+    }, {
+        dir: '/public/js/',
+        prefix: '/js/'
+    }, {
+        dir: '/public/fonts/',
+        prefix: '/fonts/'
+    }, {
+        dir: '/public/img/',
+        prefix: '/img/'
+    }],
+    networks: [
+        "/socket.io/",
+        "/api/",
+    ],
+    use_fs_watch: true
+}));
+
 
 state.ssh = false;
 state.sshPending = false;
@@ -232,7 +247,7 @@ app.get('/switches', function(req, res) {
 
 
 });
-app.get('/temps', function(req, res) {
+app.get('/api/temps', function(req, res) {
 
     var temps = JSON.parse(localStorage.getItem("temp"));
 
@@ -290,7 +305,7 @@ app.get('/temps', function(req, res) {
     res.send(JSON.stringify(parseTemps)).end();
 
 });
-app.get('/lights', function(req, res) {
+app.get('/api/lights', function(req, res) {
 
     var Lights = JSON.parse(localStorage.getItem("lightsLumen"));
 
@@ -350,7 +365,7 @@ app.get('/lights', function(req, res) {
 app.get('/deviceHis', function(req, res) {
     res.send(localStorage.getItem("deviceHis")).end();
 });
-app.get('/totalGraph', function(req, res) {
+app.get('/api/totalGraph', function(req, res) {
     var ret = [];
 
     var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
