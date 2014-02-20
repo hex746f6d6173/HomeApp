@@ -3,7 +3,7 @@ var red = "red",
     orange = "orange";
 
 function plot() {
-    $.getJSON("/temps", function(d) {
+    $.getJSON("/api/temps", function(d) {
         $.plot("#plot", [d], {
             xaxis: {
                 mode: "time"
@@ -18,7 +18,7 @@ function plot() {
             }
         });
     });
-    $.getJSON("/totalGraph", function(d) {
+    $.getJSON("/api/totalGraph", function(d) {
         $.plot("#his", d, {
             xaxis: {
                 mode: "time"
@@ -33,7 +33,7 @@ function plot() {
             }
         });
     });
-    $.getJSON("/lights", function(d) {
+    $.getJSON("/api/lights", function(d) {
         $.plot("#lLights", [d], {
             xaxis: {
                 mode: "time"

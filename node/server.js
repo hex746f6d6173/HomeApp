@@ -15,7 +15,6 @@ var express = require('express'),
         ssh: false
     }, thisConfig = require("./this.json"),
     config = require("./config.json"),
-    //speakeasy = require('speakeasy'),
     ping = require("net-ping"),
     switches = config.switches,
     ACCESS_KEY = "62f4c66393234ddaebd40f657698c7cd47ed4f89a9ff4c0b4061a8958e58",
@@ -124,6 +123,30 @@ app.gitlab('/gitlab', {
     token: 'uyDNS6DoFZxCzHxf89pj',
     branches: 'master'
 });
+var offline = require('connect-offline');
+
+app.use(offline({
+    manifest_path: "/application.manifest",
+    files: [{
+        dir: '/public/css/',
+        prefix: '/css/'
+    }, {
+        dir: '/public/js/',
+        prefix: '/js/'
+    }, {
+        dir: '/public/fonts/',
+        prefix: '/fonts/'
+    }, {
+        dir: '/public/img/',
+        prefix: '/img/'
+    }],
+    networks: [
+        "/socket.io/",
+        "/api/",
+    ],
+    use_fs_watch: true
+}));
+
 
 state.ssh = false;
 state.sshPending = false;
@@ -224,7 +247,7 @@ app.get('/switches', function(req, res) {
 
 
 });
-app.get('/temps', function(req, res) {
+app.get('/api/temps', function(req, res) {
 
     var temps = JSON.parse(localStorage.getItem("temp"));
 
@@ -282,7 +305,7 @@ app.get('/temps', function(req, res) {
     res.send(JSON.stringify(parseTemps)).end();
 
 });
-app.get('/lights', function(req, res) {
+app.get('/api/lights', function(req, res) {
 
     var Lights = JSON.parse(localStorage.getItem("lightsLumen"));
 
@@ -342,7 +365,7 @@ app.get('/lights', function(req, res) {
 app.get('/deviceHis', function(req, res) {
     res.send(localStorage.getItem("deviceHis")).end();
 });
-app.get('/totalGraph', function(req, res) {
+app.get('/api/totalGraph', function(req, res) {
     var ret = [];
 
     var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
@@ -662,7 +685,7 @@ io.sockets.on('connection', function(socket) {
                 event: "refresh"
             });
             pulling = true;
-            c.exec("cd /var/www/home && sudo git pull", function(err, stream) {
+            c.exec("cd /var/www/home/node && sudo git pull && npm install", function(err, stream) {
                 if (err) throw err;
                 log.add("PI GIT PULL");
 
