@@ -6,7 +6,7 @@ function plot() {
 
     var now = new Date().getTime();
 
-    var bound = parseInt($("#bounds").val());
+    var bound = parseFloat($("#bounds").val());
 
     var min = new Date(now).setHours(new Date(now).getHours() + bound);
 
