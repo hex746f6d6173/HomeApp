@@ -436,7 +436,7 @@ setInterval(function() {
         lights.push([time, newLight]);
         localStorage.setItem("lightsLumen", JSON.stringify(lights));
     }
-}, 30 * 60 * 1000);
+}, 10 * 60 * 1000);
 
 app.get('/temp/:t', function(req, res) {
     var time = new Date().getTime();
