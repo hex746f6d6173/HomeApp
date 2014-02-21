@@ -93,7 +93,7 @@ $(document).ready(function() {
         if (data.event === "restart") {
             setTimeout(function() {
                 window.location.reload();
-            }, 10000);
+            }, 20000);
         }
     })
     socket.on('connecting', function() {
