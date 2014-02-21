@@ -467,7 +467,7 @@ app.get('/temp/:t', function(req, res) {
 var persistState = 0;
 var timeSwitch = 0;
 var timeOutFunction = "a";
-
+var lastOffTime = 0;
 app.get('/pir/:a/:b', function(req, res) {
 
     //log.add("PIR! " + req.params.b);
@@ -481,7 +481,12 @@ app.get('/pir/:a/:b', function(req, res) {
     if (req.params.b == 1) {
         pirs.push([time, "1"]);
     } else {
-        pirs.push([time, "0"]);
+        if (persistState === 1)
+            if ((lastOffTime + (1000 * 60)) < time) {
+                lastOffTime = time;
+
+                pirs.push([time, "0"]);
+            }
     }
 
     localStorage.setItem("pir", JSON.stringify(pirs));
