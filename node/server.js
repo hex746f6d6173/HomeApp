@@ -483,7 +483,7 @@ app.get('/pir/:a/:b', function(req, res) {
         pirs.push([time, "1"]);
     } else if (req.params.b == 0) {
 
-        log.add("PIR 0, diffTime:" + ((lastOffTime + (1000 * 60 * 5)) - time));
+        //log.add("PIR 0, diffTime:" + ((lastOffTime + (1000 * 60 * 5)) - time));
         if ((lastOffTime + (1000 * 60 * 5)) < time) {
             lastOffTime = time;
 
