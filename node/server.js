@@ -425,7 +425,6 @@ app.get('/light/:l', function(req, res) {
     lightsLume = newLight;
 
     io.sockets.emit("lightsLume", lightsLume);
-    log.add("LIGHT UPDATE: " + lightsLume);
     localStorage.setItem("lightsLumen", JSON.stringify(lights));
 
 });
@@ -967,36 +966,65 @@ app.get('/bigdata', function(req, res) {
     res.send(returnn).end();
 
 });
+var executeForPi = [];
+
+
+function synconousRestart() {
+    if (executeForPi.length > 0) {
+        console.log('exec', executeForPi[0]);
+        c.exec(executeForPi[0], function(err, stream) {
+            stream.on('data', function(data, extended) {
+                console.log("TOP!");
+            });
+            stream.on('exit', function(data, extended) {
+                console.log("TOP!");
+            });
+        });
+
+        executeForPi.splice(0, 1);
+    }
+}
 
 function checkRunningProcesses() {
 
     //var cCheck = new Connection();
     //cCheck.connect(thisConfig.sshCred);
+
     c.exec("pstree | grep py", function(err, stream) {
         stream.on('data', function(data, extended) {
+            console.log(data, extended)
+
             var str = "" + data + "";
             var match = str.match(/pir.py|try.py|light.py/g);
-            console.log("match", match, data);
+            console.log("match", match);
             if (match.indexOf("pir.py") === -1) {
                 log.add("checkRunningProcesses start pir");
-                setTimeout(function() {
-                    //c.exec("cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log");
-                }, 4000);
+                var query = "cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log";
+                if (executeForPi.indexOf(query) === -1)
+                    executeForPi.push(query);
             }
             if (match.indexOf("try.py") === -1) {
                 log.add("checkRunningProcesses start try");
-                setTimeout(function() {
-                    //c.exec("cd /var/www/home/node/executables/DHT && ./try.py >> try.log");
-                }, 6000);
+
+                var query = "cd /var/www/home/node/executables/DHT && ./try.py >> try.log";
+                if (executeForPi.indexOf(query) === -1)
+                    executeForPi.push(query);
             }
             if (match.indexOf("light.py") === -1) {
                 log.add("checkRunningProcesses start lights");
-                setTimeout(function() {
-                    //c.exec("cd /var/www/home/node/executables/DHT && ./light.py >> light.log");
-                }, 8000);
+                var query = "cd /var/www/home/node/executables/DHT && ./light.py >> light.log";
+                if (executeForPi.indexOf(query) === -1)
+                    executeForPi.push(query);
             }
         });
+        stream.on('exit', function() {
+
+            synconousRestart();
+        });
     });
+
+
+
 
 }
 setInterval(function() {
