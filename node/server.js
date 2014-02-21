@@ -1,4 +1,5 @@
-var express = require('express'),
+var mongojs = require('mongojs'),
+    express = require('express'),
     http = require('http'),
     webhook = require('gitlab-webhook'),
     app = express(),
@@ -25,6 +26,31 @@ var express = require('express'),
     temp = 19,
     pulling = false,
     lightsLume = 0;
+
+var db = mongojs("server", ["swiches", "PIR"]);
+
+var homeDB = {
+    switches: db.collection('swiches'),
+    PIR: db.collection('PIR')
+};
+
+homeDB.switches.find(function(err, docs) {
+    if (docs.length === 0) {
+        console.log("install SWITCHES");
+        config.switches.forEach(function(item) {
+            homeDB.switches.save(item);
+        });
+    }
+});
+
+homeDB.PIR.find(function(err, docs) {
+    if (docs.length === 0) {
+        console.log("install PIR");
+        config.PIR.forEach(function(item) {
+            homeDB.PIR.save(item);
+        });
+    }
+});
 
 if (typeof localStorage === "undefined" || localStorage === null) {
     var LocalStorage = require('node-localstorage').LocalStorage;
@@ -840,7 +866,6 @@ function networkDiscovery() {
             if (itemDisc[item.name] === undefined)
                 itemDisc[item.name] = -1;
 
-            console.log(error, thisState, itemDisc);
             if (thisState != itemDisc[item.name]) {
 
                 itemDisc[item.name] = thisState;
@@ -881,7 +906,6 @@ function networkDiscovery() {
 
                     deviceHis[item.name].graph.push([time, "0"]);
                     deviceHis[item.name].graph.push([time + 1, "1"]);
-                    console.log([time, "0"]);
 
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
