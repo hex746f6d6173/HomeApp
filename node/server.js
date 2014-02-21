@@ -141,10 +141,8 @@ app.use(offline({
         prefix: '/img/'
     }],
     networks: [
-        "/socket.io/",
-        "/api/",
-    ],
-    use_fs_watch: true
+        "*"
+    ]
 }));
 
 
