@@ -121,7 +121,7 @@ $(document).ready(function() {
             });
         });
 
-
+        localStorage.setItem("switches", JSON.stringify(data));
 
     });
 
@@ -140,7 +140,7 @@ $(document).ready(function() {
         });
 
         $(".clients").html(html);
-
+        localStorage.setItem("clients", JSON.stringify(data));
     });
 
     socket.on("devices", function(data) {
@@ -157,7 +157,7 @@ $(document).ready(function() {
         });
 
         $(".devices").html(html);
-
+        localStorage.setItem("devices", JSON.stringify(data));
     });
 
     socket.on("deviceChange", function(data) {
