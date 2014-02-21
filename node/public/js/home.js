@@ -8,7 +8,9 @@ function plot() {
 
     var bound = parseInt($("#bounds").val());
 
-    var min = new Date(now).setHours(bound);
+    var min = new Date(now).setHours(new Date(now).getHours() + bound);
+
+    console.log(now, min);
 
     $.getJSON("/api/temps", function(d) {
         $.plot("#plot", [d], {
