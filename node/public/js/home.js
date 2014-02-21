@@ -3,10 +3,21 @@ var red = "red",
     orange = "orange";
 
 function plot() {
+
+    var now = new Date().getTime();
+
+    var bound = parseInt($("#bounds").val());
+
+    var min = new Date(now).setHours(new Date(now).getHours() + bound);
+
+    console.log(now, min);
+
     $.getJSON("/api/temps", function(d) {
         $.plot("#plot", [d], {
             xaxis: {
-                mode: "time"
+                mode: "time",
+                min: min,
+                max: now
             },
             series: {
                 lines: {
@@ -21,7 +32,9 @@ function plot() {
     $.getJSON("/api/totalGraph", function(d) {
         $.plot("#his", d, {
             xaxis: {
-                mode: "time"
+                mode: "time",
+                min: min,
+                max: now
             },
             series: {
                 lines: {
@@ -36,7 +49,9 @@ function plot() {
     $.getJSON("/api/lights", function(d) {
         $.plot("#lLights", [d], {
             xaxis: {
-                mode: "time"
+                mode: "time",
+                min: min,
+                max: now
             },
             series: {
                 lines: {
@@ -50,6 +65,10 @@ function plot() {
     });
 }
 $(document).ready(function() {
+
+    $("#bounds").change(function() {
+        plot();
+    });
 
     var socket = io.connect('http://' + window.location.hostname);
 
