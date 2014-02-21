@@ -483,8 +483,7 @@ app.get('/pir/:a/:b', function(req, res) {
     if (req.params.b == 1) {
         pirs.push([time, "1"]);
     } else {
-        pirs.push([time, "1"]);
-        pirs.push([time + 1, "0"]);
+        pirs.push([time, "0"]);
     }
 
     localStorage.setItem("pir", JSON.stringify(pirs));
