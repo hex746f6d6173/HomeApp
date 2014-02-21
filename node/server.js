@@ -432,7 +432,7 @@ setInterval(function() {
     if (lightsLume === 0) {
         var time = new Date().getTime();
         var lights = JSON.parse(localStorage.getItem("lightsLumen"));
-        lights.push([time, newLight]);
+        lights.push([time, 0]);
         localStorage.setItem("lightsLumen", JSON.stringify(lights));
     }
 }, 10 * 60 * 1000);
