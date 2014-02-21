@@ -400,7 +400,8 @@ app.get('/api/totalGraph', function(req, res) {
 
     ret.push({
         label: "PIR history",
-        data: pirData
+        data: pirData,
+        color: "#FFFFFF"
     });
 
     localStorage.getItem("lightsLumen")
