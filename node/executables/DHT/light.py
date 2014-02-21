@@ -2,6 +2,21 @@
 import serial
 import requests
 import time
+import atexit
+import os
+import sys
+
+pid = str(os.getpid())
+pidfile = "/tmp/light.pid"
+
+
+file(pidfile, 'w').write(pid)
+
+def goodbye():
+    os.remove(pidfile)
+
+atexit.register(goodbye)
+
 
 state = 0;
 
