@@ -6,6 +6,21 @@ import sys
 import time
 import datetime
 import requests
+import atexit
+import os
+import sys
+
+pid = str(os.getpid())
+pidfile = "/tmp/try.pid"
+
+
+file(pidfile, 'w').write(pid)
+
+def goodbye():
+    os.remove(pidfile)
+
+atexit.register(goodbye)
+
 
 # ===========================================================================
 # Google Account Details

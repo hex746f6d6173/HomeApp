@@ -2,6 +2,21 @@
 import requests
 import time
 import RPi.GPIO as io
+import atexit
+import os
+import sys
+
+pid = str(os.getpid())
+pidfile = "/tmp/pir.pid"
+
+
+file(pidfile, 'w').write(pid)
+
+def goodbye():
+    os.remove(pidfile)
+
+atexit.register(goodbye)
+
 io.setmode(io.BCM)
  
 pir_pin = 18
