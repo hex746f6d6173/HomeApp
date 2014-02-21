@@ -23,7 +23,7 @@ def is_process_running(process_id):
 if os.path.exists(pid):
     file(pidfile, 'w').write(pid)
 else:
-    pid_running = int(open(path_to_pidfile).read())
+    pid_running = int(open(pid).read())
     if(is_process_running(pid_running)):
         raise SystemExit
 
