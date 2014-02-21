@@ -482,7 +482,7 @@ app.get('/pir/:a/:b', function(req, res) {
         pirs.push([time, "1"]);
     } else {
         if (persistState === 1)
-            if ((lastOffTime + (1000 * 60)) < time) {
+            if ((lastOffTime + (1000 * 60 * 5)) < time) {
                 lastOffTime = time;
 
                 pirs.push([time, "0"]);
