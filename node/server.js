@@ -429,6 +429,15 @@ app.get('/light/:l', function(req, res) {
 
 });
 
+setInterval(function() {
+    if (lightsLume === 0) {
+        var time = new Date().getTime();
+        var lights = JSON.parse(localStorage.getItem("lightsLumen"));
+        lights.push([time, newLight]);
+        localStorage.setItem("lightsLumen", JSON.stringify(lights));
+    }
+}, 30 * 60 * 1000);
+
 app.get('/temp/:t', function(req, res) {
     var time = new Date().getTime();
     var newTemp = parseFloat(req.params.t);
@@ -984,6 +993,8 @@ function synconousRestart() {
         executeForPi.splice(0, 1);
     }
 }
+
+
 
 function checkRunningProcesses() {
 
