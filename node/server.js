@@ -481,13 +481,15 @@ app.get('/pir/:a/:b', function(req, res) {
 
     if (req.params.b == 1) {
         pirs.push([time, "1"]);
-    } else {
-        if (persistState === 1)
-            if ((lastOffTime + (1000 * 60 * 5)) < time) {
-                lastOffTime = time;
+    } else if (req.params.b == 0) {
 
-                pirs.push([time, "0"]);
-            }
+        log.add("PIR 0, diffTime:" + ((lastOffTime + (1000 * 60 * 5)) - time));
+        if ((lastOffTime + (1000 * 60 * 5)) < time) {
+            lastOffTime = time;
+
+            pirs.push([time, "0"]);
+        }
+
     }
 
     localStorage.setItem("pir", JSON.stringify(pirs));
