@@ -26,8 +26,8 @@ while True:
         
         if ((previousTime + (1000 * 60 * 10)) < now):
             print("PIR NO ENTER!")
-            if (state == 1):
-                r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
+            
+            r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
 
         state = 0
                 
