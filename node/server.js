@@ -859,10 +859,9 @@ function networkDiscovery() {
                         deviceHis[item.name].graph = [];
 
                     deviceHis[item.name].graph.push([time, "1"]);
-                    deviceHis[item.name].graph.push([time + 1, "0"]);
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
-                    if (item.onSwitchOn !== undefined) {
+                    if (item.onSwitchOn !== undefined && ) {
                         eval(item.onSwitchOn);
                         log.add("AUTOCOMMAND ON " + item.name, true);
                     }
@@ -880,7 +879,6 @@ function networkDiscovery() {
                         deviceHis[item.name].graph = [];
 
                     deviceHis[item.name].graph.push([time, "0"]);
-                    deviceHis[item.name].graph.push([time + 1, "1"]);
                     console.log([time, "0"]);
 
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
