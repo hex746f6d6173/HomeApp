@@ -21,11 +21,12 @@ def is_process_running(process_id):
         return False
 
 if os.path.exists(pid):
-    file(pidfile, 'w').write(pid)
-else:
     pid_running = int(open(pid).read())
     if(is_process_running(pid_running)):
         raise SystemExit
+    
+else:
+    file(pidfile, 'w').write(pid)
 
 def goodbye():
     os.remove(pidfile)
