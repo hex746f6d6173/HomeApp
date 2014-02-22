@@ -925,10 +925,7 @@ function networkDiscovery() {
                     if (deviceHis[item.name].graph === undefined)
                         deviceHis[item.name].graph = [];
 
-                    deviceHis[item.name].graph.push([time, "0"]); << << << < HEAD
-                    console.log([time, "0"]); === === =
-                        deviceHis[item.name].graph.push([time + 1, "1"]); >>> >>> > feature / mongodb - config
-
+                    deviceHis[item.name].graph.push([time, "0"]);
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
                     if (item.onSwitchOff !== undefined) {
