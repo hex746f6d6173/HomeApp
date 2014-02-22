@@ -46,7 +46,7 @@
         "ip": "192.168.0.22",
         "icon": "glyphicon glyphicon-hdd",
         "state": 0,
-        "onSwitchOff": "switches[4].state = 0; flipSwitch(4, function(){});"
+        "onSwitchOff": "flipSwitch(4, 0, function(){});"
     }, {
         "id": 7,
         "name": "PI",
