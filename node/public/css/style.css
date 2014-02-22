@@ -1,4 +1,4 @@
-body{
+  body{
     background-color: black;
   }
   .well{
@@ -62,7 +62,7 @@ body{
     background-color: #222;
     padding:10px;
   }
-  h3, h4{
+  h1, h2, h3, h4{
     color:white;
   }
   .log{

@@ -64,6 +64,24 @@ function plot() {
         });
     });
 }
+
+function brandOption(id, brand) {
+
+    var ret = "<select id=\"configsFrom-" + y.id + "-brand\">";
+    if (brand === "elro") {
+        ret += "<option selected>Elro</option>";
+    } else {
+        ret += "<option>Elro</option>";
+    }
+    if (brand === "action") {
+        ret += "<option selected>Action</option>";
+    } else {
+        ret += "<option>Action</option>";
+    }
+    ret += "</select>"
+    return ret;
+
+}
 $(document).ready(function() {
 
     $("#bounds").change(function() {
@@ -117,6 +135,7 @@ $(document).ready(function() {
 
     socket.on('switches', function(data) {
         var html = "<div class=\"row\">";
+        var configHtml = "";
         $.each(data, function(x, y) {
             var color = red;
             if (y.state === 1) {
@@ -124,10 +143,17 @@ $(document).ready(function() {
             }
 
             html += '<div class="col-md-3"><a class="switch well" id="switch-' + y.id + '" style="background:' + color + '"><h3><span class="' + y.icon + '"></span> ' + y.name + '</h3></a></div>';
+            configHtml += '<div class="well">'
+            configHtml += '<input type="text" id="configsFrom-' + y.id + '-name" value="' + y.name + '">'
+            configHtml += brandOption(y.id, y.brand);
+            configHtml += '<input type="text" id="configsFrom-' + y.id + '-code" value="' + y.code + '">'
+            configHtml += '<input type="text" id="configsFrom-' + y.id + '-switch" value="' + y.
+            switch +'">'
+            configHtml += '</div>';
         });
 
         $(".switches").html(html + "</div>");
-
+        $(".configs").html(configHtml + "");
         $(".switch").each(function() {
             $(this).click(function(e) {
                 e.preventDefault();
@@ -312,4 +338,25 @@ $(document).ready(function() {
     setTimeout(function() {
         plot();
     }, 10000);
+
+    $(window).on("hashchange", function() {
+
+        var hash = location.hash;
+
+        if (hash == "#" || hash == "") {
+            hash = "#home";
+        }
+
+        console.log("hash", hash);
+
+        $(".page").hide();
+
+        $(hash).show();
+
+    });
+
+    $(window).trigger("hashchange");
+
+    ///151561651561651561
+
 });
