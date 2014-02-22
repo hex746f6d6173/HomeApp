@@ -840,8 +840,8 @@ function networkDiscovery() {
             if (itemDisc[item.name] === undefined)
                 itemDisc[item.name] = -1;
 
-            console.log(error, thisState, itemDisc);
-            if (thisState != itemDisc[item.name]) {
+            console.log(error, thisState, itemDisc[item.name]);
+            if (thisState !== itemDisc[item.name]) {
 
                 itemDisc[item.name] = thisState;
 
