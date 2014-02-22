@@ -1,4 +1,5 @@
-var express = require('express'),
+var mongojs = require('mongojs'),
+    express = require('express'),
     http = require('http'),
     webhook = require('gitlab-webhook'),
     app = express(),
@@ -25,6 +26,24 @@ var express = require('express'),
     temp = 19,
     pulling = false,
     lightsLume = 0;
+
+var db = mongojs("server", ["swiches", "PIR"]);
+
+var homeDB = {
+    switches: db.collection('swiches'),
+    PIR: db.collection('PIR')
+};
+
+homeDB.switches.find(function(err, docs) {
+    if (docs.length === 0) {
+        console.log("install SWITCHES");
+        config.switches.forEach(function(item) {
+            homeDB.switches.save(item);
+        });
+    }
+});
+
+
 
 if (typeof localStorage === "undefined" || localStorage === null) {
     var LocalStorage = require('node-localstorage').LocalStorage;
@@ -166,7 +185,7 @@ function cConnect() {
 
 var flipSwitch = function(a, to, fn) {
 
-    var q = switches[a];
+    var q = a;
     if (to === false) {
         var switchTo = "on";
         if (q.state === 0) {
@@ -187,11 +206,9 @@ var flipSwitch = function(a, to, fn) {
     //log.add("Zet " + q.name + " " + switchTo, true);
     var fn = function() {
         io.sockets.emit("switched", {
-            switch: switches[a],
-            id: a
+            switch: a,
+            id: a.id
         });
-
-        localStorage.setItem("light-" + a, switches[a].state);
     }
 
     if (thisConfig.use === "ssh") {
@@ -339,7 +356,6 @@ app.get('/api/lights', function(req, res) {
                     var h = new Date(adjDate).getHours();
 
                     adjDate = new Date(adjDate).setHours(h);
-                    console.log(sum + "/" + teller);
                     parseLights.push([adjDate, sum / teller]);
 
                     hourArray = [];
@@ -400,7 +416,8 @@ app.get('/api/totalGraph', function(req, res) {
 
     ret.push({
         label: "PIR history",
-        data: pirData
+        data: pirData,
+        color: "#FFFFFF"
     });
 
     localStorage.getItem("lightsLumen")
@@ -431,7 +448,7 @@ setInterval(function() {
     if (lightsLume === 0) {
         var time = new Date().getTime();
         var lights = JSON.parse(localStorage.getItem("lightsLumen"));
-        lights.push([time, newLight]);
+        lights.push([time, 0]);
         localStorage.setItem("lightsLumen", JSON.stringify(lights));
     }
 }, 10 * 60 * 1000);
@@ -480,13 +497,15 @@ app.get('/pir/:a/:b', function(req, res) {
 
     if (req.params.b == 1) {
         pirs.push([time, "1"]);
-    } else {
-        if (persistState === 1)
-            if ((lastOffTime + (1000 * 60)) < time) {
-                lastOffTime = time;
+    } else if (req.params.b == 0) {
 
-                pirs.push([time, "0"]);
-            }
+        //log.add("PIR 0, diffTime:" + ((lastOffTime + (1000 * 60 * 5)) - time));
+        if ((lastOffTime + (1000 * 60 * 5)) < time) {
+            lastOffTime = time;
+
+            pirs.push([time, "0"]);
+        }
+
     }
 
     localStorage.setItem("pir", JSON.stringify(pirs));
@@ -615,7 +634,14 @@ app.get('/pir/:a/:b', function(req, res) {
 io.sockets.on('connection', function(socket) {
     cConnect();
     networkDiscovery();
-    socket.emit('switches', switches);
+
+    homeDB.switches.find(function(err, docs) {
+
+        socket.emit('switches', docs);
+
+    });
+
+
     socket.emit('devices', config.devices);
     socket.emit('temp', temp);
     socket.emit("lightsLume", lightsLume);
@@ -651,14 +677,39 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on('switch', function(data) {
-        if (switches[data.id].state === 1) {
-            switches[data.id].state = 0;
-        } else {
-            switches[data.id].state = 1;
-        }
-        flipSwitch(data.id, false, function(res) {
+        console.log(data);
+        homeDB.switches.find({
+            id: data.id
+        }, function(err, docs) {
+            console.log("SWITCH", err, docs);
+
+            if (docs[0].state === 1) {
+                var newState = 0;
+            } else {
+                var newState = 1;
+            }
+
+            homeDB.switches.update({
+                id: docs[0].id
+            }, {
+                $set: {
+                    state: newState
+                }
+            }, function(err, updated) {
+                console.log("updated", updated);
+                if (updated)
+                    if (docs.length === 1)
+                        flipSwitch(docs[0], false, function(res) {
+
+                        });
+            });
+
+
+
 
         });
+
+
 
     });
 
@@ -837,7 +888,6 @@ function networkDiscovery() {
             if (itemDisc[item.name] === undefined)
                 itemDisc[item.name] = -1;
 
-            console.log(error, thisState, itemDisc);
             if (thisState != itemDisc[item.name]) {
 
                 itemDisc[item.name] = thisState;
@@ -856,7 +906,6 @@ function networkDiscovery() {
                         deviceHis[item.name].graph = [];
 
                     deviceHis[item.name].graph.push([time, "1"]);
-                    deviceHis[item.name].graph.push([time + 1, "0"]);
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
                     if (item.onSwitchOn !== undefined) {
@@ -877,9 +926,6 @@ function networkDiscovery() {
                         deviceHis[item.name].graph = [];
 
                     deviceHis[item.name].graph.push([time, "0"]);
-                    deviceHis[item.name].graph.push([time + 1, "1"]);
-                    console.log([time, "0"]);
-
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
                     if (item.onSwitchOff !== undefined) {
@@ -942,7 +988,6 @@ app.get('/bigdata', function(req, res) {
 
         }
 
-        console.log(thisItem);
 
     });
 
@@ -977,72 +1022,8 @@ app.get('/bigdata', function(req, res) {
     res.send(returnn).end();
 
 });
-var executeForPi = [];
 
 
-function synconousRestart() {
-    if (executeForPi.length > 0) {
-        console.log('exec', executeForPi[0]);
-        c.exec(executeForPi[0], function(err, stream) {
-            stream.on('data', function(data, extended) {
-                console.log("TOP!");
-            });
-            stream.on('exit', function(data, extended) {
-                console.log("TOP!");
-            });
-        });
-
-        executeForPi.splice(0, 1);
-    }
-}
-
-
-
-function checkRunningProcesses() {
-
-    //var cCheck = new Connection();
-    //cCheck.connect(thisConfig.sshCred);
-
-    c.exec("pstree | grep py", function(err, stream) {
-        stream.on('data', function(data, extended) {
-            console.log(data, extended)
-
-            var str = "" + data + "";
-            var match = str.match(/pir.py|try.py|light.py/g);
-            console.log("match", match);
-            if (match.indexOf("pir.py") === -1) {
-                log.add("checkRunningProcesses start pir");
-                var query = "cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log";
-                if (executeForPi.indexOf(query) === -1)
-                    executeForPi.push(query);
-            }
-            if (match.indexOf("try.py") === -1) {
-                log.add("checkRunningProcesses start try");
-
-                var query = "cd /var/www/home/node/executables/DHT && ./try.py >> try.log";
-                if (executeForPi.indexOf(query) === -1)
-                    executeForPi.push(query);
-            }
-            if (match.indexOf("light.py") === -1) {
-                log.add("checkRunningProcesses start lights");
-                var query = "cd /var/www/home/node/executables/DHT && ./light.py >> light.log";
-                if (executeForPi.indexOf(query) === -1)
-                    executeForPi.push(query);
-            }
-        });
-        stream.on('exit', function() {
-
-            synconousRestart();
-        });
-    });
-
-
-
-
-}
-setInterval(function() {
-    checkRunningProcesses();
-}, 60000);
 networkDiscovery();
 
 setTimeout(function() {
