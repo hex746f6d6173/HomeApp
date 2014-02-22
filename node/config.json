@@ -87,7 +87,7 @@
     "PIR": {
         "onDetectYes": [{
             "type": "switch",
-            "switch": 0,
+            "switch": 1,
             "to": 1,
             "delay": 1,
             "light": true,
@@ -98,7 +98,7 @@
         }],
         "onDetectNo": [{
             "type": "switch",
-            "switch": 0,
+            "switch": 1,
             "to": 0,
             "delay": 0,
             "light": true,

@@ -184,9 +184,20 @@ function cConnect() {
 
 var flipSwitch = function(a, to, fn) {
 
+    console.log(a, to, fn, typeof a);
+    var id = 0;
+    if (typeof a === "number") {
+        id = a;
+    }
+
+    if (typeof a === "object") {
+        id = a.id;
+    }
+
+    console.log(id);
 
     homeDB.switches.find({
-        id: a.id
+        id: id
     }, function(err, docs) {
         if (docs.length > 0) {
             q = docs[0];
@@ -244,7 +255,7 @@ var flipSwitch = function(a, to, fn) {
                         docs[0].state = newState;
                         io.sockets.emit("switched", {
                             switch: docs[0],
-                            id: a.id
+                            id: id
                         });
                     });
 
@@ -558,7 +569,7 @@ app.get('/pir/:a/:b', function(req, res) {
                         timeOutFunction = setTimeout(function() {
 
                             if (triggerArm === 1) {
-
+                                console.log("ITEM", item);
                                 flipSwitch(item.
                                     switch, item.to, function(a) {
                                         console.log("JAJAJAJA", a);
