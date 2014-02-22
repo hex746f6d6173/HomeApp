@@ -7,14 +7,15 @@
         "url": "https://git.tomasharkema.nl/root/raspberrypi.git"
     },
     "dependencies": {
-        "express": "3.x",
-        "socket.io": "0.9.x",
-        "sys": "0.0.1",
-        "ssh2": "0.2.x",
-        "speakeasy": "1.x",
-        "gitlab-webhook": "0.x",
-        "node-localstorage": "0.3.x",
-        "net-ping": "1.x",
-        "connect-offline": "1.x"
+        "express": "*",
+        "socket.io": "*",
+        "sys": "*",
+        "ssh2": "*",
+        "speakeasy": "*",
+        "gitlab-webhook": "*",
+        "node-localstorage": "*",
+        "net-ping": "*",
+        "connect-offline": "*",
+        "mongojs": "*"
     }
 }
