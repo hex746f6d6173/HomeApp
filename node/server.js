@@ -339,7 +339,6 @@ app.get('/api/lights', function(req, res) {
                     var h = new Date(adjDate).getHours();
 
                     adjDate = new Date(adjDate).setHours(h);
-                    console.log(sum + "/" + teller);
                     parseLights.push([adjDate, sum / teller]);
 
                     hourArray = [];
@@ -943,7 +942,6 @@ app.get('/bigdata', function(req, res) {
 
         }
 
-        console.log(thisItem);
 
     });
 
@@ -978,72 +976,8 @@ app.get('/bigdata', function(req, res) {
     res.send(returnn).end();
 
 });
-var executeForPi = [];
 
 
-function synconousRestart() {
-    if (executeForPi.length > 0) {
-        console.log('exec', executeForPi[0]);
-        c.exec(executeForPi[0], function(err, stream) {
-            stream.on('data', function(data, extended) {
-                console.log("TOP!");
-            });
-            stream.on('exit', function(data, extended) {
-                console.log("TOP!");
-            });
-        });
-
-        executeForPi.splice(0, 1);
-    }
-}
-
-
-
-function checkRunningProcesses() {
-
-    //var cCheck = new Connection();
-    //cCheck.connect(thisConfig.sshCred);
-
-    c.exec("pstree | grep py", function(err, stream) {
-        stream.on('data', function(data, extended) {
-            console.log(data, extended)
-
-            var str = "" + data + "";
-            var match = str.match(/pir.py|try.py|light.py/g);
-            console.log("match", match);
-            if (match.indexOf("pir.py") === -1) {
-                log.add("checkRunningProcesses start pir");
-                var query = "cd /var/www/home/node/executables/DHT && ./pir.py >> pir.log";
-                if (executeForPi.indexOf(query) === -1)
-                    executeForPi.push(query);
-            }
-            if (match.indexOf("try.py") === -1) {
-                log.add("checkRunningProcesses start try");
-
-                var query = "cd /var/www/home/node/executables/DHT && ./try.py >> try.log";
-                if (executeForPi.indexOf(query) === -1)
-                    executeForPi.push(query);
-            }
-            if (match.indexOf("light.py") === -1) {
-                log.add("checkRunningProcesses start lights");
-                var query = "cd /var/www/home/node/executables/DHT && ./light.py >> light.log";
-                if (executeForPi.indexOf(query) === -1)
-                    executeForPi.push(query);
-            }
-        });
-        stream.on('exit', function() {
-
-            synconousRestart();
-        });
-    });
-
-
-
-
-}
-setInterval(function() {
-    checkRunningProcesses();
-}, 60000);
 networkDiscovery();
 
 setTimeout(function() {
