@@ -123,7 +123,7 @@ $(document).ready(function() {
                 color = green;
             }
 
-            html += '<div class="col-md-3"><a class="switch well" id="switch-' + x + '" style="background:' + color + '"><h3><span class="' + y.icon + '"></span> ' + y.name + '</h3></a></div>';
+            html += '<div class="col-md-3"><a class="switch well" id="switch-' + y.id + '" style="background:' + color + '"><h3><span class="' + y.icon + '"></span> ' + y.name + '</h3></a></div>';
         });
 
         $(".switches").html(html + "</div>");
@@ -135,7 +135,7 @@ $(document).ready(function() {
                     "background": orange
                 });
                 socket.emit("switch", {
-                    id: $(this).attr("id").replace("switch-", "")
+                    id: parseInt($(this).attr("id").replace("switch-", ""))
                 });
             });
         });
