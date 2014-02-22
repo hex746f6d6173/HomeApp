@@ -861,7 +861,7 @@ function networkDiscovery() {
                     deviceHis[item.name].graph.push([time, "1"]);
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
-                    if (item.onSwitchOn !== undefined && ) {
+                    if (item.onSwitchOn !== undefined) {
                         eval(item.onSwitchOn);
                         log.add("AUTOCOMMAND ON " + item.name, true);
                     }
