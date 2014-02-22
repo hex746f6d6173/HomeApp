@@ -27,11 +27,10 @@ var mongojs = require('mongojs'),
     pulling = false,
     lightsLume = 0;
 
-var db = mongojs("server", ["swiches", "PIR"]);
+var db = mongojs("server", ["swiches"]);
 
 var homeDB = {
-    switches: db.collection('swiches'),
-    PIR: db.collection('PIR')
+    switches: db.collection('swiches')
 };
 
 homeDB.switches.find(function(err, docs) {
@@ -185,73 +184,84 @@ function cConnect() {
 
 var flipSwitch = function(a, to, fn) {
 
-    var q = a;
-    if (to === false) {
-        var switchTo = "on";
-        if (q.state === 0) {
-            switchTo = "off";
-        }
-    } else {
-        q.state = to;
-        var switchTo = "on";
-        if (to === 0) {
-            switchTo = "off";
-        }
-    }
-    var query = "cd /var/www/home/node/executables && sudo ./" + q.brand + " " + q.code + " " + q.
-    switch +" " + switchTo + "";
 
-    log.add("FLIP " + q.brand + " " + q.code + " " + q.
-        switch +" " + switchTo + "");
-    //log.add("Zet " + q.name + " " + switchTo, true);
-    var fn = function() {
-        io.sockets.emit("switched", {
-            switch: a,
-            id: a.id
-        });
-    }
-
-    if (thisConfig.use === "ssh") {
-        c.exec(query, function(err, stream) {
-            if (err) throw err;
-            log.add("EXEC COMMAND");
-            stream.on('data', function(data, extended) {
-                //console.log((extended === 'stderr' ? 'STDERR: ' : 'STDOUT: ') + data);
-            });
-            stream.on('end', function() {
-                //console.log('Stream :: EOF');
-            });
-            stream.on('close', function() {
-                //console.log('Stream :: close');
-            });
-            stream.on('exit', function(code, signal) {
-                //console.log('Stream :: exit :: code: ' + code + ', signal: ' + signal);
-                fn({
-                    success: true
-                });
-                log.add("EXEC COMMAND SUCCESS");
-            });
-
-        });
-
-    } else {
-        child = exec(query, function(error, stdout, stderr) {
-            //sys.print('stdout: ' + stdout);
-            //sys.print('stderr: ' + stderr);
-            if (error !== null) {
-                //console.log('exec error: ' + error);
-                fn({
-                    success: false
-                });
+    homeDB.switches.find({
+        id: a.id
+    }, function(err, docs) {
+        if (docs.length > 0) {
+            q = docs[0];
+            var newState = 1;
+            if (to === false) {
+                var switchTo = "on";
+                newState = 1;
+                if (q.state === 1) {
+                    switchTo = "off";
+                    newState = 0;
+                }
             } else {
+                q.state = to;
+                var switchTo = "on";
+                newState = 1;
+                if (to === 0) {
+                    switchTo = "off";
+                    newState = 0;
+                }
+            }
+            var query = "cd /var/www/home/node/executables && sudo ./" + q.brand + " " + q.code + " " + q.
+            switch +" " + switchTo + "";
 
-                fn({
-                    success: true
+            log.add("FLIP " + q.brand + " " + q.code + " " + q.
+                switch +" " + switchTo + "");
+            //log.add("Zet " + q.name + " " + switchTo, true);
+
+
+
+            c.exec(query, function(err, stream) {
+                if (err) throw err;
+                log.add("EXEC COMMAND");
+                stream.on('data', function(data, extended) {
+                    //console.log((extended === 'stderr' ? 'STDERR: ' : 'STDOUT: ') + data);
+                });
+                stream.on('end', function() {
+                    //console.log('Stream :: EOF');
+                });
+                stream.on('close', function() {
+                    //console.log('Stream :: close');
+                });
+                stream.on('exit', function(code, signal) {
+                    //console.log('Stream :: exit :: code: ' + code + ', signal: ' + signal);
+
+
+
+                    console.log("updated", docs, newState);
+                    homeDB.switches.update({
+                        id: docs[0].id
+                    }, {
+                        $set: {
+                            state: newState
+                        }
+                    }, function(err, updated) {
+                        docs[0].state = newState;
+                        io.sockets.emit("switched", {
+                            switch: docs[0],
+                            id: a.id
+                        });
+                    });
+
+
+
+
+
+
+
+
+
+                    log.add("EXEC COMMAND SUCCESS");
                 });
 
-            }
-        });
-    }
+            });
+        }
+    });
 }
 
 //app.get('/switch/:brand/:code/:switch/:switchTo/', flipSwitch);
@@ -678,38 +688,8 @@ io.sockets.on('connection', function(socket) {
 
     socket.on('switch', function(data) {
         console.log(data);
-        homeDB.switches.find({
-            id: data.id
-        }, function(err, docs) {
-            console.log("SWITCH", err, docs);
 
-            if (docs[0].state === 1) {
-                var newState = 0;
-            } else {
-                var newState = 1;
-            }
-
-            homeDB.switches.update({
-                id: docs[0].id
-            }, {
-                $set: {
-                    state: newState
-                }
-            }, function(err, updated) {
-                console.log("updated", updated);
-                if (updated)
-                    if (docs.length === 1)
-                        flipSwitch(docs[0], false, function(res) {
-
-                        });
-            });
-
-
-
-
-        });
-
-
+        flipSwitch(data, false, function(res) {});
 
     });
 
