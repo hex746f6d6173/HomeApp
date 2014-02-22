@@ -67,7 +67,7 @@ function plot() {
 
 function brandOption(id, brand) {
 
-    var ret = "<select id=\"configsFrom-" + y.id + "-brand\">";
+    var ret = "<select id=\"configsFrom-" + id + "-brand\">";
     if (brand === "elro") {
         ret += "<option selected>Elro</option>";
     } else {
