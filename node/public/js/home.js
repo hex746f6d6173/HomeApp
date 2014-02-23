@@ -206,7 +206,8 @@ $(document).ready(function() {
     });
 
     socket.on("deviceChange", function(data) {
-        console.log(data);
+        console.log("deviceChange", data);
+        alert("Device Change" + data);
         var color = red;
         if (data.state === 1) {
             color = green;
