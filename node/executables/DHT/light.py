@@ -40,4 +40,4 @@ while True:
     temp = temp.rstrip()
     print("http://home.tomasharkema.nl/light/"+temp+"/")
     r = requests.get("http://home.tomasharkema.nl/light/"+temp+"/")
-    time.sleep(60)
+    time.sleep(120)
