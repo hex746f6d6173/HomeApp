@@ -177,11 +177,11 @@ $(document).ready(function() {
         var html = "";
         $.each(data, function(x, y) {
             var color = red;
-            if (y === true) {
+            if (y.state === true) {
                 color = green;
             }
-            if (x != "" && x != null)
-                html += '<span class="device well" id="device-' + x + '" style="background:' + color + '">' + x + '</span>';
+            if (y.name != "" && y.name != null)
+                html += '<span class="device well" id="device-' + y._id + '" style="background:' + color + '">' + y.name + '</span>';
         });
 
         $(".clients").html(html);
@@ -198,7 +198,7 @@ $(document).ready(function() {
                 color = green;
             }
 
-            html += '<span class="device well" id="device-' + x + '" style="background:' + color + '"><span class="' + y.icon + '"></span> ' + y.name + '</span>';
+            html += '<span class="device well" id="device-' + y.id + '" style="background:' + color + '"><span class="' + y.icon + '"></span> ' + y.name + '</span>';
         });
 
         $(".devices").html(html);
@@ -206,13 +206,13 @@ $(document).ready(function() {
     });
 
     socket.on("deviceChange", function(data) {
-        console.log(data);
+        console.log("deviceChange", data);
         var color = red;
         if (data.state === 1) {
             color = green;
         }
 
-        $("#device-" + data.id).css({
+        $("#device-" + data._id).css({
             "background": color
         });
     });

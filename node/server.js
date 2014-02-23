@@ -30,7 +30,10 @@ var mongojs = require('mongojs'),
 var db = mongojs("server", ["swiches"]);
 
 var homeDB = {
-    switches: db.collection('swiches')
+    switches: db.collection('swiches'),
+    devices: db.collection('devices'),
+    clients: db.collection('clients'),
+    misc: db.collection('misc')
 };
 
 homeDB.switches.find(function(err, docs) {
@@ -41,8 +44,28 @@ homeDB.switches.find(function(err, docs) {
         });
     }
 });
+homeDB.devices.find(function(err, docs) {
+    if (docs.length === 0) {
+        console.log("install devices");
+        config.devices.forEach(function(item) {
+            homeDB.devices.save(item);
+        });
+    }
+});
 
-
+homeDB.misc.find(function(err, docs) {
+    if (docs.length === 0) {
+        console.log("install miscs");
+        homeDB.misc.save({
+            name: 'alarm',
+            arm: 0
+        });
+        homeDB.misc.save({
+            name: 'trigger',
+            arm: 0
+        });
+    }
+});
 
 if (typeof localStorage === "undefined" || localStorage === null) {
     var LocalStorage = require('node-localstorage').LocalStorage;
@@ -104,9 +127,26 @@ exec("git describe", function(error, stdout, stderr) {
 var clients = JSON.parse(localStorage.getItem("clients"));
 //var clients = {};
 var client = {
-    set: function(ip, state) {
-        clients[ip] = state;
-        localStorage.setItem("clients", JSON.stringify(clients));
+    set: function(ip, state, fn) {
+        homeDB.clients.find({
+            name: ip
+        }, function(err, docs) {
+            if (docs.length > 0) {
+                homeDB.clients.update({
+                    name: ip
+                }, {
+                    $set: {
+                        state: state,
+                        lastSeen: (new Date().getTime())
+                    }
+                }, fn);
+            } else {
+                homeDB.clients.save({
+                    name: ip,
+                    state: state
+                }, fn);
+            }
+        });
     },
     get: function(ip) {
         return clients[ip];
@@ -555,7 +595,7 @@ app.get('/pir/:a/:b', function(req, res) {
                     }
                 }
                 if (check) {
-
+                    console.log("MISCS", docs);
                     if (item.type === "switch" && triggerArm === 1) {
 
                         log.add("AUTO COMMAND DELAY" + item.delay);
@@ -584,6 +624,7 @@ app.get('/pir/:a/:b', function(req, res) {
                         log.add(item.message, true);
 
                     }
+
                 }
             });
 
@@ -662,8 +703,11 @@ io.sockets.on('connection', function(socket) {
 
     });
 
+    homeDB.devices.find(function(err, docs) {
 
-    socket.emit('devices', config.devices);
+        socket.emit('devices', docs);
+
+    });
     socket.emit('temp', temp);
     socket.emit("lightsLume", lightsLume);
 
@@ -690,11 +734,22 @@ io.sockets.on('connection', function(socket) {
     socket.on('me', function(data) {
         ip = data;
         if (ip != "null") {
-            client.set(ip, true);
+            client.set(ip, true, function() {
+                homeDB.clients.find().sort({
+                    lastSeen: -1
+                }, function(err, docs) {
+                    io.sockets.emit('clients', JSON.stringify(docs));
+                });
+            });
 
             log.add("NEW CLIENT WITH NAME: " + ip);
+        } else {
+            homeDB.clients.find().sort({
+                lastSeen: -1
+            }, function(err, docs) {
+                io.sockets.emit('clients', JSON.stringify(docs));
+            });
         }
-        io.sockets.emit('clients', JSON.stringify(clients));
     });
 
     socket.on('switch', function(data) {
@@ -801,10 +856,15 @@ io.sockets.on('connection', function(socket) {
     socket.emit('state', state);
 
     socket.on('disconnect', function() {
-        client.set(ip, false);
-        //console.log("emit clients ", clients);
-        io.sockets.emit('clients', JSON.stringify(clients));
-        log.add("CLIENT BYE BYE" + ip);
+        client.set(ip, false, function() {
+            //console.log("emit clients ", clients);
+            homeDB.clients.find().sort({
+                lastSeen: -1
+            }, function(err, docs) {
+                io.sockets.emit('clients', JSON.stringify(docs));
+            });
+            log.add("CLIENT BYE BYE" + ip);
+        });
     });
 
 });
@@ -860,85 +920,97 @@ function networkDiscovery() {
     log.add("NETWORKDISC EXEC");
     var pingSession = ping.createSession();
 
-    config.devices.forEach(function(item) {
+    homeDB.devices.find(function(err, docs) {
 
-        var self = this;
+        docs.forEach(function(item) {
 
-        //console.log(item);
-        var time = new Date().getTime();
-        if (localStorage.getItem("deviceHis") === null || localStorage.getItem("deviceHis") == "")
-            localStorage.setItem("deviceHis", "{}");
+            var self = this;
 
-        pingSession.pingHost(item.ip, function(error, target) {
-            if (error) {
-                var thisState = 0;
-            } else {
-                var thisState = 1;
-            }
+            //console.log(item);
+            var time = new Date().getTime();
+            if (localStorage.getItem("deviceHis") === null || localStorage.getItem("deviceHis") == "")
+                localStorage.setItem("deviceHis", "{}");
 
-            if (itemDisc[item.name] === undefined)
-                itemDisc[item.name] = -1;
-
-            if (thisState != itemDisc[item.name]) {
-
-                var evalExecute = true;
-
-                if (itemDisc[item.name])
-                    evalExecute = false
-
-                itemDisc[item.name] = thisState;
-
-                item.state = thisState;
-
-                io.sockets.emit('deviceChange', item);
-
-                if (item.state === 1) {
-                    log.add("NETWORKDISC " + item.name + " came online");
-
-                    var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
-                    if (deviceHis[item.name] === undefined)
-                        deviceHis[item.name] = {};
-                    if (deviceHis[item.name].graph === undefined)
-                        deviceHis[item.name].graph = [];
-
-                    deviceHis[item.name].graph.push([time, "1"]);
-                    localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
-
-                    if (item.onSwitchOn !== undefined) {
-                        if (evalExecute)
-                            eval(item.onSwitchOn);
-                        log.add("AUTOCOMMAND ON " + item.name, true);
-                    }
-                }
-                if (item.state === 0) {
-                    log.add("NETWORKDISC " + item.name + " went offline");
-
-                    var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
-
-
-                    if (deviceHis[item.name] === undefined)
-                        deviceHis[item.name] = {};
-
-                    if (deviceHis[item.name].graph === undefined)
-                        deviceHis[item.name].graph = [];
-
-                    deviceHis[item.name].graph.push([time, "0"]);
-                    localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
-
-                    if (item.onSwitchOff !== undefined) {
-                        if (evalExecute)
-                            eval(item.onSwitchOff);
-                        log.add("AUTOCOMMAND OFF " + item.name, true);
-                    }
+            pingSession.pingHost(item.ip, function(error, target) {
+                if (error) {
+                    var thisState = 0;
+                } else {
+                    var thisState = 1;
                 }
 
-            }
+                if (itemDisc[item.name] === undefined)
+                    itemDisc[item.name] = -1;
 
+                if (thisState != item.state) {
+
+                    var evalExecute = true;
+
+                    if (itemDisc[item.name])
+                        evalExecute = false
+
+                    itemDisc[item.name] = thisState;
+
+                    homeDB.devices.update({
+                        id: item.id
+                    }, {
+                        $set: {
+                            state: thisState
+                        }
+                    }, function(err, docs) {
+                        console.log("update DEVICE", err, docs);
+                    });
+
+                    item.state = thisState;
+
+                    io.sockets.emit('deviceChange', item);
+
+                    if (item.state === 1) {
+                        log.add("NETWORKDISC " + item.name + " came online");
+
+                        var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
+                        if (deviceHis[item.name] === undefined)
+                            deviceHis[item.name] = {};
+                        if (deviceHis[item.name].graph === undefined)
+                            deviceHis[item.name].graph = [];
+
+                        deviceHis[item.name].graph.push([time, "1"]);
+                        localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
+
+                        if (item.onSwitchOn !== undefined) {
+                            if (evalExecute)
+                                eval(item.onSwitchOn);
+                            log.add("AUTOCOMMAND ON " + item.name, true);
+                        }
+                    }
+                    if (item.state === 0) {
+                        log.add("NETWORKDISC " + item.name + " went offline");
+
+                        var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
+
+
+                        if (deviceHis[item.name] === undefined)
+                            deviceHis[item.name] = {};
+
+                        if (deviceHis[item.name].graph === undefined)
+                            deviceHis[item.name].graph = [];
+
+                        deviceHis[item.name].graph.push([time, "0"]);
+                        localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
+
+                        if (item.onSwitchOff !== undefined) {
+                            if (evalExecute)
+                                eval(item.onSwitchOff);
+                            log.add("AUTOCOMMAND OFF " + item.name, true);
+                        }
+                    }
+
+                }
+
+            });
+
+            i++;
         });
-
-        i++;
     });
-
 }
 
 app.get('/bigdata', function(req, res) {
