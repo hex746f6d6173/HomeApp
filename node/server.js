@@ -136,7 +136,8 @@ var client = {
                     name: ip
                 }, {
                     $set: {
-                        state: state
+                        state: state,
+                        lastSeen: (new Date().getTime())
                     }
                 }, fn);
             } else {
@@ -734,14 +735,18 @@ io.sockets.on('connection', function(socket) {
         ip = data;
         if (ip != "null") {
             client.set(ip, true, function() {
-                homeDB.clients.find(function(err, docs) {
+                homeDB.clients.find().sort({
+                    lastSeen: -1
+                }, function(err, docs) {
                     io.sockets.emit('clients', JSON.stringify(docs));
                 });
             });
 
             log.add("NEW CLIENT WITH NAME: " + ip);
         } else {
-            homeDB.clients.find(function(err, docs) {
+            homeDB.clients.find().sort({
+                lastSeen: -1
+            }, function(err, docs) {
                 io.sockets.emit('clients', JSON.stringify(docs));
             });
         }
@@ -853,7 +858,9 @@ io.sockets.on('connection', function(socket) {
     socket.on('disconnect', function() {
         client.set(ip, false, function() {
             //console.log("emit clients ", clients);
-            homeDB.clients.find(function(err, docs) {
+            homeDB.clients.find().sort({
+                lastSeen: -1
+            }, function(err, docs) {
                 io.sockets.emit('clients', JSON.stringify(docs));
             });
             log.add("CLIENT BYE BYE" + ip);
