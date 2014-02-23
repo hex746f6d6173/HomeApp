@@ -881,6 +881,11 @@ function networkDiscovery() {
 
             if (thisState != itemDisc[item.name]) {
 
+                var evalExecute = true;
+
+                if (itemDisc[item.name])
+                    evalExecute = false
+
                 itemDisc[item.name] = thisState;
 
                 item.state = thisState;
@@ -900,7 +905,8 @@ function networkDiscovery() {
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
                     if (item.onSwitchOn !== undefined) {
-                        eval(item.onSwitchOn);
+                        if (evalExecute)
+                            eval(item.onSwitchOn);
                         log.add("AUTOCOMMAND ON " + item.name, true);
                     }
                 }
@@ -920,7 +926,8 @@ function networkDiscovery() {
                     localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
 
                     if (item.onSwitchOff !== undefined) {
-                        eval(item.onSwitchOff);
+                        if (evalExecute)
+                            eval(item.onSwitchOff);
                         log.add("AUTOCOMMAND OFF " + item.name, true);
                     }
                 }
