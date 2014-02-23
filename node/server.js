@@ -595,7 +595,6 @@ app.get('/pir/:a/:b', function(req, res) {
                     }
                 }
                 if (check) {
-                    console.log("MISCS", docs);
                     if (item.type === "switch" && triggerArm === 1) {
 
                         log.add("AUTO COMMAND DELAY" + item.delay);
