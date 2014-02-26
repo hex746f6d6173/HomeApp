@@ -39,6 +39,7 @@ while True:
     temp = ser.readline()
     temp = temp.rstrip()
     r = requests.get("http://home.tomasharkema.nl/light/"+temp+"/")
+    time.sleep(1)
     r.connection.close()
     time.sleep(10)
     if (int(temp) == 0):
