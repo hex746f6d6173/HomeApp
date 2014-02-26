@@ -38,6 +38,8 @@ while True:
 
     temp = ser.readline()
     temp = temp.rstrip()
-    print("http://home.tomasharkema.nl/light/"+temp+"/")
     r = requests.get("http://home.tomasharkema.nl/light/"+temp+"/")
-    time.sleep(120)
+    r.connection.close()
+    time.sleep(10)
+    if (int(temp) == 0):
+        time.sleep(120)
