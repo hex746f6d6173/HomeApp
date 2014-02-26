@@ -50,6 +50,7 @@ while True:
             print("PIR ALARM!")
             previousTime = int(round(time.time() * 1000))
             r = requests.get("http://home.tomasharkema.nl/pir/1/1/")
+            time.sleep(1)
             r.connection.close()
     else:
         now = int(round(time.time() * 1000))
@@ -58,6 +59,7 @@ while True:
             print("PIR NO ENTER!")
             
             r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
+            time.sleep(1)
             r.connection.close()
         state = 0
                 

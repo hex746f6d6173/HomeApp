@@ -62,12 +62,10 @@ while(True):
   print "Humidity:    %.1f %%" % humidity
  
   # Append the data in the spreadsheet, including a timestamp
-  try:
-    print "http://home.tomasharkema.nl/temp/%.1f/" % temp
-    r = requests.get("http://home.tomasharkema.nl/temp/%.1f/" % temp)
-    r.connection.close()
-  except:
-    print "Unable to append data.  Check your connection?"
-    sys.exit()
+
+  print "http://home.tomasharkema.nl/temp/%.1f/" % temp
+  r = requests.get("http://home.tomasharkema.nl/temp/%.1f/" % temp)
+  time.sleep(1)
+  r.connection.close()
 
   time.sleep(30)
