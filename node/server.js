@@ -33,7 +33,8 @@ var homeDB = {
     switches: db.collection('swiches'),
     devices: db.collection('devices'),
     clients: db.collection('clients'),
-    misc: db.collection('misc')
+    misc: db.collection('misc'),
+    log: db.collection('log')
 };
 
 homeDB.switches.find(function(err, docs) {
@@ -52,6 +53,21 @@ homeDB.devices.find(function(err, docs) {
         });
     }
 });
+
+homeDB.log.find(function(err, docs) {
+    if (docs.length === 0) {
+        console.log("install log");
+
+        var localLog = JSON.parse(localStorage.getItem("log"));
+
+
+
+        localLog.forEach(function(item) {
+            homeDB.log.save(item);
+        });
+    }
+});
+
 
 homeDB.misc.find(function(err, docs) {
     if (docs.length === 0) {
@@ -89,9 +105,8 @@ var log = {
             action: action
         };
 
-        log.log.push(element);
+        homeDB.log.save(element);
 
-        localStorage.setItem("log", JSON.stringify(log.log));
 
         io.sockets.emit("logAdd", element);
 
@@ -724,8 +739,9 @@ io.sockets.on('connection', function(socket) {
         }
         i++;
     });
-
-    socket.emit('log', sendLog);
+    homeDB.log.find(function(err, docs) {
+        socket.emit('log', docs);
+    });
 
     log.add("NEW CLIENT");
 
