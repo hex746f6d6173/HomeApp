@@ -54,20 +54,6 @@ homeDB.devices.find(function(err, docs) {
     }
 });
 
-homeDB.log.find(function(err, docs) {
-    if (docs.length === 0) {
-        console.log("install log");
-
-        var localLog = JSON.parse(localStorage.getItem("log"));
-
-
-
-        localLog.forEach(function(item) {
-            homeDB.log.save(item);
-        });
-    }
-});
-
 
 homeDB.misc.find(function(err, docs) {
     if (docs.length === 0) {
