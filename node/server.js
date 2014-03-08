@@ -27,7 +27,7 @@ var mongojs = require('mongojs'),
     pulling = false,
     lightsLume = 0;
 
-var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log"]);
+var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log", "deviceHis"]);
 
 var homeDB = {
     switches: db.collection('swiches'),
@@ -37,7 +37,8 @@ var homeDB = {
     log: db.collection('log'),
     pir: db.collection('pir'),
     light: db.collection('light'),
-    temp: db.collection('temp')
+    temp: db.collection('temp'),
+    deviceHis: db.collection('deviceHis')
 };
 
 homeDB.switches.find(function(err, docs) {
@@ -387,58 +388,64 @@ app.get('/api/temps', function(req, res) {
 });
 app.get('/api/lights', function(req, res) {
 
-    var Lights = JSON.parse(localStorage.getItem("lightsLumen"));
-
-    var parseLights = [];
-
-    var prevHour = -1;
-
-    var hourArray = [];
-
-    Lights.forEach(function(item) {
-        var thisLight = parseFloat(item[1]);
-        var thisHour = new Date(item[0]).getHours();
-
-        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
-
-            if (thisHour != prevHour) {
-
-                prevHour = thisHour;
+    homeDB.light.find({}, function(err, docs) {
 
 
-                if (hourArray.length > 0) {
-                    var teller = 0;
-                    var sum = 0;
-                    hourArray.forEach(function(itemm) {
-                        sum = sum + itemm;
-                        teller++;
-                    });
+        var parseLights = [];
 
-                    var adjDate = new Date(item[0]).setMinutes(0);
+        var prevHour = -1;
 
-                    adjDate = new Date(adjDate).setSeconds(0);
+        var hourArray = [];
 
-                    var h = new Date(adjDate).getHours();
+        docs.forEach(function(item) {
+            var thisLight = item.light;
+            var thisHour = new Date(item.time).getHours();
 
-                    adjDate = new Date(adjDate).setHours(h);
-                    parseLights.push([adjDate, sum / teller]);
+            if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
 
-                    hourArray = [];
+                if (thisHour != prevHour) {
+
+                    prevHour = thisHour;
+
+
+                    if (hourArray.length > 0) {
+                        var teller = 0;
+                        var sum = 0;
+                        hourArray.forEach(function(itemm) {
+                            sum = sum + itemm;
+                            teller++;
+                        });
+
+                        var adjDate = new Date(item[0]).setMinutes(0);
+
+                        adjDate = new Date(adjDate).setSeconds(0);
+
+                        var h = new Date(adjDate).getHours();
+
+                        adjDate = new Date(adjDate).setHours(h);
+                        parseLights.push([adjDate, sum / teller]);
+
+                        hourArray = [];
+
+                    } else {
+                        hourArray.push(thisLight);
+
+                    }
 
                 } else {
                     hourArray.push(thisLight);
 
                 }
-
-            } else {
-                hourArray.push(thisLight);
-
             }
-        }
+
+        });
+
+        res.send(parseLights).end();
+
+
 
     });
 
-    res.send(parseLights).end();
 
 });
 app.get('/deviceHis', function(req, res) {
@@ -931,8 +938,6 @@ function networkDiscovery() {
 
             //console.log(item);
             var time = new Date().getTime();
-            if (localStorage.getItem("deviceHis") === null || localStorage.getItem("deviceHis") == "")
-                localStorage.setItem("deviceHis", "{}");
 
             pingSession.pingHost(item.ip, function(error, target) {
                 if (error) {
@@ -970,14 +975,11 @@ function networkDiscovery() {
                     if (item.state === 1) {
                         log.add("NETWORKDISC " + item.name + " came online");
 
-                        var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
-                        if (deviceHis[item.name] === undefined)
-                            deviceHis[item.name] = {};
-                        if (deviceHis[item.name].graph === undefined)
-                            deviceHis[item.name].graph = [];
-
-                        deviceHis[item.name].graph.push([time, "1"]);
-                        localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
+                        homeDB.deviceHis.save({
+                            name: item.name,
+                            time: time,
+                            state: "1"
+                        });
 
                         if (item.onSwitchOn !== undefined) {
                             if (evalExecute)
@@ -988,17 +990,11 @@ function networkDiscovery() {
                     if (item.state === 0) {
                         log.add("NETWORKDISC " + item.name + " went offline");
 
-                        var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
-
-
-                        if (deviceHis[item.name] === undefined)
-                            deviceHis[item.name] = {};
-
-                        if (deviceHis[item.name].graph === undefined)
-                            deviceHis[item.name].graph = [];
-
-                        deviceHis[item.name].graph.push([time, "0"]);
-                        localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
+                        homeDB.deviceHis.save({
+                            name: item.name,
+                            time: time,
+                            state: "0"
+                        });
 
                         if (item.onSwitchOff !== undefined) {
                             if (evalExecute)
