@@ -27,14 +27,17 @@ var mongojs = require('mongojs'),
     pulling = false,
     lightsLume = 0;
 
-var db = mongojs("server", ["swiches"]);
+var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log"]);
 
 var homeDB = {
     switches: db.collection('swiches'),
     devices: db.collection('devices'),
     clients: db.collection('clients'),
     misc: db.collection('misc'),
-    log: db.collection('log')
+    log: db.collection('log'),
+    pir: db.collection('pir'),
+    light: db.collection('light'),
+    temp: db.collection('temp')
 };
 
 homeDB.switches.find(function(err, docs) {
@@ -492,26 +495,24 @@ app.get('/light/:l', function(req, res) {
     console.log("LIGHTS: ", newLight);
     res.send(JSON.stringify(newLight)).end();
 
-    if (localStorage.getItem("lightsLumen") === null || localStorage.getItem("lightsLumen") == "")
-        localStorage.setItem("lightsLumen", "[]");
-
-    var lights = JSON.parse(localStorage.getItem("lightsLumen"));
-
-    lights.push([time, newLight]);
+    homeDB.light.save({
+        time: time,
+        light: newLight
+    });
 
     lightsLume = newLight;
 
     io.sockets.emit("lightsLume", lightsLume);
-    localStorage.setItem("lightsLumen", JSON.stringify(lights));
 
 });
 
 setInterval(function() {
     if (lightsLume === 0) {
         var time = new Date().getTime();
-        var lights = JSON.parse(localStorage.getItem("lightsLumen"));
-        lights.push([time, 0]);
-        localStorage.setItem("lightsLumen", JSON.stringify(lights));
+        homeDB.light.save({
+            time: time,
+            light: 0
+        });
     }
 }, 10 * 60 * 1000);
 
@@ -532,13 +533,11 @@ app.get('/temp/:t', function(req, res) {
             log.add("TEMPRATUUR UPDATE: " + temp);
             io.sockets.emit('temp', temp);
         }
-        if (localStorage.getItem("temp") === null || localStorage.getItem("temp") == "")
-            localStorage.setItem("temp", "[]");
-        var temps = JSON.parse(localStorage.getItem("temp"));
 
-        temps.push([time, newTemp]);
-
-        localStorage.setItem("temp", JSON.stringify(temps));
+        homeDB.temp.save({
+            time: time,
+            temp: newTemp
+        });
     } else {
         log.add("TEMPRATUUR NO UPDATE: " + newTemp + ", DIFF " + Dtemp);
     }
@@ -551,26 +550,29 @@ app.get('/pir/:a/:b', function(req, res) {
 
     //log.add("PIR! " + req.params.b);
 
-    if (localStorage.getItem("pir") === null || localStorage.getItem("pir") == "")
-        localStorage.setItem("pir", "[]");
     var time = new Date().getTime();
 
     var pirs = JSON.parse(localStorage.getItem("pir"));
 
     if (req.params.b == 1) {
-        pirs.push([time, "1"]);
+        homeDB.pir.save({
+            time: time,
+            pir: "1"
+        });
     } else if (req.params.b == 0) {
 
         //log.add("PIR 0, diffTime:" + ((lastOffTime + (1000 * 60 * 5)) - time));
         if ((lastOffTime + (1000 * 60 * 5)) < time) {
             lastOffTime = time;
 
-            pirs.push([time, "0"]);
+            homeDB.pir.save({
+                time: time,
+                pir: "0"
+            });
         }
 
     }
 
-    localStorage.setItem("pir", JSON.stringify(pirs));
 
     if (req.params.b == 1 && persistState === 0) {
         persistState = 1;
