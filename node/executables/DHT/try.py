@@ -34,7 +34,7 @@ def goodbye():
 
 atexit.register(goodbye)
 
-
+initTime = int(round(time.time() * 1000));
 # ===========================================================================
 # Google Account Details
 # ===========================================================================
@@ -69,3 +69,5 @@ while(True):
   r.connection.close()
 
   time.sleep(30)
+  if(thisTime > (initTime + (1000 * 60 * 60 * 5))):
+    sys.exit()
