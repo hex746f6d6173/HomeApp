@@ -27,14 +27,16 @@ var mongojs = require('mongojs'),
     pulling = false,
     lightsLume = 0;
 
-var db = mongojs("server", ["swiches"]);
+var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log"]);
 
 var homeDB = {
     switches: db.collection('swiches'),
     devices: db.collection('devices'),
     clients: db.collection('clients'),
     misc: db.collection('misc'),
-    log: db.collection('log')
+    log: db.collection('log'),
+    pir: db.collection('pir'),
+    light: db.collection('light')
 };
 
 homeDB.switches.find(function(err, docs) {
