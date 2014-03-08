@@ -43,6 +43,8 @@ previousTime = int(round(time.time() * 1000));
 
 requests.get("http://home.tomasharkema.nl/pir/1/0/")
 
+initTime = int(round(time.time() * 1000));
+
 while True:
     if io.input(pir_pin):
         if (state == 0) :
@@ -64,3 +66,5 @@ while True:
         state = 0
                 
     time.sleep(0.5)
+    if(thisTime > (initTime + (1000 * 60 * 60 * 5))):
+        sys.exit()
