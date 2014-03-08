@@ -509,9 +509,10 @@ app.get('/light/:l', function(req, res) {
 setInterval(function() {
     if (lightsLume === 0) {
         var time = new Date().getTime();
-        var lights = JSON.parse(localStorage.getItem("lightsLumen"));
-        lights.push([time, 0]);
-        localStorage.setItem("lightsLumen", JSON.stringify(lights));
+        homeDB.light.save({
+            time: time,
+            light: 0
+        });
     }
 }, 10 * 60 * 1000);
 
