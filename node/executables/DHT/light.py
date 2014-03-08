@@ -33,6 +33,8 @@ atexit.register(goodbye)
 
 state = 0;
 
+initTime = int(round(time.time() * 1000));
+
 ser = serial.Serial('/dev/ttyACM0', 9600)
 while True:
 
@@ -44,3 +46,8 @@ while True:
     time.sleep(10)
     if (int(temp) == 0):
         time.sleep(120)
+
+    thisTime = int(round(time.time() * 1000));
+
+    if(thisTime > (initTime + (1000 * 60 * 60 * 5))):
+        sys.exit()
