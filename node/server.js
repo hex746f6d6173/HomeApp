@@ -453,30 +453,32 @@ app.get('/deviceHis', function(req, res) {
 });
 app.get('/api/totalGraph', function(req, res) {
     var ret = [];
+    var deviceHisArray = [];
+    homeDB.deviceHis.find(function(err, docs) {
+        docs.forEach(function(doc) {
 
-    var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
+            if (deviceHisArray[doc.name] === undefined) {
+                deviceHisArray[doc.name] = {
+                    name: doc.name,
+                    data: []
+                }
+            }
+            deviceHisArray[doc.name].data.push([doc.time, doc.state]);
+        });
+        console.log(deviceHisArray);
 
-    for (var key in deviceHis) {
-        var item = deviceHis[key];
-
-        var devicePlot = [];
-
-        item.graph.forEach(function(item) {
-            if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24)))
-                devicePlot.push(item);
-
+        deviceHisArray.forEach(function(item) {
+            console.log(item);
+            ret.push({
+                label: "Device History " + key,
+                data: devicePlot
+            });
         });
 
 
-
-        ret.push({
-            label: "Device History " + key,
-            data: devicePlot
-        });
+    });
 
 
-
-    }
 
     var pir = JSON.parse(localStorage.getItem("pir"));
     var pirData = [];
