@@ -66,5 +66,3 @@ while True:
         state = 0
                 
     time.sleep(0.5)
-    if(thisTime > (initTime + (1000 * 60 * 60 * 5))):
-        sys.exit()
