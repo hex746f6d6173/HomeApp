@@ -736,7 +736,7 @@ io.sockets.on('connection', function(socket) {
         }
         i++;
     });
-    homeDB.log.find(function(err, docs) {
+    homeDB.log.find().limit(100, function(err, docs) {
         socket.emit('log', docs);
     });
 
