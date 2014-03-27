@@ -1,5 +1,15 @@
+#!/usr/bin/python
+
 import lcddriver
 from time import *
+
+from socketIO_client import SocketIO
+
+def on_aaa_response(*args):
+    print 'on_aaa_response', args
+
+socketIO = SocketIO('home.tomasharkema.nl', 80)
+socketIO.on('temp', on_aaa_response)
 
 lcd = lcddriver.lcd()
 
