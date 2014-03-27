@@ -9,6 +9,7 @@ def on_aaa_response(*args):
     print 'on_aaa_response', args
 
 socketIO = SocketIO('home.tomasharkema.nl', 80)
+socketIO.wait()
 socketIO.on('temp', on_aaa_response)
 
 lcd = lcddriver.lcd()
