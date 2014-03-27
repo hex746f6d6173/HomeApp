@@ -32,7 +32,14 @@ def temp(*args):
     threadLock.acquire()
     updateUI()
     threadLock.release()
-
+def lightsLume(*args):
+    global lumen
+    print 'lumen', args, args[0], str(args[0])
+    lumen = str(args[0]);
+    threadLock.acquire()
+    updateUI()
+    threadLock.release()
+    
 class SocThread (threading.Thread):
     
     def __init__(self):
@@ -43,7 +50,8 @@ class SocThread (threading.Thread):
 
         with SocketIO('home.tomasharkema.nl', 80) as socketIO:
             socketIO.on('temp', temp)
-            socketIO.emit('me', 'python')
+            socketIO.on('lightsLume', lightsLume)
+            socketIO.emit('me', 'Python')
             socketIO.wait_for_callbacks(seconds=1000)
             socketIO.wait()
 class timeThread (threading.Thread):
