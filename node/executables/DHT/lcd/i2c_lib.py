@@ -4,7 +4,7 @@ from time import *
 class i2c_device:
    def __init__(self, addr, port=1):
       self.addr = addr
-      self.bus = smbus.SMBus(port)   
+      self.bus = smbus.SMBus(port)
 
 # Write a single command
    def write_cmd(self, cmd):
@@ -25,7 +25,7 @@ class i2c_device:
    def read(self):
       return self.bus.read_byte(self.addr)
 
-# Read 
+# Read
    def read_data(self, cmd):
       return self.bus.read_byte_data(self.addr, cmd)
 
