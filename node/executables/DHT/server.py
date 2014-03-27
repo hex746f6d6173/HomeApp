@@ -2,7 +2,7 @@
 
 import time
 
-import lcd
+from lcd import lcd
 
 from i2clibraries import i2c_lcd_smbus
 
