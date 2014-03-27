@@ -22,7 +22,7 @@ def updateUI():
     lcd.lcd_display_string("Status: All fine!", 4)
 
 def temp(*args):
-    print 'on_aaa_response', args
+    print 'on_aaa_response', args, args[0], str(args[0])
     tempratuur = str(args[0]);
     updateUI()
 
