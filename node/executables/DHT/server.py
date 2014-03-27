@@ -12,8 +12,8 @@ lcd = lcddriver.lcd()
 
 print 'HALLO'
 
-tempratuur = 0
-lumen = 0
+tempratuur = ""
+lumen = ""
 
 def updateUI():
     lcd.lcd_display_string("HOME APP     C:I T:0", 1)
