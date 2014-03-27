@@ -15,5 +15,5 @@ def on_aaa_response(*args):
     lcd.lcd_display_string("Status: All fine!", 4)
 
 socketIO = SocketIO('home.tomasharkema.nl', 80)
-//socketIO.wait()
+#socketIO.wait()
 socketIO.on('temp', on_aaa_response)
