@@ -39,7 +39,7 @@ def lightsLume(*args):
     threadLock.acquire()
     updateUI()
     threadLock.release()
-    
+
 class SocThread (threading.Thread):
     
     def __init__(self):
@@ -69,8 +69,15 @@ class timeThread (threading.Thread):
 
 threadLock = threading.Lock()
 
-thread1 = SocThread()
-thread2 = timeThread()
 
-thread1.start()
-thread2.start()
+
+try:
+    thread1 = SocThread()
+    thread2 = timeThread()
+    thread2.daemon=True
+    thread1.daemon=True
+    thread1.start()
+    thread2.start()
+    while True: time.sleep(100)
+except (KeyboardInterrupt, SystemExit):
+    print '\n! Received keyboard interrupt, quitting threads.\n'
