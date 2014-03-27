@@ -33,7 +33,7 @@ def temp(*args):
 
 class SocThread (threading.Thread):
     
-    def __init__(self, threadID, name, counter):
+    def __init__(self):
         
         threading.Thread.__init__(self)
 
@@ -46,7 +46,7 @@ class SocThread (threading.Thread):
             socketIO.wait()
 class timeThread (threading.Thread):
 
-    def __init__(self, threadID, name, counter):
+    def __init__(self):
         
         threading.Thread.__init__(self)
 
