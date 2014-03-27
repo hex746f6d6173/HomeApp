@@ -59,7 +59,7 @@ class timeThread (threading.Thread):
             threadLock.release()
             time.sleep(1)
 
-
+threadLock = threading.Lock()
 
 thread1 = SocThread()
 thread2 = timeThread()
