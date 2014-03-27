@@ -40,7 +40,7 @@ def lightsLume(*args):
     threadLock.acquire()
     updateUI()
     threadLock.release()
-def trigger(*args):
+def triggerArm(*args):
     global trigger
     print 'trigger', args, args[0], str(args[0])
     trigger = str(args[0]);
@@ -58,7 +58,7 @@ class SocThread (threading.Thread):
         with SocketIO('home.tomasharkema.nl', 80) as socketIO:
             socketIO.on('temp', temp)
             socketIO.on('lightsLume', lightsLume)
-            socketIO.on('triggerArm', trigger)
+            socketIO.on('triggerArm', triggerArm)
             socketIO.emit('me', 'Python')
             socketIO.wait_for_callbacks(seconds=1000)
             socketIO.wait()
