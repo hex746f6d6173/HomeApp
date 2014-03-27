@@ -12,7 +12,7 @@ lcd = lcddriver.lcd()
 
 print 'HALLO'
 
-temp = 0
+tempratuur = 0
 lumen = 0
 
 def updateUI():
@@ -23,7 +23,7 @@ def updateUI():
 
 def temp(*args):
     print 'on_aaa_response', args
-    temp = str(args[0]);
+    tempratuur = str(args[0]);
     updateUI()
 
 
