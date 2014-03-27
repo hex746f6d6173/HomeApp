@@ -22,8 +22,8 @@ trigger = "0"
 def updateUI():
     global tempratuur
     lcd.lcd_display_string("HOME APP    "+strftime("%H:%M:%S", gmtime()), 1)
-    lcd.lcd_display_string(tempratuur + "oC / "+lumen+"Lux", 2)
-    lcd.lcd_display_string("Trigger: " + trigger, 3)
+    lcd.lcd_display_string(tempratuur + "oC / "+lumen+"Lux / TrA: "+trigger, 2)
+    lcd.lcd_display_string("", 3)
     lcd.lcd_display_string("Status: All fine!", 4)
 
 def temp(*args):
