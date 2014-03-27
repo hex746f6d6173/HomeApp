@@ -8,7 +8,7 @@ import lcddriver
 
 import time
 from time import gmtime, strftime
-
+import threading
 from socketIO_client import SocketIO
 
 lcd = lcddriver.lcd()
@@ -31,12 +31,34 @@ def temp(*args):
     tempratuur = str(args[0]);
     updateUI()
 
-with SocketIO('home.tomasharkema.nl', 80) as socketIO:
-    socketIO.on('temp', temp)
-    socketIO.emit('me', 'python')
-    socketIO.wait_for_callbacks(seconds=1000)
-    socketIO.wait()
+class SocThread (threading.Thread):
+    
+    def __init__(self, threadID, name, counter):
+        
+        threading.Thread.__init__(self)
 
-while True:
-    updateUI()
-    time.sleep(1)
+    def run(self):
+
+        with SocketIO('home.tomasharkema.nl', 80) as socketIO:
+            socketIO.on('temp', temp)
+            socketIO.emit('me', 'python')
+            socketIO.wait_for_callbacks(seconds=1000)
+            socketIO.wait()
+class timeThread (threading.Thread):
+
+    def __init__(self, threadID, name, counter):
+        
+        threading.Thread.__init__(self)
+
+    def run(self):
+        while True:
+            updateUI()
+            time.sleep(1)
+
+
+
+thread1 = SocThread()
+thread2 = timeThread()
+
+thread1.start()
+thread2.start()
