@@ -3,7 +3,7 @@ from time import *
 
 lcd = lcddriver.lcd()
 
-lcd.lcd_display_string("Hello world", 1)
-lcd.lcd_display_string("My name is", 2)
-lcd.lcd_display_string("picorder", 3)
-lcd.lcd_display_string("I am a Raspberry Pi", 4)
+lcd.lcd_display_string("HOME APP     C:I T:0", 1)
+lcd.lcd_display_string("16oC / 16Lux", 2)
+lcd.lcd_display_string("", 3)
+lcd.lcd_display_string("Status: All fine!", 4)
