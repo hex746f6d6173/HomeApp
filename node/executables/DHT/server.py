@@ -25,6 +25,7 @@ def updateUI():
     lcd.lcd_display_string(tempratuur + "oC / "+lumen+"Lux / TrA: "+trigger, 2)
     lcd.lcd_display_string("", 3)
     lcd.lcd_display_string("Status: All fine!", 4)
+    lcd.write_cmd(LCD_NOBACKLIGHT);
 
 def temp(*args):
     global tempratuur
