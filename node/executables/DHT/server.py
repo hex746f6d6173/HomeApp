@@ -29,7 +29,9 @@ def temp(*args):
     global tempratuur
     print 'on_aaa_response', args, args[0], str(args[0])
     tempratuur = str(args[0]);
+    threadLock.acquire()
     updateUI()
+    threadLock.release()
 
 class SocThread (threading.Thread):
     
@@ -52,7 +54,9 @@ class timeThread (threading.Thread):
 
     def run(self):
         while True:
+            threadLock.acquire()
             updateUI()
+            threadLock.release()
             time.sleep(1)
 
 
