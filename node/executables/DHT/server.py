@@ -194,12 +194,15 @@ try:
 	thread1 = SocThread()
 	thread2 = timeThread()
 	thread3 = pirThread()
+	thread4 = tempThread()
 	thread3.daemon=True
 	thread2.daemon=True
 	thread1.daemon=True
+	thread4.daemon=True
 	thread1.start()
 	thread2.start()
 	thread3.start()
+	thread4.start()
 	while True: time.sleep(100)
 except (KeyboardInterrupt, SystemExit):
 	print '\n! Received keyboard interrupt, quitting threads.\n'
