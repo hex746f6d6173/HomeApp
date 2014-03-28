@@ -148,6 +148,8 @@ $(document).ready(function() {
                 background: orange
             });
 
+            $("#sleepStatus").find(".time").html(("" + (time - data.bedTime) / 1000 + "").toHHMMSS());
+
             if (timeOut != "a") {
                 clearInterval(timeOut);
             }
