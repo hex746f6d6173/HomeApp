@@ -20,6 +20,8 @@ tempratuur = "0"
 lumen = "0"
 trigger = "0"
 
+socketIO = SocketIO('home.tomasharkema.nl', 80)
+
 def updateUI():
     global tempratuur
     
@@ -60,13 +62,15 @@ class SocThread (threading.Thread):
 
     def run(self):
 
-        with SocketIO('home.tomasharkema.nl', 80) as socketIO:
-            socketIO.on('temp', temp)
-            socketIO.on('lightsLume', lightsLume)
-            socketIO.on('triggerArm', triggerArm)
-            socketIO.emit('me', 'Python')
-            socketIO.wait_for_callbacks(seconds=1000)
-            socketIO.wait()
+        socketIO.on('temp', temp)
+        socketIO.on('lightsLume', lightsLume)
+        socketIO.on('triggerArm', triggerArm)
+        socketIO.emit('me', 'Python')
+        socketIO.wait_for_callbacks(seconds=1000)
+        socketIO.wait()
+
+
+
 class timeThread (threading.Thread):
 
     def __init__(self):
