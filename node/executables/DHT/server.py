@@ -58,7 +58,7 @@ def updateUI():
 
 	#lcd.lcd_clear()
 
-	sleepRow = ""
+	sleepRow = "                    "
 
 	if(int(sleepStatus)>0):
 		sleepRow = "sleeptime:"+  time.strftime('%H:%M:%S', time.gmtime(float(int(datetime.datetime.now().strftime("%s")) - int(int(sleepTime) / 1000))))
