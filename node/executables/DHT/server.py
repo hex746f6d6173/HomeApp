@@ -26,6 +26,7 @@ print 'HALLO'
 tempratuur = "0"
 lumen = "0"
 trigger = "0"
+pir = "0"
 
 lastCommand = ""
 
@@ -38,6 +39,7 @@ def updateUI():
 	global lumen
 	global trigger
 	global lastCommand
+	global pir
 	localtime = time.strftime("%H:%M:%S", time.localtime())
 	
 	if(background):
@@ -52,7 +54,7 @@ def updateUI():
 	lcd.lcd_display_string("HOME APP    "+localtime, 1)
 	lcd.lcd_display_string(tempratuur + "oC / "+lumen+"Lux / TrA: "+trigger, 2)
 	lcd.lcd_display_string(lastCommand, 3)
-	lcd.lcd_display_string("Status: All fine!", 4)
+	lcd.lcd_display_string("PIR:"+pir, 4)
 
 
 
@@ -142,8 +144,8 @@ class pirThread (threading.Thread):
 				if (state == 0) :
 					state = 1
 					print("PIR ALARM!")
-					global lastCommand
-					lastCommand = "PIR:1"
+					global pir
+					pir = "1"
 					threadLock.acquire()
 					updateUI()
 					threadLock.release()
@@ -156,8 +158,8 @@ class pirThread (threading.Thread):
 				
 				if ((previousTime + (1000 * 60 * 10)) < now):
 					print("PIR NO ENTER!")
-					global lastCommand
-					lastCommand = "PIR:0"
+					global pir
+					pir = "0"
 					threadLock.acquire()
 					updateUI()
 					threadLock.release()
