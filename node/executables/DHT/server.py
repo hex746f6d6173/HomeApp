@@ -66,7 +66,7 @@ def triggerArm(*args):
 def switchedCallback(*args):
 	global lastCommand
 	print "switchedCallback", args
-	lastCommand = args.switch.name;
+	lastCommand = args[0].switch.name;
 	threadLock.acquire()
 	updateUI()
 	threadLock.release()
