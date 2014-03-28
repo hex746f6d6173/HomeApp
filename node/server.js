@@ -29,6 +29,25 @@ var mongojs = require('mongojs'),
     bedState = "0",
     bedTime = "0";
 
+function toHHMMSS(string) {
+    var sec_num = parseInt(string, 10); // don't forget the second param
+    var hours = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    if (hours < 10) {
+        hours = "0" + hours;
+    }
+    if (minutes < 10) {
+        minutes = "0" + minutes;
+    }
+    if (seconds < 10) {
+        seconds = "0" + seconds;
+    }
+    var time = hours + ':' + minutes + ':' + seconds;
+    return time;
+}
+
 var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log", "deviceHis"]);
 
 var homeDB = {
@@ -774,6 +793,8 @@ io.sockets.on('connection', function(socket) {
 
     });
 
+    var timeOut = "a";
+
     socket.on('bed', function(data) {
 
         var time = new Date().getTime();
@@ -784,11 +805,26 @@ io.sockets.on('connection', function(socket) {
         });
 
         if (data == "1") {
-            bedTime = time;
+            if (timeOut == "a") {
+                bedTime = time;
+                log.add("Slapen beginnen", false);
+            } else {
+                log.add("Slapen hervatten", false);
+                clearTimeout(timeOut);
+            }
 
         } else {
             sleepedTime = time - bedTime;
-            log.add("Tijd geslapen: " + sleepedTime, true);
+
+
+            if (timeOut == "a") {
+                log.add("Slapen wachten op 10 minuten", false);
+                timeOut = setTimeout(function() {
+                    timeOut = "a";
+                    log.add("Tijd geslapen: " + toHHMMSS(sleepedTime / 1000), true);
+
+                }, 1000 * 60 * 10);
+            }
 
         }
 
