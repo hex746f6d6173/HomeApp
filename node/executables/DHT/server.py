@@ -66,6 +66,10 @@ def triggerArm(*args):
 def switchedCallback(*args):
 	global lastCommand
 	print "switchedCallback", args
+	lastCommand = args["switch"]["name"];
+	threadLock.acquire()
+	updateUI()
+	threadLock.release()
 
 class SocThread (threading.Thread):
 	
