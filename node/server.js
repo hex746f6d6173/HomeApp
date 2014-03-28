@@ -353,65 +353,66 @@ app.get('/switches', function(req, res) {
 });
 app.get('/api/temps', function(req, res) {
 
-    var temps = JSON.parse(localStorage.getItem("temp"));
-
-    var parseTemps = [];
-
-    var prevHour = -1;
-
-    var hourArray = [];
 
 
+    homeDB.temp.find(function(err, temps) {
 
-    temps.forEach(function(item) {
-        var thisTemp = parseFloat(item[1]);
-        var thisHour = new Date(item[0]).getHours();
-        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
-            if (thisHour != prevHour) {
+        var parseTemps = [];
 
-                prevHour = thisHour;
+        var prevHour = -1;
+
+        var hourArray = [];
+        temps.forEach(function(item) {
+            var thisTemp = parseFloat(item.temp);
+            var thisHour = new Date(item.time).getHours();
+            if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
+                if (thisHour != prevHour) {
+
+                    prevHour = thisHour;
 
 
-                if (hourArray.length > 0) {
-                    var teller = 0;
-                    var sum = 0;
-                    hourArray.forEach(function(itemm) {
-                        sum = sum + itemm;
-                        teller++;
-                    });
+                    if (hourArray.length > 0) {
+                        var teller = 0;
+                        var sum = 0;
+                        hourArray.forEach(function(itemm) {
+                            sum = sum + itemm;
+                            teller++;
+                        });
 
-                    var adjDate = new Date(item[0]).setMinutes(0);
+                        var adjDate = new Date(item.time).setMinutes(0);
 
-                    adjDate = new Date(adjDate).setSeconds(0);
+                        adjDate = new Date(adjDate).setSeconds(0);
 
-                    var h = new Date(adjDate).getHours();
+                        var h = new Date(adjDate).getHours();
 
-                    adjDate = new Date(adjDate).setHours(h);
+                        adjDate = new Date(adjDate).setHours(h);
 
-                    parseTemps.push([adjDate, sum / teller]);
+                        parseTemps.push([adjDate, sum / teller]);
 
-                    hourArray = [];
+                        hourArray = [];
+
+                    } else {
+                        if (thisTemp < 45) {
+                            hourArray.push(thisTemp);
+                        }
+                    }
 
                 } else {
                     if (thisTemp < 45) {
                         hourArray.push(thisTemp);
                     }
                 }
-
-            } else {
-                if (thisTemp < 45) {
-                    hourArray.push(thisTemp);
-                }
             }
-        }
+        });
+        res.send(JSON.stringify(parseTemps)).end();
+
+
+
     });
-
-    res.send(JSON.stringify(parseTemps)).end();
-
 });
 app.get('/api/lights', function(req, res) {
 
-    homeDB.light.find({}, function(err, docs) {
+    homeDB.light.find(function(err, docs) {
 
 
         var parseLights = [];
@@ -424,7 +425,7 @@ app.get('/api/lights', function(req, res) {
             var thisLight = item.light;
             var thisHour = new Date(item.time).getHours();
 
-            if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
+            if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
 
                 if (thisHour != prevHour) {
 
@@ -439,7 +440,7 @@ app.get('/api/lights', function(req, res) {
                             teller++;
                         });
 
-                        var adjDate = new Date(item[0]).setMinutes(0);
+                        var adjDate = new Date(item.time).setMinutes(0);
 
                         adjDate = new Date(adjDate).setSeconds(0);
 

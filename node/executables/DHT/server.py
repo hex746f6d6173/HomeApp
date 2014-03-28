@@ -90,31 +90,23 @@ def temp(*args):
 	global tempratuur
 	print 'on_aaa_response', args, args[0], str(args[0])
 	tempratuur = str(args[0]);
-	threadLock.acquire()
-	updateUI()
-	threadLock.release()
+	
 def lightsLume(*args):
 	global lumen
 	print 'lumen', args, args[0], str(args[0])
 	lumen = str(args[0]);
-	threadLock.acquire()
-	updateUI()
-	threadLock.release()
+	
 def triggerArm(*args):
 	global trigger
 	print 'trigger', args, args[0], str(args[0])
 	trigger = str(args[0]);
-	threadLock.acquire()
-	updateUI()
-	threadLock.release()
+	
 
 def switchedCallback(*args):
 	global lastCommand
 	print "switchedCallback", args, args[0]['switch']['name'], type(args[0])
 	lastCommand = args[0]['switch']['name'] + ":"+str(args[0]['switch']['state']);
-	threadLock.acquire()
-	updateUI()
-	threadLock.release()
+	
 
 def sleepStatusCallback(*args):
 	global sleepStatus
@@ -122,9 +114,7 @@ def sleepStatusCallback(*args):
 	print "sleepStatus", args, args[0]['status'], type(args[0])
 	sleepStatus = str(args[0]['status'])
 	sleepTime = args[0]['bedTime'];
-	threadLock.acquire()
-	updateUI()
-	threadLock.release()
+	
 
 class SocThread (threading.Thread):
 	
@@ -188,9 +178,7 @@ class pirThread (threading.Thread):
 					print("PIR ALARM!")
 					global pir
 					pir = "1"
-					threadLock.acquire()
-					updateUI()
-					threadLock.release()
+					
 					previousTime = int(round(time.time() * 1000))
 					r = requests.get("http://home.tomasharkema.nl/pir/1/1/")
 					time.sleep(1)
@@ -202,9 +190,7 @@ class pirThread (threading.Thread):
 					print("PIR NO ENTER!")
 					global pir
 					pir = "0"
-					threadLock.acquire()
-					updateUI()
-					threadLock.release()
+					
 					r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
 					time.sleep(1)
 					r.connection.close()
@@ -222,9 +208,7 @@ class pirThread (threading.Thread):
 					socketIO.emit('bed', bed)
 					socketIO.wait_for_callbacks(seconds=1000)
 					background = False
-					threadLock.acquire()
-					updateUI()
-					threadLock.release()
+					
 			else:
 				if (bed != "0"):
 					print "NEE"
@@ -232,9 +216,7 @@ class pirThread (threading.Thread):
 					socketIO.emit('bed', bed)
 					socketIO.wait_for_callbacks(seconds=1000)
 					background = True
-					threadLock.acquire()
-					updateUI()
-					threadLock.release()
+					
 
 			time.sleep(0.5)
 
