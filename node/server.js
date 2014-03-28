@@ -361,7 +361,7 @@ app.get('/api/temps', function(req, res) {
 
     var hourArray = [];
 
-    homeDB.temp.find({}, function(err, temps) {
+    homeDB.temp.find(function(err, temps) {
 
         temps.forEach(function(item) {
             var thisTemp = parseFloat(item[1]);
