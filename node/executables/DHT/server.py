@@ -65,7 +65,7 @@ def triggerArm(*args):
 
 def switchedCallback(*args):
 	global lastCommand
-	jsonArgs = json.load(args[0])
+	jsonArgs = json.load(args)
 	print "switchedCallback", jsonArgs
 	lastCommand = jsonArgs.switch.name;
 	threadLock.acquire()
