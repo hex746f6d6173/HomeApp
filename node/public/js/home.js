@@ -130,7 +130,11 @@ $(document).ready(function() {
         if (timeOut != "a") {
             clearInterval(timeOut);
         }
-        if (data.status > 0) {
+        if (data.status === 2) {
+
+            $("#sleepStatus").fadeIn().css({
+                background: green
+            });
             timeOut = setInterval(function() {
 
                 var time = new Date().getTime();
@@ -138,6 +142,20 @@ $(document).ready(function() {
                 $("#sleepStatus").find(".time").html(("" + time - data.bedTime + "").toHHMMSS());
 
             }, 1000);
+        } else if (data.status === 1) {
+
+            $("#sleepStatus").fadeIn().css({
+                background: orange
+            });
+
+            if (timeOut != "a") {
+                clearInterval(timeOut);
+            }
+
+
+
+        } else {
+            $("#sleepStatus").fadeOut();
         }
 
 
