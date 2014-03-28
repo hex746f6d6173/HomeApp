@@ -144,6 +144,9 @@ class pirThread (threading.Thread):
 
 		initTime = int(round(time.time() * 1000));
 
+		global bed
+		global background
+
 		while True:
 			if io.input(pir_pin):
 				if (state == 0) :
@@ -178,8 +181,6 @@ class pirThread (threading.Thread):
 
 			if io.input(bed_pin):
 				if (bed != "1"):
-					global bed
-					global background
 					print "JA"
 					bed = "1"
 					background = False
@@ -188,8 +189,6 @@ class pirThread (threading.Thread):
 					threadLock.release()
 			else:
 				if (bed != "0"):
-					global bed
-					global background
 					print "NEE"
 					bed = "0"
 					background = True
