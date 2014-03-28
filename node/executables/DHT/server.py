@@ -118,7 +118,7 @@ def switchedCallback(*args):
 def sleepStatusCallback(*args):
 	global sleepStatus
 	global sleepTime
-	logging.debug('sleepStatus' + args[0]['status'])
+	logging.debug('sleepStatus' + str(args[0]['status']))
 	print "sleepStatus", args, args[0]['status'], type(args[0])
 	sleepStatus = str(args[0]['status'])
 	sleepTime = args[0]['bedTime'];
