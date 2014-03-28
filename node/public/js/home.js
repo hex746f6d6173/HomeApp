@@ -350,7 +350,7 @@ $(document).ready(function() {
         var i = 0;
 
         $.each(data, function(x, y) {
-            log = '<p class="l">' + jQuery.timeago(new Date(y.time)) + ': ' + y.action + '</p>' + log;
+            log = log + '<p class="l">' + jQuery.timeago(new Date(y.time)) + ': ' + y.action + '</p>';
         });
 
         $(".log").html(log);
