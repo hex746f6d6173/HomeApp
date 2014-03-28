@@ -144,6 +144,47 @@ class pirThread (threading.Thread):
 						
 			time.sleep(0.5)
 
+class tempThread (threading.Thread):
+
+	def __init__(self):
+		threading.Thread.__init__(self)
+
+	def run(self):
+		initTime = int(round(time.time() * 1000));
+		# ===========================================================================
+		# Google Account Details
+		# ===========================================================================
+
+		# Continuously append data
+		while(True):
+			# Run the DHT program to get the humidity and temperature readings!
+
+			output = subprocess.check_output(["./Adafruit_DHT", "11", "4"]);
+			print output
+			matches = re.search("Temp =\s+([0-9.]+)", output)
+			if (not matches):
+			time.sleep(3)
+			continue
+			temp = float(matches.group(1))
+
+			# search for humidity printout
+			matches = re.search("Hum =\s+([0-9.]+)", output)
+			if (not matches):
+			time.sleep(3)
+			continue
+			humidity = float(matches.group(1))
+
+			print "Temperature: %.1f C" % temp
+			print "Humidity:    %.1f %%" % humidity
+
+			# Append the data in the spreadsheet, including a timestamp
+
+			print "http://home.tomasharkema.nl/temp/%.1f/" % temp
+			r = requests.get("http://home.tomasharkema.nl/temp/%.1f/" % temp)
+			time.sleep(1)
+			r.connection.close()
+
+			time.sleep(30)
 
 threadLock = threading.Lock()
 
