@@ -273,7 +273,7 @@ class tempThread (threading.Thread):
 
 			# Append the data in the spreadsheet, including a timestamp
 
-			#print "http://home.tomasharkema.nl/temp/%.1f/" % temp
+			print "http://home.tomasharkema.nl/temp/%.1f/" % temp
 			r = requests.get("http://home.tomasharkema.nl/temp/%.1f/" % temp)
 			time.sleep(1)
 			r.connection.close()
