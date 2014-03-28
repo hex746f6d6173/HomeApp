@@ -17,6 +17,7 @@ import RPi.GPIO as io
 import atexit
 import os
 import sys
+import subprocess
 
 lcd = lcddriver.lcd()
 
