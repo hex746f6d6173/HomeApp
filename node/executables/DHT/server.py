@@ -45,7 +45,7 @@ def updateUI():
 	else:
 		lcd.lcd_noBacklight()
 
-	lcd.lcd_clear()
+	#lcd.lcd_clear()
 
 
 
