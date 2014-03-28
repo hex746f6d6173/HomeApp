@@ -68,6 +68,4 @@ while(True):
   time.sleep(1)
   r.connection.close()
 
-  time.sleep(30)
-  if(thisTime > (initTime + (1000 * 60 * 60 * 5))):
-    sys.exit()
+  time.sleep(3)

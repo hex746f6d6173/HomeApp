@@ -260,7 +260,7 @@ class tempThread (threading.Thread):
 			time.sleep(1)
 			r.connection.close()
 
-			time.sleep(30)
+			time.sleep(3)
 
 
 
