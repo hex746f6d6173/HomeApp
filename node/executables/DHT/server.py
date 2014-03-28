@@ -241,14 +241,14 @@ class tempThread (threading.Thread):
 			print output
 			matches = re.search("Temp =\s+([0-9.]+)", output)
 			if (not matches):
-				time.sleep(3)
+			time.sleep(3)
 			continue
 			temp = float(matches.group(1))
 
 			# search for humidity printout
 			matches = re.search("Hum =\s+([0-9.]+)", output)
 			if (not matches):
-				time.sleep(3)
+			time.sleep(3)
 			continue
 			humidity = float(matches.group(1))
 
@@ -261,7 +261,7 @@ class tempThread (threading.Thread):
 			r = requests.get("http://home.tomasharkema.nl/temp/%.1f/" % temp)
 			
 
-			time.sleep(3)
+			time.sleep(30)
 
 
 
