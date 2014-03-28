@@ -60,6 +60,7 @@ var homeDB = {
     light: db.collection('light'),
     temp: db.collection('temp'),
     bed: db.collection('bed'),
+    sleep: db.collection('sleep'),
     deviceHis: db.collection('deviceHis')
 };
 
@@ -848,6 +849,11 @@ io.sockets.on('connection', function(socket) {
                         "status": 0
                     });
                     log.add("Tijd geslapen: " + toHHMMSS(sleepedTime / 1000), true);
+
+                    homeDB.sleep.save({
+                        begin: bedTime,
+                        end: time
+                    });
 
                 }, 1000 * 60 * 10);
             } else {
