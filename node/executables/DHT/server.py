@@ -179,10 +179,13 @@ class pirThread (threading.Thread):
 			bed_pin = 22
 			io.setup(bed_pin, io.IN)
 
+
+
 			if io.input(bed_pin):
 				if (bed != "1"):
 					print "JA"
 					bed = "1"
+					socketIO.emit('bed', bed)
 					background = False
 					threadLock.acquire()
 					updateUI()
@@ -191,6 +194,7 @@ class pirThread (threading.Thread):
 				if (bed != "0"):
 					print "NEE"
 					bed = "0"
+					socketIO.emit('bed', bed)
 					background = True
 					threadLock.acquire()
 					updateUI()
