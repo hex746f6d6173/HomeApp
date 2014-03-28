@@ -226,7 +226,6 @@ class tempThread (threading.Thread):
 		threading.Thread.__init__(self)
 
 	def run(self):
-		initTime = int(round(time.time() * 1000));
 		# ===========================================================================
 		# Google Account Details
 		# ===========================================================================
@@ -251,16 +250,15 @@ class tempThread (threading.Thread):
 			humidity = float(matches.group(1))
 
 			print "Temperature: %.1f C" % temp
-			print "Humidity:    %.1f %%" % humidity
+			#print "Humidity:    %.1f %%" % humidity
 
 			# Append the data in the spreadsheet, including a timestamp
 
 			print "http://home.tomasharkema.nl/temp/%.1f/" % temp
 			r = requests.get("http://home.tomasharkema.nl/temp/%.1f/" % temp)
-			time.sleep(1)
-			r.connection.close()
+			
 
-			time.sleep(30)
+			time.sleep(3)
 
 
 
