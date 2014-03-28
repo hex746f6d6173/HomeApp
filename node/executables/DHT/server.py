@@ -20,6 +20,9 @@ import sys
 import subprocess
 import datetime
 
+import logging
+logging.basicConfig(filename='server.log',level=logging.DEBUG)
+
 from datetime import tzinfo,timedelta
 
 class Zone(tzinfo):
@@ -37,7 +40,7 @@ class Zone(tzinfo):
 lcd = lcddriver.lcd()
 
 print 'HALLO'
-
+logging.debug('HALLO')
 tempratuur = "0"
 lumen = "0"
 trigger = "0"
@@ -88,22 +91,26 @@ def updateUI():
 
 def temp(*args):
 	global tempratuur
+	logging.debug('on_aaa_response'+str(args[0]))
 	print 'on_aaa_response', args, args[0], str(args[0])
 	tempratuur = str(args[0]);
 	
 def lightsLume(*args):
 	global lumen
+	logging.debug('lumen' + str(args[0]))
 	print 'lumen', args, args[0], str(args[0])
 	lumen = str(args[0]);
 	
 def triggerArm(*args):
 	global trigger
+	logging.debug('trigger' + str(args[0]))
 	print 'trigger', args, args[0], str(args[0])
 	trigger = str(args[0]);
 	
 
 def switchedCallback(*args):
 	global lastCommand
+	logging.debug('switchedCallback' + str(args[0]['switch']['name']))
 	print "switchedCallback", args, args[0]['switch']['name'], type(args[0])
 	lastCommand = args[0]['switch']['name'] + ":"+str(args[0]['switch']['state']);
 	
@@ -111,6 +118,7 @@ def switchedCallback(*args):
 def sleepStatusCallback(*args):
 	global sleepStatus
 	global sleepTime
+	logging.debug('sleepStatus' + str(args[0]['status']))
 	print "sleepStatus", args, args[0]['status'], type(args[0])
 	sleepStatus = str(args[0]['status'])
 	sleepTime = args[0]['bedTime'];
@@ -211,11 +219,13 @@ class pirThread (threading.Thread):
 					
 			else:
 				if (bed != "0"):
-					print "NEE"
-					bed = "0"
-					socketIO.emit('bed', bed)
-					socketIO.wait_for_callbacks(seconds=1000)
-					background = True
+					time.sleep(10)
+					if (io.input(bed_pin) != True):
+						print "NEE"
+						bed = "0"
+						socketIO.emit('bed', bed)
+						socketIO.wait_for_callbacks(seconds=1000)
+						background = True
 					
 
 			time.sleep(0.5)
@@ -231,14 +241,15 @@ class tempThread (threading.Thread):
 		# ===========================================================================
 
 		# Continuously append data
-
+		logging.debug('temp')
 		print "temp"
 
 		while(True):
 			# Run the DHT program to get the humidity and temperature readings!
 
 			output = subprocess.check_output(["./Adafruit_DHT", "11", "4"]);
-			#print output
+			print output
+			logging.debug(output)
 			matches = re.search("Temp =\s+([0-9.]+)", output)
 			if (not matches):
 				time.sleep(3)
@@ -251,7 +262,7 @@ class tempThread (threading.Thread):
 				time.sleep(3)
 				continue
 			humidity = float(matches.group(1))
-
+			logging.debug("Temperature: %.1f C" % temp)
 			print "Temperature: %.1f C" % temp
 			#print "Humidity:    %.1f %%" % humidity
 
