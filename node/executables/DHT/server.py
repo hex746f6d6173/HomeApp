@@ -132,7 +132,8 @@ class pirThread (threading.Thread):
 						
 			time.sleep(0.5)
 
-		threadLock = threading.Lock()
+
+threadLock = threading.Lock()
 
 
 
