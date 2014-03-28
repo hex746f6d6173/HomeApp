@@ -8,6 +8,8 @@ import lcddriver
 
 import time
 from time import gmtime, strftime
+import localtime
+
 import threading
 from socketIO_client import SocketIO
 
@@ -21,7 +23,11 @@ trigger = "0"
 
 def updateUI():
     global tempratuur
-    lcd.lcd_display_string("HOME APP    "+strftime("%H:%M:%S", gmtime()), 1)
+    
+    localtime = time.strftime("%m%d%y%H%M", time.localtime())
+    
+
+    lcd.lcd_display_string("HOME APP    "+localtime, 1)
     lcd.lcd_display_string(tempratuur + "oC / "+lumen+"Lux / TrA: "+trigger, 2)
     lcd.lcd_display_string("", 3)
     lcd.lcd_display_string("Status: All fine!", 4)
