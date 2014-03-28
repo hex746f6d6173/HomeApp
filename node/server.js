@@ -810,6 +810,7 @@ io.sockets.on('connection', function(socket) {
                 log.add("Slapen beginnen", false);
             } else {
                 log.add("Slapen hervatten", false);
+                timeOut = "a";
                 clearTimeout(timeOut);
             }
 
