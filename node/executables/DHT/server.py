@@ -30,6 +30,8 @@ pir = "0"
 
 bed = "1"
 
+sleepStatus = "0"
+
 lastCommand = ""
 
 io.setmode(io.BCM)
@@ -59,7 +61,7 @@ def updateUI():
 	lcd.lcd_display_string("HOME APP    "+localtime, 1)
 	lcd.lcd_display_string(tempratuur + "oC / "+lumen+"Lux / TrA: "+trigger, 2)
 	lcd.lcd_display_string(lastCommand, 3)
-	lcd.lcd_display_string("PIR:"+pir, 4)
+	lcd.lcd_display_string("PIR:"+pir+" s:"+sleepStatus, 4)
 
 
 
@@ -93,6 +95,14 @@ def switchedCallback(*args):
 	updateUI()
 	threadLock.release()
 
+def sleepStatusCallback(*args):
+	global sleepStatus
+	print "sleepStatus", args, args[0]['status'], type(args[0])
+	lastCommand = str(args[0]['status'])
+	threadLock.acquire()
+	updateUI()
+	threadLock.release()
+
 class SocThread (threading.Thread):
 	
 	def __init__(self):
@@ -105,6 +115,7 @@ class SocThread (threading.Thread):
 		socketIO.on('lightsLume', lightsLume)
 		socketIO.on('triggerArm', triggerArm)
 		socketIO.on('switched', switchedCallback)
+		socketIO.on('sleepStatus', sleepStatusCallback)
 		socketIO.emit('me', 'LCD')
 		socketIO.wait_for_callbacks(seconds=1000)
 		socketIO.wait()
