@@ -18,6 +18,7 @@ import atexit
 import os
 import sys
 import subprocess
+import datetime
 
 lcd = lcddriver.lcd()
 
@@ -28,7 +29,7 @@ lumen = "0"
 trigger = "0"
 pir = "0"
 
-bed = "1"
+bed = "0"
 
 sleepStatus = "0"
 sleepTime = 0
@@ -63,7 +64,7 @@ def updateUI():
 		sleepRow = "s:"+sleepStatus
 
 	if(int(sleepStatus) == 2):
-		sleepRow = sleepRow + " " + (gmtime() - (sleepTime / 1000))
+		sleepRow = sleepRow + " " + ((int(datetime.datetime.now().strftime("%s"))) - (sleepTime / 1000))
 
 	lcd.lcd_display_string("HOME APP    "+localtime, 1)
 	lcd.lcd_display_string(tempratuur + "oC / "+lumen+"Lux / TrA: "+trigger, 2)
