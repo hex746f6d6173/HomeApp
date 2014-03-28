@@ -7,8 +7,7 @@ import lcddriver
 #from time import *
 
 import time
-from time import gmtime, strftime
-import localtime
+from time import gmtime, strftime, localtime
 
 import threading
 from socketIO_client import SocketIO
