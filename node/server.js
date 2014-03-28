@@ -727,7 +727,7 @@ app.get('/pir/:a/:b', function(req, res) {
     res.send(JSON.stringify(req.params.b)).end();
 
 });
-
+var timeOut = "a";
 io.sockets.on('connection', function(socket) {
     cConnect();
     networkDiscovery();
@@ -797,7 +797,6 @@ io.sockets.on('connection', function(socket) {
 
     });
 
-    var timeOut = "a";
 
     socket.emit('sleepStatus', {
         "bedTime": bedTime,
