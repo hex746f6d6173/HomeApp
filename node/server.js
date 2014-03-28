@@ -38,6 +38,7 @@ var homeDB = {
     pir: db.collection('pir'),
     light: db.collection('light'),
     temp: db.collection('temp'),
+    bed: db.collection('bed'),
     deviceHis: db.collection('deviceHis')
 };
 
@@ -769,6 +770,10 @@ io.sockets.on('connection', function(socket) {
 
         flipSwitch(data, false, function(res) {});
 
+    });
+
+    socket.on('bed', function() {
+        log.add("Bed is inits!", true);
     });
 
     socket.on('setAlarm', function(data) {
