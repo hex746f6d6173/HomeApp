@@ -186,6 +186,7 @@ class pirThread (threading.Thread):
 					print "JA"
 					bed = "1"
 					socketIO.emit('bed', bed)
+					socketIO.wait_for_callbacks(seconds=1000)
 					background = False
 					threadLock.acquire()
 					updateUI()
@@ -195,6 +196,7 @@ class pirThread (threading.Thread):
 					print "NEE"
 					bed = "0"
 					socketIO.emit('bed', bed)
+					socketIO.wait_for_callbacks(seconds=1000)
 					background = True
 					threadLock.acquire()
 					updateUI()
