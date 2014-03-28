@@ -78,7 +78,7 @@ class SocThread (threading.Thread):
 		socketIO.on('temp', temp)
 		socketIO.on('lightsLume', lightsLume)
 		socketIO.on('triggerArm', triggerArm)
-		socketIO.on(switched, switchedCallback)
+		socketIO.on('switched', switchedCallback)
 		socketIO.emit('me', 'Python')
 		socketIO.wait_for_callbacks(seconds=1000)
 		socketIO.wait()
