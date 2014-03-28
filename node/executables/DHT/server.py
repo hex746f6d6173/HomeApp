@@ -61,15 +61,12 @@ def updateUI():
 	sleepRow = ""
 
 	if(int(sleepStatus)>0):
-		sleepRow = "s:"+sleepStatus
-
-	if(int(sleepStatus) == 2):
-		sleepRow = sleepRow + " " +  time.strftime('%H:%M:%S', time.gmtime(float(int(datetime.datetime.now().strftime("%s")) - int(int(sleepTime) / 1000))))
+		sleepRow = "sleeptime:"+  time.strftime('%H:%M:%S', time.gmtime(float(int(datetime.datetime.now().strftime("%s")) - int(int(sleepTime) / 1000))))
 
 	lcd.lcd_display_string("HOME APP    "+localtime, 1)
 	lcd.lcd_display_string(tempratuur + "oC / "+lumen+"Lux / TrA: "+trigger, 2)
 	lcd.lcd_display_string(lastCommand, 3)
-	lcd.lcd_display_string("PIR:"+pir+" "+sleepRow, 4)
+	lcd.lcd_display_string(sleepRow, 4)
 
 
 
