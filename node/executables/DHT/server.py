@@ -226,7 +226,6 @@ class tempThread (threading.Thread):
 		threading.Thread.__init__(self)
 
 	def run(self):
-		initTime = int(round(time.time() * 1000));
 		# ===========================================================================
 		# Google Account Details
 		# ===========================================================================
@@ -257,8 +256,7 @@ class tempThread (threading.Thread):
 
 			print "http://home.tomasharkema.nl/temp/%.1f/" % temp
 			r = requests.get("http://home.tomasharkema.nl/temp/%.1f/" % temp)
-			time.sleep(1)
-			r.connection.close()
+			
 
 			time.sleep(3)
 
