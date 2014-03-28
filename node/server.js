@@ -356,7 +356,7 @@ app.get('/api/temps', function(req, res) {
 
 
     homeDB.temp.find(function(err, temps) {
-        console.log(temps);
+
         var parseTemps = [];
 
         var prevHour = -1;
@@ -412,7 +412,7 @@ app.get('/api/temps', function(req, res) {
 });
 app.get('/api/lights', function(req, res) {
 
-    homeDB.light.find({}, function(err, docs) {
+    homeDB.light.find(function(err, docs) {
 
 
         var parseLights = [];
@@ -425,7 +425,7 @@ app.get('/api/lights', function(req, res) {
             var thisLight = item.light;
             var thisHour = new Date(item.time).getHours();
 
-            if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
+            if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
 
                 if (thisHour != prevHour) {
 
@@ -440,7 +440,7 @@ app.get('/api/lights', function(req, res) {
                             teller++;
                         });
 
-                        var adjDate = new Date(item[0]).setMinutes(0);
+                        var adjDate = new Date(item.time).setMinutes(0);
 
                         adjDate = new Date(adjDate).setSeconds(0);
 
