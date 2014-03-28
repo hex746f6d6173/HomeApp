@@ -28,7 +28,7 @@ lumen = "0"
 trigger = "0"
 pir = "0"
 
-bed = "0"
+bed = "1"
 
 lastCommand = ""
 
@@ -228,11 +228,12 @@ class bedThread (threading.Thread):
 		bed_pin = 22
 		io.setup(bed_pin, io.IN)
 
-		global bed
-		global background
+		
 		while True:
 			if io.input(bed_pin):
 				if (bed != "1"):
+					global bed
+					global background
 					print "JA"
 					bed = "1"
 					background = False
@@ -241,6 +242,8 @@ class bedThread (threading.Thread):
 					threadLock.release()
 			else:
 				if (bed != "0"):
+					global bed
+					global background
 					print "NEE"
 					bed = "0"
 					background = True
