@@ -28,7 +28,11 @@ lumen = "0"
 trigger = "0"
 pir = "0"
 
+bed = "0"
+
 lastCommand = ""
+
+io.setmode(io.BCM)
 
 background = True
 
@@ -40,6 +44,7 @@ def updateUI():
 	global trigger
 	global lastCommand
 	global pir
+	global background
 	localtime = time.strftime("%H:%M:%S", time.localtime())
 	
 	if(background):
@@ -125,7 +130,7 @@ class pirThread (threading.Thread):
 		threading.Thread.__init__(self)
 
 	def run(self):
-		io.setmode(io.BCM)
+		
  
 		pir_pin = 18
 		 
@@ -211,6 +216,39 @@ class tempThread (threading.Thread):
 			r.connection.close()
 
 			time.sleep(30)
+
+class bedThread (threading.Thread):
+
+	def __init__(self):
+		threading.Thread.__init__(self)
+
+	def run(self):
+
+
+		bed_pin = 22
+		io.setup(bed_pin, io.IN)
+
+		global bed
+		global background
+		while True:
+			if io.input(bed_pin):
+				if (bed != "1"):
+					print "JA"
+					bed = "1"
+					background = False
+					threadLock.acquire()
+					updateUI()
+					threadLock.release()
+			else:
+				if (bed != "0"):
+					print "NEE"
+					bed = "0"
+					background = True
+					threadLock.acquire()
+					updateUI()
+					threadLock.release()
+			time.sleep(2)
+
 
 threadLock = threading.Lock()
 
