@@ -98,7 +98,7 @@ def switchedCallback(*args):
 def sleepStatusCallback(*args):
 	global sleepStatus
 	print "sleepStatus", args, args[0]['status'], type(args[0])
-	lastCommand = str(args[0]['status'])
+	sleepStatus = str(args[0]['status'])
 	threadLock.acquire()
 	updateUI()
 	threadLock.release()
