@@ -250,7 +250,7 @@ class tempThread (threading.Thread):
 			humidity = float(matches.group(1))
 
 			print "Temperature: %.1f C" % temp
-			print "Humidity:    %.1f %%" % humidity
+			#print "Humidity:    %.1f %%" % humidity
 
 			# Append the data in the spreadsheet, including a timestamp
 
