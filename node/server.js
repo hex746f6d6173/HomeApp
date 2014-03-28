@@ -778,7 +778,7 @@ io.sockets.on('connection', function(socket) {
 
         homeDB.bed.save({
             time: time,
-            pir: "0"
+            bed: data
         });
 
     });
