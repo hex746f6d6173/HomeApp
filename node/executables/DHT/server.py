@@ -142,6 +142,7 @@ class pirThread (threading.Thread):
 				if (state == 0) :
 					state = 1
 					print("PIR ALARM!")
+					global lastCommand
 					lastCommand = "PIR:1"
 					threadLock.acquire()
 					updateUI()
@@ -155,6 +156,7 @@ class pirThread (threading.Thread):
 				
 				if ((previousTime + (1000 * 60 * 10)) < now):
 					print("PIR NO ENTER!")
+					global lastCommand
 					lastCommand = "PIR:0"
 					threadLock.acquire()
 					updateUI()
