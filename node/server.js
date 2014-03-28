@@ -25,7 +25,9 @@ var mongojs = require('mongojs'),
     triggerArm = 0,
     temp = 19,
     pulling = false,
-    lightsLume = 0;
+    lightsLume = 0,
+    bedState = "0",
+    bedTime = "0";
 
 var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log", "deviceHis"]);
 
@@ -773,13 +775,22 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on('bed', function(data) {
-        log.add("Bed is inits!", true);
+
         var time = new Date().getTime();
 
         homeDB.bed.save({
             time: time,
             bed: data
         });
+
+        if (data == "1") {
+            bedTime = time;
+
+        } else {
+            sleepedTime = time - bedTime;
+            log.add("Tijd geslapen: " + sleepedTime, true);
+
+        }
 
     });
 
