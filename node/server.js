@@ -1190,7 +1190,6 @@ app.get('/bigdata', function(req, res) {
 
 });
 
-
 networkDiscovery();
 
 setTimeout(function() {
