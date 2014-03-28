@@ -231,6 +231,9 @@ class tempThread (threading.Thread):
 		# ===========================================================================
 
 		# Continuously append data
+
+		print "temp"
+
 		while(True):
 			# Run the DHT program to get the humidity and temperature readings!
 
@@ -239,14 +242,14 @@ class tempThread (threading.Thread):
 			matches = re.search("Temp =\s+([0-9.]+)", output)
 			if (not matches):
 				time.sleep(3)
-			continue
+				continue
 			temp = float(matches.group(1))
 
 			# search for humidity printout
 			matches = re.search("Hum =\s+([0-9.]+)", output)
 			if (not matches):
 				time.sleep(3)
-			continue
+				continue
 			humidity = float(matches.group(1))
 
 			print "Temperature: %.1f C" % temp
@@ -254,11 +257,11 @@ class tempThread (threading.Thread):
 
 			# Append the data in the spreadsheet, including a timestamp
 
-			print "http://home.tomasharkema.nl/temp/%.1f/" % temp
+			#print "http://home.tomasharkema.nl/temp/%.1f/" % temp
 			r = requests.get("http://home.tomasharkema.nl/temp/%.1f/" % temp)
 			
 
-			time.sleep(3)
+			time.sleep(30)
 
 
 
