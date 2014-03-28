@@ -29,6 +29,8 @@ trigger = "0"
 
 lastCommand = ""
 
+background = True
+
 socketIO = SocketIO('home.tomasharkema.nl', 80)
 
 def updateUI():
@@ -38,7 +40,10 @@ def updateUI():
 	global lastCommand
 	localtime = time.strftime("%H:%M:%S", time.localtime())
 	
-	lcd.lcd_noBacklight()
+	if(background):
+		lcd.lcd_backlight()
+	else:
+		lcd.lcd_noBacklight()
 
 	lcd.lcd_clear()
 
