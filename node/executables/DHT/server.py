@@ -49,7 +49,7 @@ def updateUI():
 	global lastCommand
 	global pir
 	global background
-	localtime = time.strftime("%H:%M:%S", time.localtime())
+	localtime = datetime.datetime.now().strftime("%H:%M:%S")
 	
 	if(background):
 		lcd.lcd_backlight()
@@ -64,7 +64,7 @@ def updateUI():
 		sleepRow = "s:"+sleepStatus
 
 	if(int(sleepStatus) == 2):
-		sleepRow = sleepRow + " " + str(int(datetime.datetime.now().strftime("%s")) - int(int(sleepTime) / 1000))
+		sleepRow = sleepRow + " " +  time.strftime('%H:%M:%S', time.gmtime(str(int(datetime.datetime.now().strftime("%s")) - int(int(sleepTime) / 1000))))
 
 	lcd.lcd_display_string("HOME APP    "+localtime, 1)
 	lcd.lcd_display_string(tempratuur + "oC / "+lumen+"Lux / TrA: "+trigger, 2)
