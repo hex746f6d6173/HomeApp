@@ -247,6 +247,7 @@ class tempThread (threading.Thread):
 
 			output = subprocess.check_output(["./Adafruit_DHT", "11", "4"]);
 			#print output
+			logging.debug(output)
 			matches = re.search("Temp =\s+([0-9.]+)", output)
 			if (not matches):
 				time.sleep(3)
@@ -264,7 +265,7 @@ class tempThread (threading.Thread):
 			#print "Humidity:    %.1f %%" % humidity
 
 			# Append the data in the spreadsheet, including a timestamp
-
+			
 			#print "http://home.tomasharkema.nl/temp/%.1f/" % temp
 			r = requests.get("http://home.tomasharkema.nl/temp/%.1f/" % temp)
 			
