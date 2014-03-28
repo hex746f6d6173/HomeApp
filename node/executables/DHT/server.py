@@ -5,7 +5,7 @@
 
 import lcddriver
 #from time import *
-
+import json
 import time
 from time import gmtime, strftime, localtime
 
@@ -65,8 +65,9 @@ def triggerArm(*args):
 
 def switchedCallback(*args):
 	global lastCommand
-	print "switchedCallback", args
-	lastCommand = args[0].switch.name;
+	jsonArgs = json.load(args[0])
+	print "switchedCallback", jsonArgs
+	lastCommand = jsonArgs.switch.name;
 	threadLock.acquire()
 	updateUI()
 	threadLock.release()
