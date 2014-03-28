@@ -219,11 +219,13 @@ class pirThread (threading.Thread):
 					
 			else:
 				if (bed != "0"):
-					print "NEE"
-					bed = "0"
-					socketIO.emit('bed', bed)
-					socketIO.wait_for_callbacks(seconds=1000)
-					background = True
+					time.sleep(10)
+					if (io.input(bed_pin) != True):
+						print "NEE"
+						bed = "0"
+						socketIO.emit('bed', bed)
+						socketIO.wait_for_callbacks(seconds=1000)
+						background = True
 					
 
 			time.sleep(0.5)

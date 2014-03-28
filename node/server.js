@@ -828,8 +828,9 @@ io.sockets.on('connection', function(socket) {
                     "status": 2
                 });
                 log.add("Slapen hervatten", false);
-                timeOut = "a";
+
                 clearTimeout(timeOut);
+                timeOut = "a";
             }
 
         } else {
@@ -859,8 +860,9 @@ io.sockets.on('connection', function(socket) {
 
                 }, 1000 * 60 * 10);
             } else {
-                timeOut = "a";
+
                 clearTimeout(timeOut);
+                timeOut = "a";
             }
 
         }
