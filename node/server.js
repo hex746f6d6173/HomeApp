@@ -772,8 +772,15 @@ io.sockets.on('connection', function(socket) {
 
     });
 
-    socket.on('bed', function() {
+    socket.on('bed', function(data) {
         log.add("Bed is inits!", true);
+        var time = new Date().getTime();
+
+        homeDB.bed.save({
+            time: time,
+            pir: "0"
+        });
+
     });
 
     socket.on('setAlarm', function(data) {
