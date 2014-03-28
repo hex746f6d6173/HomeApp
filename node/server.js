@@ -27,7 +27,7 @@ var mongojs = require('mongojs'),
     pulling = false,
     lightsLume = 0,
     bedState = 0,
-    bedTime = "0";
+    bedTime = 0;
 
 function toHHMMSS(string) {
     var sec_num = parseInt(string, 10); // don't forget the second param

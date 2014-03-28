@@ -147,7 +147,7 @@ $(document).ready(function() {
             $("#sleepStatus").fadeIn().css({
                 background: orange
             });
-
+            var time = new Date().getTime();
             $("#sleepStatus").find(".time").html(("" + (time - data.bedTime) / 1000 + "").toHHMMSS());
 
             if (timeOut != "a") {
