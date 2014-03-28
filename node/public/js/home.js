@@ -139,7 +139,7 @@ $(document).ready(function() {
 
                 var time = new Date().getTime();
 
-                $("#sleepStatus").find(".time").html(("" + time - data.bedTime + "").toHHMMSS());
+                $("#sleepStatus").find(".time").html(("" + (time - data.bedTime) / 1000 + "").toHHMMSS());
 
             }, 1000);
         } else if (data.status === 1) {
