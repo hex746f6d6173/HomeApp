@@ -172,7 +172,31 @@ class pirThread (threading.Thread):
 					time.sleep(1)
 					r.connection.close()
 				state = 0
-						
+			
+			bed_pin = 22
+			io.setup(bed_pin, io.IN)
+
+			if io.input(bed_pin):
+				if (bed != "1"):
+					global bed
+					global background
+					print "JA"
+					bed = "1"
+					background = False
+					threadLock.acquire()
+					updateUI()
+					threadLock.release()
+			else:
+				if (bed != "0"):
+					global bed
+					global background
+					print "NEE"
+					bed = "0"
+					background = True
+					threadLock.acquire()
+					updateUI()
+					threadLock.release()
+
 			time.sleep(0.5)
 
 class tempThread (threading.Thread):
@@ -217,40 +241,6 @@ class tempThread (threading.Thread):
 
 			time.sleep(30)
 
-class bedThread (threading.Thread):
-
-	def __init__(self):
-		threading.Thread.__init__(self)
-
-	def run(self):
-
-
-		bed_pin = 22
-		io.setup(bed_pin, io.IN)
-
-		
-		while True:
-			if io.input(bed_pin):
-				if (bed != "1"):
-					global bed
-					global background
-					print "JA"
-					bed = "1"
-					background = False
-					threadLock.acquire()
-					updateUI()
-					threadLock.release()
-			else:
-				if (bed != "0"):
-					global bed
-					global background
-					print "NEE"
-					bed = "0"
-					background = True
-					threadLock.acquire()
-					updateUI()
-					threadLock.release()
-			time.sleep(2)
 
 
 threadLock = threading.Lock()
@@ -262,19 +252,16 @@ try:
 	thread2 = timeThread()
 	thread3 = pirThread()
 	thread4 = tempThread()
-	thread5 = bedThread()
 
 	thread3.daemon=True
 	thread2.daemon=True
 	thread1.daemon=True
 	thread4.daemon=True
-	thread5.daemon=True
 
 	thread1.start()
 	thread2.start()
 	thread3.start()
 	thread4.start()
-	thread5.start()
 
 	while True: time.sleep(100)
 except (KeyboardInterrupt, SystemExit):
