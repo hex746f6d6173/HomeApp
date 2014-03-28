@@ -25,9 +25,30 @@ var mongojs = require('mongojs'),
     triggerArm = 0,
     temp = 19,
     pulling = false,
-    lightsLume = 0;
+    lightsLume = 0,
+    bedState = 0,
+    bedTime = 0;
 
-var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log"]);
+function toHHMMSS(string) {
+    var sec_num = parseInt(string, 10); // don't forget the second param
+    var hours = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    if (hours < 10) {
+        hours = "0" + hours;
+    }
+    if (minutes < 10) {
+        minutes = "0" + minutes;
+    }
+    if (seconds < 10) {
+        seconds = "0" + seconds;
+    }
+    var time = hours + ':' + minutes + ':' + seconds;
+    return time;
+}
+
+var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log", "deviceHis"]);
 
 var homeDB = {
     switches: db.collection('swiches'),
@@ -37,7 +58,10 @@ var homeDB = {
     log: db.collection('log'),
     pir: db.collection('pir'),
     light: db.collection('light'),
-    temp: db.collection('temp')
+    temp: db.collection('temp'),
+    bed: db.collection('bed'),
+    sleep: db.collection('sleep'),
+    deviceHis: db.collection('deviceHis')
 };
 
 homeDB.switches.find(function(err, docs) {
@@ -329,116 +353,123 @@ app.get('/switches', function(req, res) {
 });
 app.get('/api/temps', function(req, res) {
 
-    var temps = JSON.parse(localStorage.getItem("temp"));
-
-    var parseTemps = [];
-
-    var prevHour = -1;
-
-    var hourArray = [];
 
 
+    homeDB.temp.find(function(err, temps) {
 
-    temps.forEach(function(item) {
-        var thisTemp = parseFloat(item[1]);
-        var thisHour = new Date(item[0]).getHours();
-        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
-            if (thisHour != prevHour) {
+        var parseTemps = [];
 
-                prevHour = thisHour;
+        var prevHour = -1;
+
+        var hourArray = [];
+        temps.forEach(function(item) {
+            var thisTemp = parseFloat(item.temp);
+            var thisHour = new Date(item.time).getHours();
+            if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
+                if (thisHour != prevHour) {
+
+                    prevHour = thisHour;
 
 
-                if (hourArray.length > 0) {
-                    var teller = 0;
-                    var sum = 0;
-                    hourArray.forEach(function(itemm) {
-                        sum = sum + itemm;
-                        teller++;
-                    });
+                    if (hourArray.length > 0) {
+                        var teller = 0;
+                        var sum = 0;
+                        hourArray.forEach(function(itemm) {
+                            sum = sum + itemm;
+                            teller++;
+                        });
 
-                    var adjDate = new Date(item[0]).setMinutes(0);
+                        var adjDate = new Date(item.time).setMinutes(0);
 
-                    adjDate = new Date(adjDate).setSeconds(0);
+                        adjDate = new Date(adjDate).setSeconds(0);
 
-                    var h = new Date(adjDate).getHours();
+                        var h = new Date(adjDate).getHours();
 
-                    adjDate = new Date(adjDate).setHours(h);
+                        adjDate = new Date(adjDate).setHours(h);
 
-                    parseTemps.push([adjDate, sum / teller]);
+                        parseTemps.push([adjDate, sum / teller]);
 
-                    hourArray = [];
+                        hourArray = [];
+
+                    } else {
+                        if (thisTemp < 45) {
+                            hourArray.push(thisTemp);
+                        }
+                    }
 
                 } else {
                     if (thisTemp < 45) {
                         hourArray.push(thisTemp);
                     }
                 }
-
-            } else {
-                if (thisTemp < 45) {
-                    hourArray.push(thisTemp);
-                }
             }
-        }
+        });
+        res.send(JSON.stringify(parseTemps)).end();
+
+
+
     });
-
-    res.send(JSON.stringify(parseTemps)).end();
-
 });
 app.get('/api/lights', function(req, res) {
 
-    var Lights = JSON.parse(localStorage.getItem("lightsLumen"));
-
-    var parseLights = [];
-
-    var prevHour = -1;
-
-    var hourArray = [];
-
-    Lights.forEach(function(item) {
-        var thisLight = parseFloat(item[1]);
-        var thisHour = new Date(item[0]).getHours();
-
-        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
-
-            if (thisHour != prevHour) {
-
-                prevHour = thisHour;
+    homeDB.light.find(function(err, docs) {
 
 
-                if (hourArray.length > 0) {
-                    var teller = 0;
-                    var sum = 0;
-                    hourArray.forEach(function(itemm) {
-                        sum = sum + itemm;
-                        teller++;
-                    });
+        var parseLights = [];
 
-                    var adjDate = new Date(item[0]).setMinutes(0);
+        var prevHour = -1;
 
-                    adjDate = new Date(adjDate).setSeconds(0);
+        var hourArray = [];
 
-                    var h = new Date(adjDate).getHours();
+        docs.forEach(function(item) {
+            var thisLight = item.light;
+            var thisHour = new Date(item.time).getHours();
 
-                    adjDate = new Date(adjDate).setHours(h);
-                    parseLights.push([adjDate, sum / teller]);
+            if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
 
-                    hourArray = [];
+                if (thisHour != prevHour) {
+
+                    prevHour = thisHour;
+
+
+                    if (hourArray.length > 0) {
+                        var teller = 0;
+                        var sum = 0;
+                        hourArray.forEach(function(itemm) {
+                            sum = sum + itemm;
+                            teller++;
+                        });
+
+                        var adjDate = new Date(item.time).setMinutes(0);
+
+                        adjDate = new Date(adjDate).setSeconds(0);
+
+                        var h = new Date(adjDate).getHours();
+
+                        adjDate = new Date(adjDate).setHours(h);
+                        parseLights.push([adjDate, sum / teller]);
+
+                        hourArray = [];
+
+                    } else {
+                        hourArray.push(thisLight);
+
+                    }
 
                 } else {
                     hourArray.push(thisLight);
 
                 }
-
-            } else {
-                hourArray.push(thisLight);
-
             }
-        }
+
+        });
+
+        res.send(parseLights).end();
+
+
 
     });
 
-    res.send(parseLights).end();
 
 });
 app.get('/deviceHis', function(req, res) {
@@ -446,30 +477,32 @@ app.get('/deviceHis', function(req, res) {
 });
 app.get('/api/totalGraph', function(req, res) {
     var ret = [];
+    var deviceHisArray = [];
+    homeDB.deviceHis.find(function(err, docs) {
+        docs.forEach(function(doc) {
 
-    var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
+            if (deviceHisArray[doc.name] === undefined) {
+                deviceHisArray[doc.name] = {
+                    name: doc.name,
+                    data: []
+                }
+            }
+            deviceHisArray[doc.name].data.push([doc.time, doc.state]);
+        });
+        console.log(deviceHisArray);
 
-    for (var key in deviceHis) {
-        var item = deviceHis[key];
-
-        var devicePlot = [];
-
-        item.graph.forEach(function(item) {
-            if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24)))
-                devicePlot.push(item);
-
+        deviceHisArray.forEach(function(item) {
+            console.log(item);
+            ret.push({
+                label: "Device History " + key,
+                data: devicePlot
+            });
         });
 
 
-
-        ret.push({
-            label: "Device History " + key,
-            data: devicePlot
-        });
+    });
 
 
-
-    }
 
     var pir = JSON.parse(localStorage.getItem("pir"));
     var pirData = [];
@@ -762,6 +795,77 @@ io.sockets.on('connection', function(socket) {
 
     });
 
+    var timeOut = "a";
+
+    socket.emit('sleepStatus', {
+        "bedTime": bedTime,
+        "status": bedState
+    });
+
+    socket.on('bed', function(data) {
+
+        var time = new Date().getTime();
+
+        homeDB.bed.save({
+            time: time,
+            bed: data
+        });
+
+        if (data == "1") {
+            if (timeOut == "a") {
+                bedTime = time;
+                bedState = 2;
+                io.sockets.emit('sleepStatus', {
+                    "bedTime": bedTime,
+                    "status": 2
+                });
+                log.add("Slapen beginnen", false);
+            } else {
+                bedState = 2;
+                io.sockets.emit('sleepStatus', {
+                    "bedTime": bedTime,
+                    "status": 2
+                });
+                log.add("Slapen hervatten", false);
+                timeOut = "a";
+                clearTimeout(timeOut);
+            }
+
+        } else {
+            sleepedTime = time - bedTime;
+
+
+            if (timeOut == "a") {
+                bedState = 1;
+                io.sockets.emit('sleepStatus', {
+                    "bedTime": bedTime,
+                    "status": 1
+                });
+                log.add("Slapen wachten op 10 minuten", false);
+                timeOut = setTimeout(function() {
+                    timeOut = "a";
+                    bedState = 0;
+                    io.sockets.emit('sleepStatus', {
+                        "bedTime": bedTime,
+                        "status": 0
+                    });
+                    log.add("Tijd geslapen: " + toHHMMSS(sleepedTime / 1000), true);
+
+                    homeDB.sleep.save({
+                        begin: bedTime,
+                        end: time
+                    });
+
+                }, 1000 * 60 * 10);
+            } else {
+                timeOut = "a";
+                clearTimeout(timeOut);
+            }
+
+        }
+
+    });
+
     socket.on('setAlarm', function(data) {
         alarmArm = data;
         io.sockets.emit("alarmArm", alarmArm);
@@ -931,8 +1035,6 @@ function networkDiscovery() {
 
             //console.log(item);
             var time = new Date().getTime();
-            if (localStorage.getItem("deviceHis") === null || localStorage.getItem("deviceHis") == "")
-                localStorage.setItem("deviceHis", "{}");
 
             pingSession.pingHost(item.ip, function(error, target) {
                 if (error) {
@@ -970,14 +1072,11 @@ function networkDiscovery() {
                     if (item.state === 1) {
                         log.add("NETWORKDISC " + item.name + " came online");
 
-                        var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
-                        if (deviceHis[item.name] === undefined)
-                            deviceHis[item.name] = {};
-                        if (deviceHis[item.name].graph === undefined)
-                            deviceHis[item.name].graph = [];
-
-                        deviceHis[item.name].graph.push([time, "1"]);
-                        localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
+                        homeDB.deviceHis.save({
+                            name: item.name,
+                            time: time,
+                            state: "1"
+                        });
 
                         if (item.onSwitchOn !== undefined) {
                             if (evalExecute)
@@ -988,17 +1087,11 @@ function networkDiscovery() {
                     if (item.state === 0) {
                         log.add("NETWORKDISC " + item.name + " went offline");
 
-                        var deviceHis = JSON.parse(localStorage.getItem("deviceHis"));
-
-
-                        if (deviceHis[item.name] === undefined)
-                            deviceHis[item.name] = {};
-
-                        if (deviceHis[item.name].graph === undefined)
-                            deviceHis[item.name].graph = [];
-
-                        deviceHis[item.name].graph.push([time, "0"]);
-                        localStorage.setItem("deviceHis", JSON.stringify(deviceHis));
+                        homeDB.deviceHis.save({
+                            name: item.name,
+                            time: time,
+                            state: "0"
+                        });
 
                         if (item.onSwitchOff !== undefined) {
                             if (evalExecute)

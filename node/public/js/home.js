@@ -1,6 +1,24 @@
 var red = "red",
     green = "rgb(27,242,0)",
     orange = "orange";
+String.prototype.toHHMMSS = function() {
+    var sec_num = parseInt(this, 10); // don't forget the second param
+    var hours = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    if (hours < 10) {
+        hours = "0" + hours;
+    }
+    if (minutes < 10) {
+        minutes = "0" + minutes;
+    }
+    if (seconds < 10) {
+        seconds = "0" + seconds;
+    }
+    var time = hours + ':' + minutes + ':' + seconds;
+    return time;
+}
 
 function plot() {
 
@@ -84,6 +102,8 @@ function brandOption(id, brand) {
 }
 $(document).ready(function() {
 
+    var timeOut = "a";
+
     $("#bounds").change(function() {
         plot();
     });
@@ -104,6 +124,42 @@ $(document).ready(function() {
         } else {
             socket.emit("me", localStorage.me);
         }
+
+    });
+    socket.on('sleepStatus', function(data) {
+        if (timeOut != "a") {
+            clearInterval(timeOut);
+        }
+        if (data.status === 2) {
+
+            $("#sleepStatus").fadeIn().css({
+                background: green
+            });
+            timeOut = setInterval(function() {
+
+                var time = new Date().getTime();
+
+                $("#sleepStatus").find(".time").html(("" + (time - data.bedTime) / 1000 + "").toHHMMSS());
+
+            }, 1000);
+        } else if (data.status === 1) {
+
+            $("#sleepStatus").fadeIn().css({
+                background: orange
+            });
+            var time = new Date().getTime();
+            $("#sleepStatus").find(".time").html(("" + (time - data.bedTime) / 1000 + "").toHHMMSS());
+
+            if (timeOut != "a") {
+                clearInterval(timeOut);
+            }
+
+
+
+        } else {
+            $("#sleepStatus").fadeOut();
+        }
+
 
     });
     socket.on('refreshE', function(data) {

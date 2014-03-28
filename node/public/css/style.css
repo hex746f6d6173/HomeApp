@@ -71,3 +71,9 @@
   code{
     width:100%;
   }
+  #sleepStatus{
+    padding: 5px;
+  }
+  .time{
+    font-size: 30pt;
+  }
