@@ -361,53 +361,55 @@ app.get('/api/temps', function(req, res) {
 
     var hourArray = [];
 
+    homeDB.temp.find({}, function(err, temps) {
+
+        temps.forEach(function(item) {
+            var thisTemp = parseFloat(item[1]);
+            var thisHour = new Date(item[0]).getHours();
+            if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
+                if (thisHour != prevHour) {
+
+                    prevHour = thisHour;
 
 
-    temps.forEach(function(item) {
-        var thisTemp = parseFloat(item[1]);
-        var thisHour = new Date(item[0]).getHours();
-        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
-            if (thisHour != prevHour) {
+                    if (hourArray.length > 0) {
+                        var teller = 0;
+                        var sum = 0;
+                        hourArray.forEach(function(itemm) {
+                            sum = sum + itemm;
+                            teller++;
+                        });
 
-                prevHour = thisHour;
+                        var adjDate = new Date(item[0]).setMinutes(0);
 
+                        adjDate = new Date(adjDate).setSeconds(0);
 
-                if (hourArray.length > 0) {
-                    var teller = 0;
-                    var sum = 0;
-                    hourArray.forEach(function(itemm) {
-                        sum = sum + itemm;
-                        teller++;
-                    });
+                        var h = new Date(adjDate).getHours();
 
-                    var adjDate = new Date(item[0]).setMinutes(0);
+                        adjDate = new Date(adjDate).setHours(h);
 
-                    adjDate = new Date(adjDate).setSeconds(0);
+                        parseTemps.push([adjDate, sum / teller]);
 
-                    var h = new Date(adjDate).getHours();
+                        hourArray = [];
 
-                    adjDate = new Date(adjDate).setHours(h);
-
-                    parseTemps.push([adjDate, sum / teller]);
-
-                    hourArray = [];
+                    } else {
+                        if (thisTemp < 45) {
+                            hourArray.push(thisTemp);
+                        }
+                    }
 
                 } else {
                     if (thisTemp < 45) {
                         hourArray.push(thisTemp);
                     }
                 }
-
-            } else {
-                if (thisTemp < 45) {
-                    hourArray.push(thisTemp);
-                }
             }
-        }
+        });
+        res.send(JSON.stringify(parseTemps)).end();
+
+
+
     });
-
-    res.send(JSON.stringify(parseTemps)).end();
-
 });
 app.get('/api/lights', function(req, res) {
 
