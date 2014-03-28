@@ -353,16 +353,15 @@ app.get('/switches', function(req, res) {
 });
 app.get('/api/temps', function(req, res) {
 
-    var temps = JSON.parse(localStorage.getItem("temp"));
 
-    var parseTemps = [];
-
-    var prevHour = -1;
-
-    var hourArray = [];
 
     homeDB.temp.find(function(err, temps) {
+        console.log(temps);
+        var parseTemps = [];
 
+        var prevHour = -1;
+
+        var hourArray = [];
         temps.forEach(function(item) {
             var thisTemp = parseFloat(item[1]);
             var thisHour = new Date(item[0]).getHours();
