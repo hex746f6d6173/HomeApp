@@ -23,7 +23,7 @@ trigger = "0"
 def updateUI():
     global tempratuur
     
-    localtime = time.strftime("%m%d%y%H%M", time.localtime())
+    localtime = time.strftime("%H:%M:%S", time.localtime())
     
 
     lcd.lcd_display_string("HOME APP    "+localtime, 1)
