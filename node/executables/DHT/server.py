@@ -26,6 +26,8 @@ tempratuur = "0"
 lumen = "0"
 trigger = "0"
 
+lastCommand = ""
+
 socketIO = SocketIO('home.tomasharkema.nl', 80)
 
 def updateUI():
@@ -36,7 +38,7 @@ def updateUI():
 
 	lcd.lcd_display_string("HOME APP    "+localtime, 1)
 	lcd.lcd_display_string(tempratuur + "oC / "+lumen+"Lux / TrA: "+trigger, 2)
-	lcd.lcd_display_string("", 3)
+	lcd.lcd_display_string(lastCommand, 3)
 	lcd.lcd_display_string("Status: All fine!", 4)
 
 def temp(*args):
@@ -60,6 +62,11 @@ def triggerArm(*args):
 	threadLock.acquire()
 	updateUI()
 	threadLock.release()
+
+def switchedCallback(*args):
+	global lastCommand
+	print "switchedCallback", args
+
 class SocThread (threading.Thread):
 	
 	def __init__(self):
@@ -71,6 +78,7 @@ class SocThread (threading.Thread):
 		socketIO.on('temp', temp)
 		socketIO.on('lightsLume', lightsLume)
 		socketIO.on('triggerArm', triggerArm)
+		socketIO.on(switched, switchedCallback)
 		socketIO.emit('me', 'Python')
 		socketIO.wait_for_callbacks(seconds=1000)
 		socketIO.wait()
