@@ -142,6 +142,10 @@ class pirThread (threading.Thread):
 				if (state == 0) :
 					state = 1
 					print("PIR ALARM!")
+					lastCommand = "PIR:1"
+					threadLock.acquire()
+					updateUI()
+					threadLock.release()
 					previousTime = int(round(time.time() * 1000))
 					r = requests.get("http://home.tomasharkema.nl/pir/1/1/")
 					time.sleep(1)
@@ -151,7 +155,10 @@ class pirThread (threading.Thread):
 				
 				if ((previousTime + (1000 * 60 * 10)) < now):
 					print("PIR NO ENTER!")
-					
+					lastCommand = "PIR:0"
+					threadLock.acquire()
+					updateUI()
+					threadLock.release()
 					r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
 					time.sleep(1)
 					r.connection.close()
