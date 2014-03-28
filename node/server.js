@@ -363,8 +363,8 @@ app.get('/api/temps', function(req, res) {
 
         var hourArray = [];
         temps.forEach(function(item) {
-            var thisTemp = parseFloat(item[1]);
-            var thisHour = new Date(item[0]).getHours();
+            var thisTemp = parseFloat(item.temp);
+            var thisHour = new Date(item.time).getHours();
             if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
                 if (thisHour != prevHour) {
 
@@ -379,7 +379,7 @@ app.get('/api/temps', function(req, res) {
                             teller++;
                         });
 
-                        var adjDate = new Date(item[0]).setMinutes(0);
+                        var adjDate = new Date(item.time).setMinutes(0);
 
                         adjDate = new Date(adjDate).setSeconds(0);
 
