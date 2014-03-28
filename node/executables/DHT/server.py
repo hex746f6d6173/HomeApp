@@ -31,6 +31,7 @@ pir = "0"
 bed = "1"
 
 sleepStatus = "0"
+sleepTime = 0
 
 lastCommand = ""
 
@@ -56,12 +57,18 @@ def updateUI():
 
 	#lcd.lcd_clear()
 
+	sleepRow = ""
 
+	if(int(sleepStatus)>0):
+		sleepRow = "s:"+sleepStatus
+
+	if(int(sleepStatus) == 2):
+		sleepRow = sleepRow + " " + (gmtime() - (sleepTime / 1000))
 
 	lcd.lcd_display_string("HOME APP    "+localtime, 1)
 	lcd.lcd_display_string(tempratuur + "oC / "+lumen+"Lux / TrA: "+trigger, 2)
 	lcd.lcd_display_string(lastCommand, 3)
-	lcd.lcd_display_string("PIR:"+pir+" s:"+sleepStatus, 4)
+	lcd.lcd_display_string("PIR:"+pir+" "+sleepRow, 4)
 
 
 
@@ -97,8 +104,10 @@ def switchedCallback(*args):
 
 def sleepStatusCallback(*args):
 	global sleepStatus
+	global sleepTime
 	print "sleepStatus", args, args[0]['status'], type(args[0])
 	sleepStatus = str(args[0]['status'])
+	sleepTime = args[0]['bedTime'];
 	threadLock.acquire()
 	updateUI()
 	threadLock.release()
