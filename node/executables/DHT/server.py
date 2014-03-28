@@ -20,6 +20,8 @@ import sys
 import subprocess
 import datetime
 
+from datetime import tzinfo,timedelta
+
 lcd = lcddriver.lcd()
 
 print 'HALLO'
@@ -49,7 +51,9 @@ def updateUI():
 	global lastCommand
 	global pir
 	global background
-	localtime = datetime.datetime.now().strftime("%H:%M:%S")
+
+	GMT = Zone(1,False,'GMT')
+	localtime = datetime.datetime.now(GMT).strftime("%H:%M:%S")
 	
 	if(background):
 		lcd.lcd_backlight()
