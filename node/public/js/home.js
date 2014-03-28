@@ -84,6 +84,8 @@ function brandOption(id, brand) {
 }
 $(document).ready(function() {
 
+    var timeOut = "a";
+
     $("#bounds").change(function() {
         plot();
     });
@@ -107,8 +109,19 @@ $(document).ready(function() {
 
     });
     socket.on('sleepStatus', function(data) {
+        if (timeOut != "a") {
+            clearInterval(timeOut);
+        }
+        if (data.status > 0) {
+            timeOut = setInterval(function() {
 
-        $("#sleepStatus").html(data.status);
+                var time = new Date().getTime();
+
+                $("#sleepStatus").find(".time").html(time - data.bedTime);
+
+            }, 1000);
+        }
+
 
     });
     socket.on('refreshE', function(data) {
