@@ -26,7 +26,7 @@ var mongojs = require('mongojs'),
     temp = 19,
     pulling = false,
     lightsLume = 0,
-    bedState = "0",
+    bedState = 0,
     bedTime = "0";
 
 function toHHMMSS(string) {
@@ -795,6 +795,11 @@ io.sockets.on('connection', function(socket) {
 
     var timeOut = "a";
 
+    socket.emit('sleepStatus', {
+        "bedTime": bedTime,
+        "status": bedState
+    });
+
     socket.on('bed', function(data) {
 
         var time = new Date().getTime();
@@ -807,8 +812,18 @@ io.sockets.on('connection', function(socket) {
         if (data == "1") {
             if (timeOut == "a") {
                 bedTime = time;
+                bedState = 2;
+                io.sockets.emit('sleepStatus', {
+                    "bedTime": bedTime,
+                    "status": 2
+                });
                 log.add("Slapen beginnen", false);
             } else {
+                bedState = 2;
+                io.sockets.emit('sleepStatus', {
+                    "bedTime": bedTime,
+                    "status": 2
+                });
                 log.add("Slapen hervatten", false);
                 timeOut = "a";
                 clearTimeout(timeOut);
@@ -819,12 +834,25 @@ io.sockets.on('connection', function(socket) {
 
 
             if (timeOut == "a") {
+                bedState = 1;
+                io.sockets.emit('sleepStatus', {
+                    "bedTime": bedTime,
+                    "status": 1
+                });
                 log.add("Slapen wachten op 10 minuten", false);
                 timeOut = setTimeout(function() {
                     timeOut = "a";
+                    bedState = 0;
+                    io.sockets.emit('sleepStatus', {
+                        "bedTime": bedTime,
+                        "status": 0
+                    });
                     log.add("Tijd geslapen: " + toHHMMSS(sleepedTime / 1000), true);
 
                 }, 1000 * 60 * 10);
+            } else {
+                timeOut = "a";
+                clearTimeout(timeOut);
             }
 
         }

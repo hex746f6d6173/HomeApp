@@ -106,6 +106,11 @@ $(document).ready(function() {
         }
 
     });
+    socket.on('sleepStatus', function(data) {
+
+        $("#sleepStatus").html(data.status);
+
+    });
     socket.on('refreshE', function(data) {
         console.log('refreshE', data);
         if (data.event === "restart") {
