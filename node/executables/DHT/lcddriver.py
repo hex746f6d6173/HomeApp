@@ -50,6 +50,8 @@ En = 0b00000100 # Enable bit
 Rw = 0b00000010 # Read/Write bit
 Rs = 0b00000001 # Register select bit
 
+backlight = LCD_BACKLIGHT
+
 class lcd:
    #initializes objects and lcd
    def __init__(self):
@@ -66,15 +68,23 @@ class lcd:
       self.lcd_write(LCD_ENTRYMODESET | LCD_ENTRYLEFT)
       sleep(0.2)
 
+   def lcd_backlight(self):
+      global backlight
+      backlight = LCD_BACKLIGHT
+
+   def lcd_noBacklight(self):
+      global backlight
+      backlight = LCD_NOBACKLIGHT
+
    # clocks EN to latch command
    def lcd_strobe(self, data):
-      self.lcd_device.write_cmd(data | En | LCD_BACKLIGHT)
+      self.lcd_device.write_cmd(data | En | backlight)
       sleep(.0005)
-      self.lcd_device.write_cmd(((data & ~En) | LCD_BACKLIGHT))
+      self.lcd_device.write_cmd(((data & ~En) | backlight))
       sleep(.0001)
 
    def lcd_write_four_bits(self, data):
-      self.lcd_device.write_cmd(data | LCD_BACKLIGHT)
+      self.lcd_device.write_cmd(data | backlight)
       self.lcd_strobe(data)
 
    # write a command to lcd

@@ -33,14 +33,23 @@ socketIO = SocketIO('home.tomasharkema.nl', 80)
 
 def updateUI():
 	global tempratuur
-	
+	global lumen
+	global trigger
+	global lastCommand
 	localtime = time.strftime("%H:%M:%S", time.localtime())
 	
+	lcd.lcd_noBacklight()
+
+	lcd.lcd_clear()
+
+
 
 	lcd.lcd_display_string("HOME APP    "+localtime, 1)
 	lcd.lcd_display_string(tempratuur + "oC / "+lumen+"Lux / TrA: "+trigger, 2)
 	lcd.lcd_display_string(lastCommand, 3)
 	lcd.lcd_display_string("Status: All fine!", 4)
+
+
 
 def temp(*args):
 	global tempratuur
