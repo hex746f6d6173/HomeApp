@@ -91,26 +91,26 @@ def updateUI():
 
 def temp(*args):
 	global tempratuur
-	logging.debug('on_aaa_response' + str(args[0])
+	logging.debug('on_aaa_response'+str(args[0]))
 	print 'on_aaa_response', args, args[0], str(args[0])
 	tempratuur = str(args[0]);
 	
 def lightsLume(*args):
 	global lumen
-	logging.debug('lumen' + str(args[0])
+	logging.debug('lumen' + str(args[0]))
 	print 'lumen', args, args[0], str(args[0])
 	lumen = str(args[0]);
 	
 def triggerArm(*args):
 	global trigger
-	logging.debug('trigger' + str(args[0])
+	logging.debug('trigger' + str(args[0]))
 	print 'trigger', args, args[0], str(args[0])
 	trigger = str(args[0]);
 	
 
 def switchedCallback(*args):
 	global lastCommand
-	logging.debug('switchedCallback' + str(args[0]['switch']['name'])
+	logging.debug('switchedCallback' + str(args[0]['switch']['name']))
 	print "switchedCallback", args, args[0]['switch']['name'], type(args[0])
 	lastCommand = args[0]['switch']['name'] + ":"+str(args[0]['switch']['state']);
 	
