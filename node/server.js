@@ -564,11 +564,12 @@ var lastTimeTemp = "a";
 app.get('/temp/:t', function(req, res) {
     var time = new Date().getTime();
     var newTemp = parseFloat(req.params.t);
-
+    log.add("SET TEMP WARNING TIMEOUT");
     if (lastTimeTemp != "a") {
+        log.add("RESET TEMP WARNING TIMEOUT");
         clearTimeout(lastTimeTemp);
     }
-
+    log.add("INIT TEMP WARNING TIMEOUT");
     lastTimeTemp = setTimeout(function() {
         log.add("ERROR! AL 30 MIN GEEN TEMPRATUUR ONTVANGEN!!!", true);
     }, 1000 * 60 * 30);
