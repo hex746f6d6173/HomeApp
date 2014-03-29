@@ -144,6 +144,10 @@ class SocThread (threading.Thread):
 		socketIO.wait_for_callbacks(seconds=1000)
 		socketIO.wait()
 
+GPIO.setmode(GPIO.BCM)
+def map (x, in_min, in_max, out_min, out_max):
+	
+	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 
 
 class timeThread (threading.Thread):
@@ -169,10 +173,13 @@ class pirThread (threading.Thread):
  
 		pir_pin = 18
 		bed_pin = 22
+		RCpin = 23
+		light_pin = 22
 
 		io.setup(pir_pin, io.IN)         # activate input
 
 		io.setup(bed_pin, io.IN)
+
 
 		state = 0;
 
@@ -211,6 +218,20 @@ class pirThread (threading.Thread):
 				state = 0
 			
 			
+		    reading = 0
+	        io.setup(RCpin, io.OUT)
+	        io.output(RCpin, io.LOW)
+	        time.sleep(0.1)
+	 
+	        io.setup(RCpin, io.IN)
+	        # This takes about 1 millisecond per loop cycle
+	        while ((io.input(RCpin) == io.LOW) and (reading < 10000)):
+	                reading = reading + 1
+		        
+			#return reading
+			
+			returnMap = map(reading, 0, 10000, 100, 0)
+			r = requests.get("http://home.tomasharkema.nl/light/"+returnMap+"/")
 
 
 
