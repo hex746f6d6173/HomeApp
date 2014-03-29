@@ -231,7 +231,7 @@ class pirThread (threading.Thread):
 				reading = reading + 1
 				
 			#return reading
-			
+			global lightNow
 			returnMap = map(reading, 0, 10000, 100, 0)
 			if(lightNow != returnMap):
 				lightNow = returnMap
