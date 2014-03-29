@@ -233,9 +233,8 @@ class pirThread (threading.Thread):
 			#return reading
 			
 			returnMap = map(reading, 0, 10000, 100, 0)
-			if(lightNow != returnMap):
-				print "light: "+str(returnMap)+""
-				r = requests.get("http://home.tomasharkema.nl/light/"+str(returnMap)+"/")
+			print "light: "+str(returnMap)+""
+			r = requests.get("http://home.tomasharkema.nl/light/"+str(returnMap)+"/")
 
 
 
