@@ -124,12 +124,12 @@ $(document).ready(function() {
             if (dataPerDate[beginDate.getDay() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()] == undefined) {
                 dataPerDate[beginDate.getDay() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()] = [];
             }
-
-            dataPerDate[beginDate.getDay() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()].push({
-                "begin": y.begin,
-                "end": y.end,
-                "len": lengthSleep
-            });
+            if (lengthSleep > (1000 * 60 * 10))
+                dataPerDate[beginDate.getDay() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()].push({
+                    "begin": y.begin,
+                    "end": y.end,
+                    "len": lengthSleep
+                });
 
             //htmlForSleep = htmlForSleep + '<div class="sleepTimeDay">' + ("" + lengthSleep / 1000 + "").toHHMMSS() + '</div>';
 

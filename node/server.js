@@ -559,9 +559,19 @@ setInterval(function() {
     }
 }, 10 * 60 * 1000);
 
+var lastTimeTemp = "a";
+
 app.get('/temp/:t', function(req, res) {
     var time = new Date().getTime();
     var newTemp = parseFloat(req.params.t);
+
+    if (lastTimeTemp != "a") {
+        clearTimeout(lastTimeTemp);
+    }
+
+    lastTimeTemp = setTimeout(function() {
+        log.add("ERROR! AL 30 MIN GEEN TEMPRATUUR ONTVANGEN!!!", true);
+    }, 1000 * 60 * 30);
 
     res.send(JSON.stringify(newTemp)).end();
 
