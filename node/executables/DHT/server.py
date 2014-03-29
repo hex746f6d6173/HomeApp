@@ -193,6 +193,8 @@ class pirThread (threading.Thread):
 		global bed
 		global background
 
+		state = 0
+
 		while True:
 			if io.input(pir_pin):
 				if (state == 0) :
