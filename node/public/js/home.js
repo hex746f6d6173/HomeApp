@@ -108,6 +108,18 @@ $(document).ready(function() {
         plot();
     });
 
+    $.getJSON("/api/lights", function(data) {
+
+        var html = "";
+
+        $.each(data, function(x, y) {
+
+            html += '<div class="sleepTimeDay">' + y.end - y.begin + '</div>';
+
+        });
+
+    });
+
     var socket = io.connect('http://' + window.location.hostname);
 
     socket.on('connect', function() {
