@@ -218,16 +218,15 @@ class pirThread (threading.Thread):
 				state = 0
 			
 			
-		    reading = 0
-	        io.setup(RCpin, io.OUT)
-	        io.output(RCpin, io.LOW)
-	        time.sleep(0.1)
-	 
-	        io.setup(RCpin, io.IN)
-	        # This takes about 1 millisecond per loop cycle
-	        while ((io.input(RCpin) == io.LOW) and (reading < 10000)):
-	                reading = reading + 1
-		        
+			reading = 0
+			io.setup(RCpin, io.OUT)
+			io.output(RCpin, io.LOW)
+			time.sleep(0.1)
+			io.setup(RCpin, io.IN)
+			# This takes about 1 millisecond per loop cycle
+			while ((io.input(RCpin) == io.LOW) and (reading < 10000)):
+					reading = reading + 1
+				
 			#return reading
 			
 			returnMap = map(reading, 0, 10000, 100, 0)
