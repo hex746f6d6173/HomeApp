@@ -327,6 +327,12 @@ try:
 			thread3 = pirThread()
 			thread3.daemon=True
 			thread3.start()
+
+		if not thread4.isAlive():
+			thread4 = tempThread()
+			thread3.daemon=True
+			thread3.start()
+
 		time.sleep(30)
 
 	#while True: time.sleep(100)
