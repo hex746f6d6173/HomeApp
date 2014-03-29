@@ -144,7 +144,6 @@ class SocThread (threading.Thread):
 		socketIO.wait_for_callbacks(seconds=1000)
 		socketIO.wait()
 
-GPIO.setmode(GPIO.BCM)
 def map (x, in_min, in_max, out_min, out_max):
 	
 	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
