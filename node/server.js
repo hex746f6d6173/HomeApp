@@ -410,8 +410,8 @@ app.get('/api/temps', function(req, res) {
 
     });
 });
-app.get('/api/slaap', function(req, res) {
-    homeDB.slaap.find(function(err, docs) {
+app.get('/api/sleep', function(req, res) {
+    homeDB.sleep.find(function(err, docs) {
         res.send(docs).end();
     });
 });
