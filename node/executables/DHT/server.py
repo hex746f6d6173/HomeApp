@@ -55,7 +55,7 @@ sleepTime = 0
 
 lastCommand = ""
 
-lightNow = 0
+lightNow = -1
 
 io.setmode(io.BCM)
 
@@ -233,8 +233,9 @@ class pirThread (threading.Thread):
 			#return reading
 			
 			returnMap = map(reading, 0, 10000, 100, 0)
-			print "light: "+str(returnMap)+""
-			r = requests.get("http://home.tomasharkema.nl/light/"+str(returnMap)+"/")
+				if(lightNow != returnMap):
+					print "light: "+str(returnMap)+""
+					r = requests.get("http://home.tomasharkema.nl/light/"+str(returnMap)+"/")
 
 
 
