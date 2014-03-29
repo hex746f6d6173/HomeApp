@@ -229,7 +229,7 @@ class pirThread (threading.Thread):
 			#return reading
 			
 			returnMap = map(reading, 0, 10000, 100, 0)
-			r = requests.get("http://home.tomasharkema.nl/light/"+returnMap+"/")
+			r = requests.get("http://home.tomasharkema.nl/light/"+str(returnMap)+"/")
 
 
 
@@ -324,6 +324,8 @@ try:
 
 	while True:
 		if not thread3.isAlive():
+			thread3 = pirThread()
+			thread3.daemon=True
 			thread3.start()
 		time.sleep(30)
 
