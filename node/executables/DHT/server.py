@@ -84,7 +84,7 @@ def updateUI():
 
 	if(int(sleepStatus) == 0):
 		sleepRow = "                    "
-		
+
 	lcd.lcd_display_string("HOME APP    "+localtime, 1)
 	lcd.lcd_display_string(tempratuur + "oC / "+lumen+"Lux / TrA: "+trigger, 2)
 	lcd.lcd_display_string(lastCommand, 3)
@@ -287,7 +287,6 @@ class tempThread (threading.Thread):
 threadLock = threading.Lock()
 
 
-
 try:
 	thread1 = SocThread()
 	thread2 = timeThread()
@@ -304,6 +303,14 @@ try:
 	thread3.start()
 	thread4.start()
 
-	while True: time.sleep(100)
+	while True:
+		if not thread3.isAlive():
+			thread3.start()
+
+	#while True: time.sleep(100)
 except (KeyboardInterrupt, SystemExit):
 	print '\n! Received keyboard interrupt, quitting threads.\n'
+
+
+
+
