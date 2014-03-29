@@ -114,7 +114,7 @@ $(document).ready(function() {
 
         $.each(data, function(x, y) {
 
-            htmlForSleep = htmlForSleep + '<div class="sleepTimeDay">' + (y.end - y.begin).toHHMMSS() + '</div>';
+            htmlForSleep = htmlForSleep + '<div class="sleepTimeDay">' + ("" + (y.end - y.begin) + "").toHHMMSS() + '</div>';
 
             console.log(x, y);
 
