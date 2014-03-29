@@ -110,17 +110,17 @@ $(document).ready(function() {
 
     $.getJSON("/api/sleep", function(data) {
 
-        var html = "";
+        var htmlForSleep = "";
 
         $.each(data, function(x, y) {
 
-            html = html + '<div class="sleepTimeDay">' + y.end - y.begin + '</div>';
+            htmlForSleep = htmlForSleep + '<div class="sleepTimeDay">' + (y.end - y.begin) + '</div>';
 
             console.log(x, y);
 
         });
 
-        $(".sleep").html(html);
+        $(".sleep").html(htmlForSleep);
 
     });
 
