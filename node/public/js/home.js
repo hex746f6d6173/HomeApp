@@ -114,7 +114,9 @@ $(document).ready(function() {
 
         $.each(data, function(x, y) {
 
-            html += '<div class="sleepTimeDay">' + y.end - y.begin + '</div>';
+            html = html + '<div class="sleepTimeDay">' + y.end - y.begin + '</div>';
+
+            console.log(x, y);
 
         });
 
