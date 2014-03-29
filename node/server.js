@@ -365,7 +365,7 @@ app.get('/api/temps', function(req, res) {
         temps.forEach(function(item) {
             var thisTemp = parseFloat(item.temp);
             var thisHour = new Date(item.time).getHours();
-            if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
+            if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 96))) {
                 if (thisHour != prevHour) {
 
                     prevHour = thisHour;
@@ -435,7 +435,7 @@ app.get('/api/lights', function(req, res) {
             var thisLight = item.light;
             var thisHour = new Date(item.time).getHours();
 
-            if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
+            if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 96))) {
 
                 if (thisHour != prevHour) {
 
