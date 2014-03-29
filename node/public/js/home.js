@@ -108,19 +108,52 @@ $(document).ready(function() {
         plot();
     });
 
+    var dataPerDate = {};
+
     $.getJSON("/api/sleep", function(data) {
 
-        var htmlForSleep = "";
+        var htmlForSleep = '<table class="table" style="color: white;"><thead><tr><th style="width: 15%;">Dag</th><th>Slaap</th></tr></thead>';
+
+
 
         $.each(data, function(x, y) {
+            lengthSleep = y.end - y.begin;
 
-            htmlForSleep = htmlForSleep + '<div class="sleepTimeDay">' + ("" + (y.end - y.begin) / 1000 + "").toHHMMSS() + '</div>';
+            var beginDate = new Date(y.begin);
+
+            if (dataPerDate[beginDate.getDay() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()] == undefined) {
+                dataPerDate[beginDate.getDay() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()] = [];
+            }
+
+            dataPerDate[beginDate.getDay() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()].push({
+                "begin": y.begin,
+                "end": y.end,
+                "len": lengthSleep
+            });
+
+            //htmlForSleep = htmlForSleep + '<div class="sleepTimeDay">' + ("" + lengthSleep / 1000 + "").toHHMMSS() + '</div>';
 
             console.log(x, y);
-
         });
 
-        $(".sleep").html(htmlForSleep);
+        $.each(dataPerDate, function(x, y) {
+
+            htmlForSleep = htmlForSleep + '<tr><td><h3>' + x + '</h3></td><td>';
+
+            $.each(y, function(x, y) {
+
+                begin = new Date(y.begin);
+                end = new Date(y.end);
+
+                htmlForSleep = htmlForSleep + '' + begin.getHours() + ':' + begin.getMinutes() + ' - ' + end.getHours() + ':' + end.getMinutes() + ' ' + ("" + y.len / 1000 + "").toHHMMSS() + '<br>';
+            });
+
+            htmlForSleep = htmlForSleep + '</td></tr>';
+        });
+
+        console.log("dates", dataPerDate);
+
+        $(".sleep").html(htmlForSleep + "</table>");
 
     });
 

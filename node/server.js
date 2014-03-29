@@ -411,8 +411,12 @@ app.get('/api/temps', function(req, res) {
     });
 });
 app.get('/api/sleep', function(req, res) {
-    homeDB.sleep.find(function(err, docs) {
+    homeDB.sleep.find().sort({
+        begin: -1
+    }, function(err, docs) {
         res.send(docs).end();
+
+
     });
 });
 
