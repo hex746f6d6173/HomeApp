@@ -410,6 +410,12 @@ app.get('/api/temps', function(req, res) {
 
     });
 });
+app.get('/api/slaap', function(req, res) {
+    homeDB.slaap.find(function(err, docs) {
+        res.send(docs).end();
+    });
+});
+
 app.get('/api/lights', function(req, res) {
 
     homeDB.light.find(function(err, docs) {
@@ -802,6 +808,8 @@ io.sockets.on('connection', function(socket) {
         "bedTime": bedTime,
         "status": bedState
     });
+
+
 
     socket.on('bed', function(data) {
 
