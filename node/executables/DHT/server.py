@@ -165,8 +165,11 @@ class pirThread (threading.Thread):
 		
  
 		pir_pin = 18
-		 
+		bed_pin = 22
+		
 		io.setup(pir_pin, io.IN)         # activate input
+
+		io.setup(bed_pin, io.IN)
 
 		state = 0;
 
@@ -186,7 +189,7 @@ class pirThread (threading.Thread):
 					print("PIR ALARM!")
 					global pir
 					pir = "1"
-					
+					logging.debug('PIR')
 					previousTime = int(round(time.time() * 1000))
 					r = requests.get("http://home.tomasharkema.nl/pir/1/1/")
 					time.sleep(1)
@@ -198,20 +201,20 @@ class pirThread (threading.Thread):
 					print("PIR NO ENTER!")
 					global pir
 					pir = "0"
-					
+					logging.debug('NO PIR')
 					r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
 					time.sleep(1)
 					r.connection.close()
 				state = 0
 			
-			bed_pin = 22
-			io.setup(bed_pin, io.IN)
+			
 
 
 
 			if io.input(bed_pin):
 				if (bed != "1"):
 					print "JA"
+					logging.debug('BED JA')
 					bed = "1"
 					socketIO.emit('bed', bed)
 					socketIO.wait_for_callbacks(seconds=1000)
@@ -219,9 +222,11 @@ class pirThread (threading.Thread):
 					
 			else:
 				if (bed != "0"):
+					logging.debug('BED NEE WAIT 10 SEC')
 					time.sleep(10)
 					if (io.input(bed_pin) != True):
 						print "NEE"
+						logging.debug('BED NEE')
 						bed = "0"
 						socketIO.emit('bed', bed)
 						socketIO.wait_for_callbacks(seconds=1000)
