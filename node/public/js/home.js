@@ -108,7 +108,7 @@ $(document).ready(function() {
         plot();
     });
 
-    $.getJSON("/api/lights", function(data) {
+    $.getJSON("/api/sleep", function(data) {
 
         var html = "";
 
