@@ -118,6 +118,8 @@ $(document).ready(function() {
 
         });
 
+        $(".sleep").html(html);
+
     });
 
     var socket = io.connect('http://' + window.location.hostname);
