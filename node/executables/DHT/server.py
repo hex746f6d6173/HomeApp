@@ -306,6 +306,7 @@ try:
 	while True:
 		if not thread3.isAlive():
 			thread3.start()
+		time.sleep(30)
 
 	#while True: time.sleep(100)
 except (KeyboardInterrupt, SystemExit):
