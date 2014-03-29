@@ -46,6 +46,8 @@ lumen = "0"
 trigger = "0"
 pir = "0"
 
+sleepRow = ""
+
 bed = "0"
 
 sleepStatus = "0"
@@ -66,7 +68,7 @@ def updateUI():
 	global lastCommand
 	global pir
 	global background
-
+	global sleepRow
 	GMT = Zone(1,False,'GMT')
 	localtime = datetime.datetime.now(GMT).strftime("%H:%M:%S")
 	
@@ -77,11 +79,12 @@ def updateUI():
 
 	#lcd.lcd_clear()
 
-	sleepRow = "                    "
-
-	if(int(sleepStatus)>0):
+	if(int(sleepStatus)>1):
 		sleepRow = "sleeptime:"+  time.strftime('%H:%M:%S', time.gmtime(float(int(datetime.datetime.now().strftime("%s")) - int(int(sleepTime) / 1000))))
 
+	if(int(sleepStatus) == 0):
+		sleepRow = "                    "
+		
 	lcd.lcd_display_string("HOME APP    "+localtime, 1)
 	lcd.lcd_display_string(tempratuur + "oC / "+lumen+"Lux / TrA: "+trigger, 2)
 	lcd.lcd_display_string(lastCommand, 3)
@@ -166,7 +169,7 @@ class pirThread (threading.Thread):
  
 		pir_pin = 18
 		bed_pin = 22
-		
+
 		io.setup(pir_pin, io.IN)         # activate input
 
 		io.setup(bed_pin, io.IN)
