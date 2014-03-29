@@ -228,7 +228,7 @@ class pirThread (threading.Thread):
 			io.setup(RCpin, io.IN)
 			# This takes about 1 millisecond per loop cycle
 			while ((io.input(RCpin) == io.LOW) and (reading < 10000)):
-					reading = reading + 1
+				reading = reading + 1
 				
 			#return reading
 			
