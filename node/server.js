@@ -520,7 +520,7 @@ app.get('/api/totalGraph', function(req, res) {
 
             var pirData = [];
             pir.forEach(function(item) {
-                if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 24)))
+                if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 96)))
                     pirData.push([item.time, item.pir]);
 
             });
@@ -531,8 +531,27 @@ app.get('/api/totalGraph', function(req, res) {
                 color: "#FFFFFF"
             });
 
+            homeDB.bed.find(function(err, bed) {
 
-            res.send(ret).end();
+                var bedData = [];
+                bed.forEach(function(item) {
+                    if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 96)))
+                        pirData.push([item.time, item.bed]);
+
+                });
+
+                ret.push({
+                    label: "BED history",
+                    data: bedData,
+                    color: "#FFFFFF"
+                });
+
+
+                res.send(ret).end();
+            });
+
+
+
         });
     });
 
