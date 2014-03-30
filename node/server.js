@@ -489,7 +489,7 @@ app.get('/api/totalGraph', function(req, res) {
     var ret = [];
     var deviceHisArray = [];
     homeDB.deviceHis.find().sort({
-        time, -1
+        time: -1
     }, function(err, docs) {
         docs.forEach(function(doc) {
 
