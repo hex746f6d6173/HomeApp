@@ -507,7 +507,7 @@ app.get('/api/totalGraph', function(req, res) {
             console.log("KEY:", key);
             ret.push({
                 label: "Device History " + key,
-                data: deviceHisArray[key]
+                data: deviceHisArray[key].data
             });
         }
 
