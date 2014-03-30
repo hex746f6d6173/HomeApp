@@ -579,15 +579,6 @@ app.get('/light/:l', function(req, res) {
 
 });
 
-setInterval(function() {
-    if (lightsLume === 0) {
-        var time = new Date().getTime();
-        homeDB.light.save({
-            time: time,
-            light: 0
-        });
-    }
-}, 10 * 60 * 1000);
 
 var lastTimeTemp = "a";
 
@@ -1592,7 +1583,7 @@ function cpuLoadFN() {
 cpuLoadFN();
 networkDiscovery();
 
-setTimeout(function() {
+setInterval(function() {
     log.add("NETWORKDISC FROM TIMEOUT");
     networkDiscovery();
     log.add("CPU LOAD");
