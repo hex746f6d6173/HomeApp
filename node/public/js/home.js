@@ -47,7 +47,7 @@ function plot() {
             }
         });
     });
-    $.getJSON("/api/cpu", function(d) {
+    $.getJSON("/api/cpu/", function(d) {
         $.plot("#cpu", d, {
             xaxis: {
                 mode: "time",

@@ -1173,8 +1173,8 @@ app.get('/api/cpu/', function(req, res) {
     returnN = [];
     homeDB.cpu.find(function(err, docs) {
         docs.forEach(function(item) {
-            cpu.push([docs.time, item.cpu]);
-            mem.push([docs.time, item.mem]);
+            cpu.push([item.time, item.cpu]);
+            mem.push([item.time, item.mem]);
         });
         returnN.push({
             label: "CPU",
