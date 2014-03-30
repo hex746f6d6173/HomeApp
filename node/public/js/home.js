@@ -392,6 +392,21 @@ $(document).ready(function() {
 
     });
     socket.on("cpu", function(data) {
+        if (data < 1) {
+            $(".cpu").css({
+                background: green
+            });
+        }
+        if (data >= 1 && data < 3) {
+            $(".cpu").css({
+                background: orange
+            });
+        }
+        if (data >= 3) {
+            $(".cpu").css({
+                background: red
+            });
+        }
         $(".cpu").html("CPU: " + (Math.round(data * 100) / 100));
     });
     socket.on("mem", function(data) {
