@@ -531,7 +531,9 @@ app.get('/api/totalGraph', function(req, res) {
                 color: "#FFFFFF"
             });
 
-            homeDB.bed.find(function(err, bed) {
+            homeDB.bed.find().sort({
+                time: -1
+            }, function(err, bed) {
 
                 var bedData = [];
                 bed.forEach(function(item) {
@@ -543,7 +545,7 @@ app.get('/api/totalGraph', function(req, res) {
                 ret.push({
                     label: "BED history",
                     data: bedData,
-                    color: "#FFFFFF"
+                    color: "#FF0000"
                 });
 
 
