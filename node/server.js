@@ -1276,14 +1276,66 @@ app.get('/agenda/', function(req, res) {
 
 
         }
-        var returnN = [];
-        for (key in ret) {
-            console.log("ITEMS", ret[key]);
-            if (ret[key].duration > 1000 * 60 * 10)
-                returnN.push(ret[key]);
-        }
-        res.send(returnN).end();
 
+        homeDB.pir.find({
+            time: {
+                $gt: parseInt(req.query.start) * 1000,
+                $lt: parseInt(req.query.end) * 1000
+            }
+        }).sort({
+            time: -1
+        }, function(err, pirs) {
+
+            pirFori = 0;
+            pirForBegin = 0;
+            pirForEnd = 0;
+            pirForState = 0;
+            pirForHaveFirst = false;
+            pirs.forEach(function(item) {
+                if (item[1] == 0 && !pirForHaveFirst) {
+                    pirForHaveFirst = true;
+                    console.log("\n\nFIRST");
+                    pirForEnd = item[0];
+                    pirForBegin = 0;
+                    pirForState = 0;
+                    i++;
+                }
+
+                if (item[1] == 1 && pirForState == 1) {
+                    console.log("NEW END");
+                    ret[i] = {
+                        id: i,
+                        title: key,
+                        start: new Date(parseInt(item[0])).toISOString(),
+                        end: new Date(pirForEnd).toISOString(),
+                        allDay: false
+                    };
+                }
+
+                if (item[1] == 1) {
+                    pirForState = 1;
+                    pirForHaveFirst = false;
+                    console.log("END");
+                    pirForBegin = item[0];
+                    ret[i] = {
+                        id: i,
+                        title: key,
+                        start: new Date(parseInt(item[0])).toISOString(),
+                        end: new Date(pirForEnd).toISOString(),
+                        allDay: false,
+                        duration: pirForEnd - item[0]
+                    };
+
+                }
+            });
+            var returnN = [];
+            for (key in ret) {
+                console.log("ITEMS", ret[key]);
+                if (ret[key].duration > 1000 * 60 * 10)
+                    returnN.push(ret[key]);
+            }
+            res.send(returnN).end();
+        });
 
     });
 
