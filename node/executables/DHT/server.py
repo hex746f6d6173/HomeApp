@@ -236,9 +236,7 @@ class pirThread (threading.Thread):
 			#return reading
 			global lightNow
 			returnMap = map(reading, 0, 10000, 100, 0)
-			print counterLight
-			print avgLight
-			if(counterLight < 100):
+			if(counterLight < 60):
 				lightNow = returnMap
 				avgLight = avgLight + returnMap
 				counterLight = counterLight + 1
