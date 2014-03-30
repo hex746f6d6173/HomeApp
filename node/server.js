@@ -1174,22 +1174,28 @@ app.get('/agenda/', function(req, res) {
 
     var ret = [];
     var deviceHisArray = [];
-    homeDB.deviceHis.find().sort({
+    homeDB.deviceHis.find({
+        time: {
+            $gt: parseInt(req.query.start) * 1000,
+            $lt: parseInt(req.query.end) * 1000
+        }
+    }).sort({
         time: 1
     }, function(err, docs) {
         docs.forEach(function(doc) {
 
-
-            if (deviceHisArray[doc.name] === undefined) {
-                deviceHisArray[doc.name] = {
-                    name: doc.name,
-                    data: []
+            if (doc.name != "PI" && doc.name != "Printer") {
+                if (deviceHisArray[doc.name] === undefined) {
+                    deviceHisArray[doc.name] = {
+                        name: doc.name,
+                        data: []
+                    }
                 }
+
+                deviceHisArray[doc.name].data.push([parseInt(doc.time), doc.state]);
+
+                deviceHisArray[doc.name].state = 0;
             }
-            deviceHisArray[doc.name].data.push([parseInt(doc.time), doc.state]);
-
-            deviceHisArray[doc.name].state = 0;
-
         });
         var i = 0;
         for (key in deviceHisArray) {
