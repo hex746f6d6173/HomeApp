@@ -1124,11 +1124,7 @@ function networkDiscovery() {
 
                     if (thisState === 1) {
                         log.add("NETWORKDISC " + item.name + " came online");
-                        homeDB.deviceHis.save({
-                            name: item.name,
-                            time: time - 1,
-                            state: "0"
-                        });
+
                         homeDB.deviceHis.save({
                             name: item.name,
                             time: time,
@@ -1143,11 +1139,7 @@ function networkDiscovery() {
                     }
                     if (thisState === 0) {
                         log.add("NETWORKDISC " + item.name + " went offline");
-                        homeDB.deviceHis.save({
-                            name: item.name,
-                            time: time - 1,
-                            state: "1"
-                        });
+
                         homeDB.deviceHis.save({
                             name: item.name,
                             time: time,
