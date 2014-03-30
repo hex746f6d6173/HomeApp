@@ -1066,7 +1066,7 @@ c.on('close', function(had_error) {
         state.sshPending = false;
         state.ssh = false;
         cConnect();
-    }, 5000);
+    }, 15000);
 
     io.sockets.emit('state', state);
     log.add("SSH CLOSE");
