@@ -499,14 +499,19 @@ app.get('/api/totalGraph', function(req, res) {
             }
             deviceHisArray[doc.name].data.push([doc.time, doc.state]);
         });
-        console.log(deviceHisArray);
+        console.log("deviceHisArray:", deviceHisArray);
 
-        deviceHisArray.forEach(function(item) {
-            console.log(item);
+        for (key in deviceHisArray) {
+            console.log("KEY:", key);
             ret.push({
                 label: "Device History " + key,
-                data: devicePlot
+                data: deviceHisArray[key]
             });
+        }
+
+        deviceHisArray.forEach(function(item) {
+            console.log("deviceHisArray:item:", item);
+
         });
 
         homeDB.pir.find(function(err, pir) {
