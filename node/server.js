@@ -51,7 +51,7 @@ function toHHMMSS(string) {
     return time;
 }
 
-var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log", "deviceHis"]);
+var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log", "deviceHis", "pir", "light", "temp", "bed", "sleep", "cpu"]);
 
 var homeDB = {
     switches: db.collection('swiches'),
