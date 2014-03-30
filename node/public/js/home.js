@@ -47,8 +47,8 @@ function plot() {
             }
         });
     });
-    $.getJSON("/api/totalGraph", function(d) {
-        $.plot("#his", d, {
+    $.getJSON("/api/cpu/", function(d) {
+        $.plot("#cpu", d, {
             xaxis: {
                 mode: "time",
                 min: min,
@@ -64,6 +64,23 @@ function plot() {
             }
         });
     });
+    /*$.getJSON("/api/totalGraph", function(d) {
+        $.plot("#his", d, {
+            xaxis: {
+                mode: "time",
+                min: min,
+                max: now
+            },
+            series: {
+                lines: {
+                    show: true
+                },
+                points: {
+                    show: true
+                }
+            }
+        });
+    });*/
     $.getJSON("/api/lights", function(d) {
         $.plot("#lLights", [d], {
             xaxis: {
@@ -410,6 +427,23 @@ $(document).ready(function() {
         $(".cpu").html("CPU: " + (Math.round(data * 100) / 100));
     });
     socket.on("mem", function(data) {
+
+        if (data < 0.5) {
+            $(".mem").css({
+                background: green
+            });
+        }
+        if (data >= 0.5 && data < 0.75) {
+            $(".mem").css({
+                background: orange
+            });
+        }
+        if (data >= 0.75) {
+            $(".mem").css({
+                background: red
+            });
+        }
+
         $(".mem").html("Mem: " + (Math.round(data * 100)) + "%");
     });
     socket.on("log", function(data) {
