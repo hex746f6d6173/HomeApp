@@ -1122,7 +1122,7 @@ function networkDiscovery() {
 
                     io.sockets.emit('deviceChange', item);
 
-                    if (item.state === 1) {
+                    if (thisState === 1) {
                         log.add("NETWORKDISC " + item.name + " came online");
                         homeDB.deviceHis.save({
                             name: item.name,
@@ -1141,7 +1141,7 @@ function networkDiscovery() {
                             log.add("AUTOCOMMAND ON " + item.name, true);
                         }
                     }
-                    if (item.state === 0) {
+                    if (thisState === 0) {
                         log.add("NETWORKDISC " + item.name + " went offline");
                         homeDB.deviceHis.save({
                             name: item.name,
