@@ -1305,7 +1305,8 @@ app.get('/agenda/', function(req, res) {
                     console.log("NEW END");
                     ret[i] = {
                         id: i,
-                        title: key,
+                        title: "PIR",
+                        color: "red",
                         start: new Date(parseInt(item[0])).toISOString(),
                         end: new Date(pirForEnd).toISOString(),
                         allDay: false
@@ -1319,7 +1320,8 @@ app.get('/agenda/', function(req, res) {
                     pirForBegin = item[0];
                     ret[i] = {
                         id: i,
-                        title: key,
+                        title: "PIR",
+                        color: "red",
                         start: new Date(parseInt(item[0])).toISOString(),
                         end: new Date(pirForEnd).toISOString(),
                         allDay: false,
