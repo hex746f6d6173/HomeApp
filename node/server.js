@@ -1124,7 +1124,11 @@ function networkDiscovery() {
 
                     if (item.state === 1) {
                         log.add("NETWORKDISC " + item.name + " came online");
-
+                        homeDB.deviceHis.save({
+                            name: item.name,
+                            time: time - 1,
+                            state: "0"
+                        });
                         homeDB.deviceHis.save({
                             name: item.name,
                             time: time,
@@ -1139,7 +1143,11 @@ function networkDiscovery() {
                     }
                     if (item.state === 0) {
                         log.add("NETWORKDISC " + item.name + " went offline");
-
+                        homeDB.deviceHis.save({
+                            name: item.name,
+                            time: time - 1,
+                            state: "1"
+                        });
                         homeDB.deviceHis.save({
                             name: item.name,
                             time: time,
@@ -1161,6 +1169,67 @@ function networkDiscovery() {
         });
     });
 }
+
+app.get('/agenda/', function(req, res) {
+
+    var ret = [];
+    var deviceHisArray = [];
+    homeDB.deviceHis.find().sort({
+        time: 1
+    }, function(err, docs) {
+        docs.forEach(function(doc) {
+
+
+            if (deviceHisArray[doc.name] === undefined) {
+                deviceHisArray[doc.name] = {
+                    name: doc.name,
+                    data: []
+                }
+            }
+            deviceHisArray[doc.name].data.push([parseInt(doc.time), doc.state]);
+
+            deviceHisArray[doc.name].state = 0;
+
+        });
+        var i = 0;
+        for (key in deviceHisArray) {
+            /*ret.push({
+                label: "Device History " + key,
+                data: deviceHisArray[key].data
+            });*/
+            i
+            deviceHisArray[key].data.forEach(function(item) {
+                if (item[1] == 1) {
+                    deviceHisArray[key].state = 1;
+                    deviceHisArray[key].begin = item[0];
+
+                }
+                i++;
+                if (item[1] != deviceHisArray[key].state) {
+                    if (item[1] == 0) {
+                        var diff = item[0] - deviceHisArray[key].begin;
+
+                        if (diff > 1000 * 60 * 60) {
+                            ret.push({
+                                id: i,
+                                title: key,
+                                start: new Date(deviceHisArray[key].begin).toISOString(),
+                                end: new Date(item[0]).toISOString(),
+                                allDay: false
+                            });
+                        }
+                    }
+                }
+            });
+        }
+
+
+        res.send(ret).end();
+
+    });
+
+
+});
 
 app.get('/bigdata', function(req, res) {
 

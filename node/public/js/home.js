@@ -462,6 +462,25 @@ $(document).ready(function() {
 
     $(window).trigger("hashchange");
 
-    ///151561651561651561
+    ///151561651561651561fadsf
+
+    $('#calendar').fullCalendar({
+
+        editable: false,
+        defaultView: 'agendaWeek',
+        events: "/agenda/",
+
+        eventDrop: function(event, delta) {
+            alert(event.title + ' was moved ' + delta + ' days\n' +
+                '(should probably update your database)');
+        },
+
+        loading: function(bool) {
+            if (bool) $('#loading').show();
+            else $('#loading').hide();
+        }
+
+    });
+
 
 });
