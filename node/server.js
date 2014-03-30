@@ -1,5 +1,6 @@
 var mongojs = require('mongojs'),
     express = require('express'),
+    os = require('os'),
     http = require('http'),
     webhook = require('gitlab-webhook'),
     app = express(),
@@ -27,7 +28,9 @@ var mongojs = require('mongojs'),
     pulling = false,
     lightsLume = 0,
     bedState = 0,
-    bedTime = 0;
+    bedTime = 0,
+    cpuLoad = 0,
+    memLoad = 0;;
 
 function toHHMMSS(string) {
     var sec_num = parseInt(string, 10); // don't forget the second param
@@ -61,6 +64,7 @@ var homeDB = {
     temp: db.collection('temp'),
     bed: db.collection('bed'),
     sleep: db.collection('sleep'),
+    cpu: db.collection('cpu'),
     deviceHis: db.collection('deviceHis')
 };
 
@@ -794,6 +798,8 @@ io.sockets.on('connection', function(socket) {
 
     socket.emit('alarmArm', alarmArm);
     socket.emit('triggerArm', triggerArm);
+    socket.emit('cpu', cpuLoad);
+    socket.emit("mem", memLoad);
 
     var sendLog = [];
 
@@ -1542,10 +1548,30 @@ app.get('/bigdata', function(req, res) {
 
 });
 
+function cpuLoadFN() {
+    var load = os.loadavg();
+    loadAVG = load[0];
+    console.log("LOAD", loadAVG);
+    log.add("CPU LOAD:" + loadAVG);
+
+    var memAVG = (os.totalmem() - os.freemem()) / os.totalmem();
+
+    homeDB.cpu.save({
+        time: new Date().getTime(),
+        cpu: loadAVG,
+        mem: memAVG
+    });
+    cpuLoad = loadAVG;
+    memLoad = memAVG;
+    io.sockets.emit("cpu", loadAVG);
+    io.sockets.emit("mem", memAVG);
+}
+cpuLoadFN();
 networkDiscovery();
 
 setTimeout(function() {
     log.add("NETWORKDISC FROM TIMEOUT");
     networkDiscovery();
-
+    log.add("CPU LOAD");
+    cpuLoadFN();
 }, 60 * 1000);

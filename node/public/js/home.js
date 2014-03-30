@@ -391,7 +391,12 @@ $(document).ready(function() {
         });
 
     });
-
+    socket.on("cpu", function(data) {
+        $(".cpu").html("CPU: " + (Math.round(data * 100) / 100));
+    });
+    socket.on("mem", function(data) {
+        $(".mem").html("Mem: " + (Math.round(data * 100)) + "%");
+    });
     socket.on("log", function(data) {
         console.log("LOG", data);
 
