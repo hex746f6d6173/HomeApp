@@ -1163,7 +1163,7 @@ function networkDiscovery() {
 }
 
 app.get('/agenda/', function(req, res) {
-
+    console.log("asdasdasa\n");
     var ret = [];
     var deviceHisArray = [];
     homeDB.deviceHis.find({
@@ -1172,7 +1172,7 @@ app.get('/agenda/', function(req, res) {
             $lt: parseInt(req.query.end) * 1000
         }
     }).sort({
-        time: 1
+        time: -1
     }, function(err, docs) {
         docs.forEach(function(doc) {
 
@@ -1196,26 +1196,29 @@ app.get('/agenda/', function(req, res) {
                 data: deviceHisArray[key].data
             });*/
             i++;
+
             deviceHisArray[key].data.forEach(function(item) {
-                if (item[1] == 1) {
-                    deviceHisArray[key].state = 1;
-                    deviceHisArray[key].begin = item[0];
-
-                }
                 i++;
+                console.log(item);
+                if (item[1] == 0 && deviceHisArray[key].state == 0) {
+                    deviceHisArray[key].i = i;
+                    deviceHisArray[key].state = 1;
+                    deviceHisArray[key].end = item[0];
+                    console.log("END", key, item[0], i);
+                    deviceHisArray[key].state == 1;
+                }
                 if (item[1] != deviceHisArray[key].state) {
-                    if (item[1] == 0) {
-                        var diff = item[0] - deviceHisArray[key].begin;
-
-                        if (diff > 1000 * 60 * 10) {
-                            ret.push({
-                                id: i,
-                                title: key,
-                                start: new Date(deviceHisArray[key].begin).toISOString(),
-                                end: new Date(item[0]).toISOString(),
-                                allDay: false
-                            });
-                        }
+                    deviceHisArray[key].state = item[1];
+                    var diff = deviceHisArray[key].end - item[0];
+                    console.log("BEG", key, item[0], deviceHisArray[key].i, diff);
+                    if (diff > 1000 * 60 * 10) {
+                        ret.push({
+                            id: i,
+                            title: key,
+                            start: new Date(item[0]).toISOString(),
+                            end: new Date(deviceHisArray[key].end).toISOString(),
+                            allDay: false
+                        });
                     }
                 }
             });
