@@ -198,6 +198,8 @@ class pirThread (threading.Thread):
 
 		state = 0
 
+		pirNoSended = 0
+
 		while True:
 			if io.input(pir_pin):
 				if (state == 0) :
@@ -210,17 +212,20 @@ class pirThread (threading.Thread):
 					r = requests.get("http://home.tomasharkema.nl/pir/1/1/")
 					time.sleep(1)
 					r.connection.close()
+					pirNoSended = 0
 			else:
 				now = int(round(time.time() * 1000))
 				
 				if ((previousTime + (1000 * 60 * 10)) < now):
-					print("PIR NO ENTER!")
-					global pir
-					pir = "0"
-					logging.debug('NO PIR')
-					r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
-					time.sleep(1)
-					r.connection.close()
+					if (pirNoSended == 0):
+						print("PIR NO ENTER!")
+						global pir
+						pir = "0"
+						logging.debug('NO PIR')
+						r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
+						time.sleep(1)
+						r.connection.close()
+						pirNoSended = 1
 				state = 0
 			
 			
