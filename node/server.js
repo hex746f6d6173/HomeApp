@@ -1304,7 +1304,7 @@ app.get('/agenda/', function(req, res) {
                     ret[i] = {
                         id: i,
                         title: "PIR",
-                        color: "red",
+                        color: "white",
                         start: new Date(parseInt(item.time)).toISOString(),
                         end: new Date(pirForEnd).toISOString(),
                         allDay: false
@@ -1318,7 +1318,7 @@ app.get('/agenda/', function(req, res) {
                     ret[i] = {
                         id: i,
                         title: "PIR",
-                        color: "red",
+                        color: "white",
                         start: new Date(parseInt(item.time)).toISOString(),
                         end: new Date(pirForEnd).toISOString(),
                         allDay: false,
@@ -1327,82 +1327,136 @@ app.get('/agenda/', function(req, res) {
 
                 }
             });
-            var returnN = [];
 
-            var oldEnd = -1;
-            var oldBegin = -1;
-            var prefName = "";
 
-            var oldElement = 0;
-            returnNN = [];
-            for (key in ret) {
-                returnNN.push(ret[key]);
-            }
-            ret = returnNN;
-            ret.reverse();
-            for (key in ret) {
+            homeDB.bed.find({
+                time: {
+                    $gt: parseInt(req.query.start) * 1000,
+                    $lt: parseInt(req.query.end) * 1000
+                }
+            }).sort({
+                time: -1
+            }, function(err, beds) {
 
-                thisBegin = new Date(ret[key].start).getTime();
-                thisEnd = new Date(ret[key].end).getTime();
-                thisDiff = thisEnd - thisBegin;
+                console.log(beds);
+                bedFori = 0;
+                bedForBegin = 0;
+                bedForEnd = 0;
+                bedForState = 0;
+                bedForHaveFirst = false;
+                beds.forEach(function(item) {
+                    if (item.bed == 0 && !bedForHaveFirst) {
+                        bedForHaveFirst = true;
+                        bedForEnd = item.time;
+                        bedForBegin = 0;
+                        bedForState = 0;
+                        i++;
+                    }
 
-                /*if (prefName == "") {
+                    if (item.bed == 1 && bedForState == 1) {
+                        ret[i] = {
+                            id: i,
+                            title: "bed",
+                            color: "red",
+                            start: new Date(parseInt(item.time)).toISOString(),
+                            end: new Date(bedForEnd).toISOString(),
+                            allDay: false
+                        };
+                    }
+
+                    if (item.bed == 1) {
+                        bedForState = 1;
+                        bedForHaveFirst = false;
+                        bedForBegin = item.time;
+                        ret[i] = {
+                            id: i,
+                            title: "bed",
+                            color: "red",
+                            start: new Date(parseInt(item.time)).toISOString(),
+                            end: new Date(bedForEnd).toISOString(),
+                            allDay: false,
+                            duration: bedForEnd - item.time
+                        };
+
+                    }
+                });
+
+                var returnN = [];
+
+                var oldEnd = -1;
+                var oldBegin = -1;
+                var prefName = "";
+
+                var oldElement = 0;
+                returnNN = [];
+                for (key in ret) {
+                    returnNN.push(ret[key]);
+                }
+                ret = returnNN;
+                ret.reverse();
+                for (key in ret) {
+
+                    thisBegin = new Date(ret[key].start).getTime();
+                    thisEnd = new Date(ret[key].end).getTime();
+                    thisDiff = thisEnd - thisBegin;
+
+                    /*if (prefName == "") {
                     prefName = ret[key].title;
                 }*/
 
-                if (prefName != ret[key].title) {
-                    if (oldElement == 0) {
-                        console.log("PUT EM ERIN door nieuwe naam");
-                        returnN.push(ret[key]);
+                    if (prefName != ret[key].title) {
+                        if (oldElement == 0) {
+                            console.log("PUT EM ERIN door nieuwe naam");
+                            returnN.push(ret[key]);
+                        }
+                        console.log("END: ", ret[key].end);
+                        console.log("NEW TYPE!!");
+                        oldElement = 0;
+                        oldBegin = -1;
+                        oldEnd = -1;
+                        prefName = ret[key].title;
                     }
-                    console.log("END: ", ret[key].end);
-                    console.log("NEW TYPE!!");
-                    oldElement = 0;
-                    oldBegin = -1;
-                    oldEnd = -1;
+
+                    if (oldElement == 0) {
+                        oldElement = ret[key];
+                        oldBegin = thisBegin;
+                        oldEnd = thisEnd;
+                        console.log("START: ", ret[key].start);
+                    } else {
+
+                        diff = thisBegin - oldEnd;
+
+                        console.log("CHECK TO COMBINE", diff);
+
+                        if (diff < 2000000) {
+                            console.log("COMBINE!!", oldElement.end, "->", ret[key].end);
+                            oldEnd = thisEnd;
+                            oldElement.end = ret[key].end;
+
+                        } else {
+                            console.log("NOMORE COMBINE!!");
+                            console.log("END: ", ret[key].end);
+                            console.log("PUT EM ERIN door grote diff");
+                            returnN.push(oldElement);
+                            oldElement = 0;
+                        }
+
+
+                    }
+
+
+
+                    //console.log(ret[key].title, thisBegin, thisEnd, thisDiff);
+
+
                     prefName = ret[key].title;
                 }
 
-                if (oldElement == 0) {
-                    oldElement = ret[key];
-                    oldBegin = thisBegin;
-                    oldEnd = thisEnd;
-                    console.log("START: ", ret[key].start);
-                } else {
+                returnN.push(oldElement);
 
-                    diff = thisBegin - oldEnd;
-
-                    console.log("CHECK TO COMBINE", diff);
-
-                    if (diff < 2000000) {
-                        console.log("COMBINE!!", oldElement.end, "->", ret[key].end);
-                        oldEnd = thisEnd;
-                        oldElement.end = ret[key].end;
-
-                    } else {
-                        console.log("NOMORE COMBINE!!");
-                        console.log("END: ", ret[key].end);
-                        console.log("PUT EM ERIN door grote diff");
-                        returnN.push(oldElement);
-                        oldElement = 0;
-                    }
-
-
-                }
-
-
-
-                //console.log(ret[key].title, thisBegin, thisEnd, thisDiff);
-
-
-                prefName = ret[key].title;
-            }
-
-            returnN.push(oldElement);
-
-            res.send(returnN).end();
+                res.send(returnN).end();
+            });
         });
-
     });
 
 
@@ -1494,4 +1548,4 @@ setTimeout(function() {
     log.add("NETWORKDISC FROM TIMEOUT");
     networkDiscovery();
 
-}, 30 * 1000);
+}, 60 * 1000);
