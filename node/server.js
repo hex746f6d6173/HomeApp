@@ -1276,7 +1276,7 @@ app.get('/agenda/', function(req, res) {
 
 
         }
-
+        console.log("PIRS");
         homeDB.pir.find({
             time: {
                 $gt: parseInt(req.query.start) * 1000,
@@ -1285,56 +1285,56 @@ app.get('/agenda/', function(req, res) {
         }).sort({
             time: -1
         }, function(err, pirs) {
-
+            console.log(pirs);
             pirFori = 0;
             pirForBegin = 0;
             pirForEnd = 0;
             pirForState = 0;
             pirForHaveFirst = false;
             pirs.forEach(function(item) {
-                if (item[1] == 0 && !pirForHaveFirst) {
+                if (item.pir == 0 && !pirForHaveFirst) {
                     pirForHaveFirst = true;
                     console.log("\n\nFIRST");
-                    pirForEnd = item[0];
+                    pirForEnd = item.time;
                     pirForBegin = 0;
                     pirForState = 0;
                     i++;
                 }
 
-                if (item[1] == 1 && pirForState == 1) {
+                if (item.pir == 1 && pirForState == 1) {
                     console.log("NEW END");
                     ret[i] = {
                         id: i,
                         title: "PIR",
                         color: "red",
-                        start: new Date(parseInt(item[0])).toISOString(),
+                        start: new Date(parseInt(item.time)).toISOString(),
                         end: new Date(pirForEnd).toISOString(),
                         allDay: false
                     };
                 }
 
-                if (item[1] == 1) {
+                if (item.pir == 1) {
                     pirForState = 1;
                     pirForHaveFirst = false;
                     console.log("END");
-                    pirForBegin = item[0];
+                    pirForBegin = item.time;
                     ret[i] = {
                         id: i,
                         title: "PIR",
                         color: "red",
-                        start: new Date(parseInt(item[0])).toISOString(),
+                        start: new Date(parseInt(item.time)).toISOString(),
                         end: new Date(pirForEnd).toISOString(),
                         allDay: false,
-                        duration: pirForEnd - item[0]
+                        duration: pirForEnd - item.time
                     };
 
                 }
             });
             var returnN = [];
             for (key in ret) {
-                console.log("ITEMS", ret[key]);
-                if (ret[key].duration > 1000 * 60 * 10)
-                    returnN.push(ret[key]);
+                //console.log("ITEMS", ret[key]);
+                //if (ret[key].duration > 1000 * 60 * 10)
+                returnN.push(ret[key]);
             }
             res.send(returnN).end();
         });
