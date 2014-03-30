@@ -185,7 +185,7 @@ class pirThread (threading.Thread):
 		state = 0
 
 		avgLight = 0.0
-		counterLight = 0.0
+		counterLight = 0
 
 		previousTime = int(round(time.time() * 1000));
 
@@ -236,6 +236,8 @@ class pirThread (threading.Thread):
 			#return reading
 			global lightNow
 			returnMap = map(reading, 0, 10000, 100, 0)
+			print counterLight
+			print avgLight
 			if(counterLight < 100):
 				lightNow = returnMap
 				avgLight = avgLight + returnMap
@@ -244,6 +246,8 @@ class pirThread (threading.Thread):
 				avg = avgLight / counterLight
 				print "light: "+str(avg)+""
 				r = requests.get("http://home.tomasharkema.nl/light/"+str(avg)+"/")
+				avgLight = 0.0
+				counterLight = 0
 
 
 
