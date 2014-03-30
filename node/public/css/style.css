@@ -26,7 +26,7 @@
     padding:0;
     text-decoration: none;
 	}
-  .alarm, .trigger, .tempwrap{
+  .alarm, .trigger, .tempwrap, .cpu, .mem{
     display: inline-block;
     box-shadow: inset 0px 0px 10px 0px black;
     text-decoration: none;
@@ -76,4 +76,7 @@
   }
   .time{
     font-size: 30pt;
+  }
+  .table h3{
+    margin:0px;
   }

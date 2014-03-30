@@ -20,6 +20,30 @@ import sys
 import subprocess
 import datetime
 
+pid = str(os.getpid())
+pidfile = "/tmp/server.pid"
+
+def is_process_running(process_id):
+    try:
+        os.kill(process_id, 0)
+        return True
+    except OSError:
+        return False
+
+if os.path.exists(pidfile):
+    print("pid running")
+    pid_running = int(open(pidfile).read())
+    if(is_process_running(pid_running)):
+        sys.exit()
+    
+else:
+    file(pidfile, 'w').write(pid)
+
+def goodbye():
+    os.remove(pidfile)
+
+atexit.register(goodbye)
+
 import logging
 logging.basicConfig(filename='server.log',level=logging.DEBUG)
 
@@ -46,6 +70,8 @@ lumen = "0"
 trigger = "0"
 pir = "0"
 
+sleepRow = ""
+
 bed = "0"
 
 sleepStatus = "0"
@@ -53,7 +79,9 @@ sleepTime = 0
 
 lastCommand = ""
 
-io.setmode(io.BCM)
+lightNow = -1
+
+
 
 background = True
 
@@ -66,7 +94,7 @@ def updateUI():
 	global lastCommand
 	global pir
 	global background
-
+	global sleepRow
 	GMT = Zone(1,False,'GMT')
 	localtime = datetime.datetime.now(GMT).strftime("%H:%M:%S")
 	
@@ -77,10 +105,11 @@ def updateUI():
 
 	#lcd.lcd_clear()
 
-	sleepRow = "                    "
-
-	if(int(sleepStatus)>0):
+	if(int(sleepStatus)>1):
 		sleepRow = "sleeptime:"+  time.strftime('%H:%M:%S', time.gmtime(float(int(datetime.datetime.now().strftime("%s")) - int(int(sleepTime) / 1000))))
+
+	if(int(sleepStatus) == 0):
+		sleepRow = "                    "
 
 	lcd.lcd_display_string("HOME APP    "+localtime, 1)
 	lcd.lcd_display_string(tempratuur + "oC / "+lumen+"Lux / TrA: "+trigger, 2)
@@ -141,6 +170,9 @@ class SocThread (threading.Thread):
 		socketIO.wait_for_callbacks(seconds=1000)
 		socketIO.wait()
 
+def map (x, in_min, in_max, out_min, out_max):
+	
+	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 
 
 class timeThread (threading.Thread):
@@ -165,10 +197,15 @@ class pirThread (threading.Thread):
 		
  
 		pir_pin = 18
-		 
-		io.setup(pir_pin, io.IN)         # activate input
+		bed_pin = 22
+		RCpin = 23
+		light_pin = 22
 
-		state = 0;
+
+		state = 0
+
+		avgLight = 0.0
+		counterLight = 0
 
 		previousTime = int(round(time.time() * 1000));
 
@@ -179,39 +216,73 @@ class pirThread (threading.Thread):
 		global bed
 		global background
 
+		state = 0
+
+		pirNoSended = 0
+
 		while True:
+			io.setmode(io.BCM)
+			io.setup(pir_pin, io.IN)
+
+			io.setup(bed_pin, io.IN)
+
 			if io.input(pir_pin):
 				if (state == 0) :
 					state = 1
 					print("PIR ALARM!")
 					global pir
 					pir = "1"
-					
+					logging.debug('PIR')
 					previousTime = int(round(time.time() * 1000))
 					r = requests.get("http://home.tomasharkema.nl/pir/1/1/")
 					time.sleep(1)
 					r.connection.close()
+					pirNoSended = 0
 			else:
 				now = int(round(time.time() * 1000))
 				
 				if ((previousTime + (1000 * 60 * 10)) < now):
-					print("PIR NO ENTER!")
-					global pir
-					pir = "0"
-					
-					r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
-					time.sleep(1)
-					r.connection.close()
+					if (pirNoSended == 0):
+						print("PIR NO ENTER!")
+						global pir
+						pir = "0"
+						logging.debug('NO PIR')
+						r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
+						time.sleep(1)
+						r.connection.close()
+						pirNoSended = 1
 				state = 0
 			
-			bed_pin = 22
-			io.setup(bed_pin, io.IN)
+			
+			reading = 0
+			io.setup(RCpin, io.OUT)
+			io.output(RCpin, io.LOW)
+			time.sleep(0.1)
+			io.setup(RCpin, io.IN)
+			# This takes about 1 millisecond per loop cycle
+			while ((io.input(RCpin) == io.LOW) and (reading < 10000)):
+				reading = reading + 1
+				
+			#return reading
+			global lightNow
+			returnMap = map(reading, 0, 10000, 100, 0)
+			if(counterLight < 60):
+				lightNow = returnMap
+				avgLight = avgLight + returnMap
+				counterLight = counterLight + 1
+			else:
+				avg = avgLight / counterLight
+				print "light: "+str(avg)+""
+				r = requests.get("http://home.tomasharkema.nl/light/"+str(round(avg))+"/")
+				avgLight = 0.0
+				counterLight = 0
 
 
 
 			if io.input(bed_pin):
 				if (bed != "1"):
 					print "JA"
+					logging.debug('BED JA')
 					bed = "1"
 					socketIO.emit('bed', bed)
 					socketIO.wait_for_callbacks(seconds=1000)
@@ -219,16 +290,18 @@ class pirThread (threading.Thread):
 					
 			else:
 				if (bed != "0"):
+					logging.debug('BED NEE WAIT 10 SEC')
 					time.sleep(10)
 					if (io.input(bed_pin) != True):
 						print "NEE"
+						logging.debug('BED NEE')
 						bed = "0"
 						socketIO.emit('bed', bed)
 						socketIO.wait_for_callbacks(seconds=1000)
 						background = True
 					
-
-			time.sleep(0.5)
+			io.cleanup()
+			time.sleep(2)
 
 class tempThread (threading.Thread):
 
@@ -279,7 +352,6 @@ class tempThread (threading.Thread):
 threadLock = threading.Lock()
 
 
-
 try:
 	thread1 = SocThread()
 	thread2 = timeThread()
@@ -296,6 +368,23 @@ try:
 	thread3.start()
 	thread4.start()
 
-	while True: time.sleep(100)
+	while True:
+		if not thread3.isAlive():
+			thread3 = pirThread()
+			thread3.daemon=True
+			thread3.start()
+
+		if not thread4.isAlive():
+			thread4 = tempThread()
+			thread3.daemon=True
+			thread3.start()
+
+		time.sleep(30)
+
+	#while True: time.sleep(100)
 except (KeyboardInterrupt, SystemExit):
 	print '\n! Received keyboard interrupt, quitting threads.\n'
+
+
+
+

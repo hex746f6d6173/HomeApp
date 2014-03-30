@@ -1,5 +1,6 @@
 var mongojs = require('mongojs'),
     express = require('express'),
+    os = require('os'),
     http = require('http'),
     webhook = require('gitlab-webhook'),
     app = express(),
@@ -27,7 +28,9 @@ var mongojs = require('mongojs'),
     pulling = false,
     lightsLume = 0,
     bedState = 0,
-    bedTime = 0;
+    bedTime = 0,
+    cpuLoad = 0,
+    memLoad = 0;;
 
 function toHHMMSS(string) {
     var sec_num = parseInt(string, 10); // don't forget the second param
@@ -48,7 +51,7 @@ function toHHMMSS(string) {
     return time;
 }
 
-var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log", "deviceHis"]);
+var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log", "deviceHis", "pir", "light", "temp", "bed", "sleep", "cpu"]);
 
 var homeDB = {
     switches: db.collection('swiches'),
@@ -61,6 +64,7 @@ var homeDB = {
     temp: db.collection('temp'),
     bed: db.collection('bed'),
     sleep: db.collection('sleep'),
+    cpu: db.collection('cpu'),
     deviceHis: db.collection('deviceHis')
 };
 
@@ -365,7 +369,7 @@ app.get('/api/temps', function(req, res) {
         temps.forEach(function(item) {
             var thisTemp = parseFloat(item.temp);
             var thisHour = new Date(item.time).getHours();
-            if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
+            if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 96))) {
                 if (thisHour != prevHour) {
 
                     prevHour = thisHour;
@@ -410,6 +414,16 @@ app.get('/api/temps', function(req, res) {
 
     });
 });
+app.get('/api/sleep', function(req, res) {
+    homeDB.sleep.find().sort({
+        begin: -1
+    }, function(err, docs) {
+        res.send(docs).end();
+
+
+    });
+});
+
 app.get('/api/lights', function(req, res) {
 
     homeDB.light.find(function(err, docs) {
@@ -425,7 +439,7 @@ app.get('/api/lights', function(req, res) {
             var thisLight = item.light;
             var thisHour = new Date(item.time).getHours();
 
-            if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 24))) {
+            if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 96))) {
 
                 if (thisHour != prevHour) {
 
@@ -478,7 +492,9 @@ app.get('/deviceHis', function(req, res) {
 app.get('/api/totalGraph', function(req, res) {
     var ret = [];
     var deviceHisArray = [];
-    homeDB.deviceHis.find(function(err, docs) {
+    homeDB.deviceHis.find().sort({
+        time: -1
+    }, function(err, docs) {
         docs.forEach(function(doc) {
 
             if (deviceHisArray[doc.name] === undefined) {
@@ -489,38 +505,62 @@ app.get('/api/totalGraph', function(req, res) {
             }
             deviceHisArray[doc.name].data.push([doc.time, doc.state]);
         });
-        console.log(deviceHisArray);
+        console.log("deviceHisArray:", deviceHisArray);
 
-        deviceHisArray.forEach(function(item) {
-            console.log(item);
+        for (key in deviceHisArray) {
+            console.log("KEY:", key);
             ret.push({
                 label: "Device History " + key,
-                data: devicePlot
+                data: deviceHisArray[key].data
             });
+        }
+
+        deviceHisArray.forEach(function(item) {
+            console.log("deviceHisArray:item:", item);
+
         });
 
+        homeDB.pir.find(function(err, pir) {
 
+            var pirData = [];
+            pir.forEach(function(item) {
+                if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 96)))
+                    pirData.push([item.time, item.pir]);
+
+            });
+
+            ret.push({
+                label: "PIR history",
+                data: pirData,
+                color: "#FFFFFF"
+            });
+
+            homeDB.bed.find().sort({
+                time: -1
+            }, function(err, bed) {
+
+                var bedData = [];
+                bed.forEach(function(item) {
+                    if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 96)))
+                        bedData.push([item.time, item.bed]);
+
+                });
+
+                ret.push({
+                    label: "BED history",
+                    data: bedData,
+                    color: "#FF0000"
+                });
+
+
+                res.send(ret).end();
+            });
+
+
+
+        });
     });
 
-
-
-    var pir = JSON.parse(localStorage.getItem("pir"));
-    var pirData = [];
-    pir.forEach(function(item) {
-        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24)))
-            pirData.push(item);
-
-    });
-
-    ret.push({
-        label: "PIR history",
-        data: pirData,
-        color: "#FFFFFF"
-    });
-
-    localStorage.getItem("lightsLumen")
-
-    res.send(ret).end();
 });
 app.get('/light/:l', function(req, res) {
     var time = new Date().getTime();
@@ -549,9 +589,20 @@ setInterval(function() {
     }
 }, 10 * 60 * 1000);
 
+var lastTimeTemp = "a";
+
 app.get('/temp/:t', function(req, res) {
     var time = new Date().getTime();
     var newTemp = parseFloat(req.params.t);
+    log.add("SET TEMP WARNING TIMEOUT");
+    if (lastTimeTemp != "a") {
+        log.add("RESET TEMP WARNING TIMEOUT");
+        clearTimeout(lastTimeTemp);
+    }
+    log.add("INIT TEMP WARNING TIMEOUT");
+    lastTimeTemp = setTimeout(function() {
+        log.add("ERROR! AL 30 MIN GEEN TEMPRATUUR ONTVANGEN!!!", true);
+    }, 1000 * 60 * 30);
 
     res.send(JSON.stringify(newTemp)).end();
 
@@ -585,7 +636,6 @@ app.get('/pir/:a/:b', function(req, res) {
 
     var time = new Date().getTime();
 
-    var pirs = JSON.parse(localStorage.getItem("pir"));
 
     if (req.params.b == 1) {
         homeDB.pir.save({
@@ -748,6 +798,8 @@ io.sockets.on('connection', function(socket) {
 
     socket.emit('alarmArm', alarmArm);
     socket.emit('triggerArm', triggerArm);
+    socket.emit('cpu', cpuLoad);
+    socket.emit("mem", memLoad);
 
     var sendLog = [];
 
@@ -802,6 +854,8 @@ io.sockets.on('connection', function(socket) {
         "bedTime": bedTime,
         "status": bedState
     });
+
+
 
     socket.on('bed', function(data) {
 
@@ -1039,9 +1093,9 @@ function networkDiscovery() {
             var self = this;
 
             //console.log(item);
-            var time = new Date().getTime();
 
             pingSession.pingHost(item.ip, function(error, target) {
+                var time = new Date().getTime();
                 if (error) {
                     var thisState = 0;
                 } else {
@@ -1074,7 +1128,7 @@ function networkDiscovery() {
 
                     io.sockets.emit('deviceChange', item);
 
-                    if (item.state === 1) {
+                    if (thisState === 1) {
                         log.add("NETWORKDISC " + item.name + " came online");
 
                         homeDB.deviceHis.save({
@@ -1089,7 +1143,7 @@ function networkDiscovery() {
                             log.add("AUTOCOMMAND ON " + item.name, true);
                         }
                     }
-                    if (item.state === 0) {
+                    if (thisState === 0) {
                         log.add("NETWORKDISC " + item.name + " went offline");
 
                         homeDB.deviceHis.save({
@@ -1113,6 +1167,306 @@ function networkDiscovery() {
         });
     });
 }
+
+app.get('/agenda/', function(req, res) {
+    console.log("asdasdasa\n");
+    var ret = {};
+    var deviceHisArray = [];
+    homeDB.deviceHis.find({
+        time: {
+            $gt: parseInt(req.query.start) * 1000,
+            $lt: parseInt(req.query.end) * 1000
+        }
+    }).sort({
+        time: -1
+    }, function(err, docs) {
+        docs.forEach(function(doc) {
+
+            if (doc.name != "PI" && doc.name != "Printer") {
+                if (deviceHisArray[doc.name] === undefined) {
+                    deviceHisArray[doc.name] = {
+                        name: doc.name,
+                        data: []
+                    }
+                }
+
+                deviceHisArray[doc.name].data.push([parseInt(doc.time), doc.state]);
+
+                deviceHisArray[doc.name].begin = -1;
+                deviceHisArray[doc.name].end = -1;
+
+                deviceHisArray[doc.name].state = 0;
+                deviceHisArray[doc.name].haveFirst = false;
+                deviceHisArray[doc.name].i = 0;
+            }
+        });
+        var i = 0;
+        for (key in deviceHisArray) {
+            /*ret.push({
+                label: "Device History " + key,
+                data: deviceHisArray[key].data
+            });*/
+            i++;
+
+            deviceHisArray[key].data.forEach(function(item) {
+
+                if (item[1] == 0 && !deviceHisArray[key].haveFirst) {
+                    deviceHisArray[key].haveFirst = true;
+                    console.log("\n\nFIRST");
+                    deviceHisArray[key].end = item[0];
+                    deviceHisArray[key].begin = 0;
+                    deviceHisArray[key].state = 0;
+                    i++;
+                }
+
+                if (item[1] == 1 && deviceHisArray[key].state == 1) {
+                    console.log("NEW END");
+                    ret[i] = {
+                        id: i,
+                        title: key,
+                        start: new Date(parseInt(item[0])).toISOString(),
+                        end: new Date(deviceHisArray[key].end).toISOString(),
+                        allDay: false
+                    };
+                }
+
+                if (item[1] == 1) {
+                    deviceHisArray[key].state = 1;
+                    deviceHisArray[key].haveFirst = false;
+                    console.log("END");
+                    deviceHisArray[key].begin = item[0];
+                    ret[i] = {
+                        id: i,
+                        title: key,
+                        start: new Date(parseInt(item[0])).toISOString(),
+                        end: new Date(deviceHisArray[key].end).toISOString(),
+                        allDay: false,
+                        duration: deviceHisArray[key].end - item[0]
+                    };
+
+                }
+
+
+                console.log(i, item[1], deviceHisArray[key].begin, deviceHisArray[key].end, deviceHisArray[key].haveFirst);
+                /*
+                console.log(item);
+                if (item[1] == 0 && item[1] != deviceHisArray[key].state) {
+                    deviceHisArray[key].i = i;
+                    deviceHisArray[key].state = 0;
+                    deviceHisArray[key].end = item[0];
+                    console.log("END", key, item[0], i);
+                    deviceHisArray[key].state == 1;
+                }
+                if (item[1] != deviceHisArray[key].state) {
+
+                    deviceHisArray[key].state = item[1];
+                    var diff = deviceHisArray[key].end - item[0];
+                    console.log("BEG", key, item[0], deviceHisArray[key].i, diff);
+
+                    if (diff > 1) {
+                        ret[i] = {
+                            id: i,
+                            title: key,
+                            start: new Date(parseInt(item[0])).toISOString(),
+                            end: new Date(deviceHisArray[key].end).toISOString(),
+                            allDay: false
+                        };
+                        console.log("\n\n");
+                        i++;
+                    }
+
+                }*/
+
+
+            });
+
+
+        }
+        console.log("PIRS");
+        homeDB.pir.find({
+            time: {
+                $gt: parseInt(req.query.start) * 1000,
+                $lt: parseInt(req.query.end) * 1000
+            }
+        }).sort({
+            time: -1
+        }, function(err, pirs) {
+            console.log(pirs);
+            pirFori = 0;
+            pirForBegin = 0;
+            pirForEnd = 0;
+            pirForState = 0;
+            pirForHaveFirst = false;
+            pirs.forEach(function(item) {
+                if (item.pir == 0 && !pirForHaveFirst) {
+                    pirForHaveFirst = true;
+                    pirForEnd = item.time;
+                    pirForBegin = 0;
+                    pirForState = 0;
+                    i++;
+                }
+
+                if (item.pir == 1 && pirForState == 1) {
+                    ret[i] = {
+                        id: i,
+                        title: "PIR",
+                        color: "white",
+                        start: new Date(parseInt(item.time)).toISOString(),
+                        end: new Date(pirForEnd).toISOString(),
+                        allDay: false
+                    };
+                }
+
+                if (item.pir == 1) {
+                    pirForState = 1;
+                    pirForHaveFirst = false;
+                    pirForBegin = item.time;
+                    ret[i] = {
+                        id: i,
+                        title: "PIR",
+                        color: "white",
+                        start: new Date(parseInt(item.time)).toISOString(),
+                        end: new Date(pirForEnd).toISOString(),
+                        allDay: false,
+                        duration: pirForEnd - item.time
+                    };
+
+                }
+            });
+
+
+            homeDB.bed.find({
+                time: {
+                    $gt: parseInt(req.query.start) * 1000,
+                    $lt: parseInt(req.query.end) * 1000
+                }
+            }).sort({
+                time: -1
+            }, function(err, beds) {
+
+                console.log(beds);
+                bedFori = 0;
+                bedForBegin = 0;
+                bedForEnd = 0;
+                bedForState = 0;
+                bedForHaveFirst = false;
+                beds.forEach(function(item) {
+                    if (item.bed == 0 && !bedForHaveFirst) {
+                        bedForHaveFirst = true;
+                        bedForEnd = item.time;
+                        bedForBegin = 0;
+                        bedForState = 0;
+                        i++;
+                    }
+
+                    if (item.bed == 1 && bedForState == 1) {
+                        ret[i] = {
+                            id: i,
+                            title: "bed",
+                            color: "red",
+                            start: new Date(parseInt(item.time)).toISOString(),
+                            end: new Date(bedForEnd).toISOString(),
+                            allDay: false
+                        };
+                    }
+
+                    if (item.bed == 1) {
+                        bedForState = 1;
+                        bedForHaveFirst = false;
+                        bedForBegin = item.time;
+                        ret[i] = {
+                            id: i,
+                            title: "bed",
+                            color: "red",
+                            start: new Date(parseInt(item.time)).toISOString(),
+                            end: new Date(bedForEnd).toISOString(),
+                            allDay: false,
+                            duration: bedForEnd - item.time
+                        };
+
+                    }
+                });
+
+                var returnN = [];
+
+                var oldEnd = -1;
+                var oldBegin = -1;
+                var prefName = "";
+
+                var oldElement = 0;
+                returnNN = [];
+                for (key in ret) {
+                    returnNN.push(ret[key]);
+                }
+                ret = returnNN;
+                ret.reverse();
+                for (key in ret) {
+
+                    thisBegin = new Date(ret[key].start).getTime();
+                    thisEnd = new Date(ret[key].end).getTime();
+                    thisDiff = thisEnd - thisBegin;
+
+                    /*if (prefName == "") {
+                    prefName = ret[key].title;
+                }*/
+
+                    if (prefName != ret[key].title) {
+                        if (oldElement == 0) {
+                            console.log("PUT EM ERIN door nieuwe naam");
+                            returnN.push(ret[key]);
+                        }
+                        console.log("END: ", ret[key].end);
+                        console.log("NEW TYPE!!");
+                        oldElement = 0;
+                        oldBegin = -1;
+                        oldEnd = -1;
+                        prefName = ret[key].title;
+                    }
+
+                    if (oldElement == 0) {
+                        oldElement = ret[key];
+                        oldBegin = thisBegin;
+                        oldEnd = thisEnd;
+                        console.log("START: ", ret[key].start);
+                    } else {
+
+                        diff = thisBegin - oldEnd;
+
+                        console.log("CHECK TO COMBINE", diff);
+
+                        if (diff < 2000000) {
+                            console.log("COMBINE!!", oldElement.end, "->", ret[key].end);
+                            oldEnd = thisEnd;
+                            oldElement.end = ret[key].end;
+
+                        } else {
+                            console.log("NOMORE COMBINE!!");
+                            console.log("END: ", ret[key].end);
+                            console.log("PUT EM ERIN door grote diff");
+                            returnN.push(oldElement);
+                            oldElement = 0;
+                        }
+
+
+                    }
+
+
+
+                    //console.log(ret[key].title, thisBegin, thisEnd, thisDiff);
+
+
+                    prefName = ret[key].title;
+                }
+
+                returnN.push(oldElement);
+
+                res.send(returnN).end();
+            });
+        });
+    });
+
+
+});
 
 app.get('/bigdata', function(req, res) {
 
@@ -1194,10 +1548,30 @@ app.get('/bigdata', function(req, res) {
 
 });
 
+function cpuLoadFN() {
+    var load = os.loadavg();
+    loadAVG = load[0];
+    console.log("LOAD", loadAVG);
+    log.add("CPU LOAD:" + loadAVG);
+
+    var memAVG = (os.totalmem() - os.freemem()) / os.totalmem();
+
+    homeDB.cpu.save({
+        time: new Date().getTime(),
+        cpu: loadAVG,
+        mem: memAVG
+    });
+    cpuLoad = loadAVG;
+    memLoad = memAVG;
+    io.sockets.emit("cpu", loadAVG);
+    io.sockets.emit("mem", memAVG);
+}
+cpuLoadFN();
 networkDiscovery();
 
 setTimeout(function() {
     log.add("NETWORKDISC FROM TIMEOUT");
     networkDiscovery();
-
+    log.add("CPU LOAD");
+    cpuLoadFN();
 }, 60 * 1000);

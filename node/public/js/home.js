@@ -108,6 +108,55 @@ $(document).ready(function() {
         plot();
     });
 
+    var dataPerDate = {};
+
+    $.getJSON("/api/sleep", function(data) {
+
+        var htmlForSleep = '<table class="table" style="color: white;"><thead><tr><th style="width: 15%;">Dag</th><th>Slaap</th></tr></thead>';
+
+
+
+        $.each(data, function(x, y) {
+            lengthSleep = y.end - y.begin;
+
+            var beginDate = new Date(y.begin);
+
+            if (dataPerDate[beginDate.getDate() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()] == undefined) {
+                dataPerDate[beginDate.getDate() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()] = [];
+            }
+            if (lengthSleep > (1000 * 60 * 10))
+                dataPerDate[beginDate.getDate() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()].push({
+                    "begin": y.begin,
+                    "end": y.end,
+                    "len": lengthSleep
+                });
+
+            //htmlForSleep = htmlForSleep + '<div class="sleepTimeDay">' + ("" + lengthSleep / 1000 + "").toHHMMSS() + '</div>';
+
+            console.log(x, y);
+        });
+
+        $.each(dataPerDate, function(x, y) {
+
+            htmlForSleep = htmlForSleep + '<tr><td><h3>' + x + '</h3></td><td>';
+
+            $.each(y, function(x, y) {
+
+                begin = new Date(y.begin);
+                end = new Date(y.end);
+
+                htmlForSleep = htmlForSleep + '' + begin.getHours() + ':' + begin.getMinutes() + ' - ' + end.getHours() + ':' + end.getMinutes() + ' ' + ("" + y.len / 1000 + "").toHHMMSS() + '<br>';
+            });
+
+            htmlForSleep = htmlForSleep + '</td></tr>';
+        });
+
+        console.log("dates", dataPerDate);
+
+        $(".sleep").html(htmlForSleep + "</table>");
+
+    });
+
     var socket = io.connect('http://' + window.location.hostname);
 
     socket.on('connect', function() {
@@ -342,7 +391,12 @@ $(document).ready(function() {
         });
 
     });
-
+    socket.on("cpu", function(data) {
+        $(".cpu").html("CPU: " + (Math.round(data * 100) / 100));
+    });
+    socket.on("mem", function(data) {
+        $(".mem").html("Mem: " + (Math.round(data * 100)) + "%");
+    });
     socket.on("log", function(data) {
         console.log("LOG", data);
 
@@ -413,6 +467,30 @@ $(document).ready(function() {
 
     $(window).trigger("hashchange");
 
-    ///151561651561651561
+    ///151561651561651561fadsf
+
+    $('#calendar').fullCalendar({
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay'
+        },
+
+        editable: false,
+        defaultView: 'agendaDay',
+        events: "/agenda/",
+
+        eventDrop: function(event, delta) {
+            alert(event.title + ' was moved ' + delta + ' days\n' +
+                '(should probably update your database)');
+        },
+
+        loading: function(bool) {
+            if (bool) $('#loading').show();
+            else $('#loading').hide();
+        }
+
+    });
+
 
 });
