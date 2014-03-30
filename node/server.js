@@ -1164,7 +1164,7 @@ function networkDiscovery() {
 
 app.get('/agenda/', function(req, res) {
     console.log("asdasdasa\n");
-    var ret = [];
+    var ret = {};
     var deviceHisArray = [];
     homeDB.deviceHis.find({
         time: {
@@ -1198,7 +1198,7 @@ app.get('/agenda/', function(req, res) {
             i++;
 
             deviceHisArray[key].data.forEach(function(item) {
-                i++;
+
                 console.log(item);
                 if (item[1] == 0 && deviceHisArray[key].state == 0) {
                     deviceHisArray[key].i = i;
@@ -1208,24 +1208,35 @@ app.get('/agenda/', function(req, res) {
                     deviceHisArray[key].state == 1;
                 }
                 if (item[1] != deviceHisArray[key].state) {
+
                     deviceHisArray[key].state = item[1];
                     var diff = deviceHisArray[key].end - item[0];
                     console.log("BEG", key, item[0], deviceHisArray[key].i, diff);
-                    if (diff > 1000 * 60 * 10) {
-                        ret.push({
+
+                    if (diff > 1000) {
+                        ret[i] = {
                             id: i,
                             title: key,
-                            start: new Date(item[0]).toISOString(),
+                            start: new Date(parseInt(item[0])).toISOString(),
                             end: new Date(deviceHisArray[key].end).toISOString(),
                             allDay: false
-                        });
+                        };
+                        console.log("\n\n");
+                        i++;
                     }
+
                 }
+
+
             });
         }
+        var returnN = [];
+        for (key in ret) {
+            console.log("ITEMS", ret[key]);
+            returnN.push(ret[key]);
+        }
+        res.send(returnN).end();
 
-
-        res.send(ret).end();
 
     });
 
