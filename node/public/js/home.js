@@ -465,6 +465,11 @@ $(document).ready(function() {
     ///151561651561651561fadsf
 
     $('#calendar').fullCalendar({
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay'
+        },
 
         editable: false,
         defaultView: 'agendaDay',
