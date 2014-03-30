@@ -538,7 +538,7 @@ app.get('/api/totalGraph', function(req, res) {
                 var bedData = [];
                 bed.forEach(function(item) {
                     if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 96)))
-                        pirData.push([item.time, item.bed]);
+                        bedData.push([item.time, item.bed]);
 
                 });
 
