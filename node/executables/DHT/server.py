@@ -182,7 +182,10 @@ class pirThread (threading.Thread):
 		io.setup(bed_pin, io.IN)
 
 
-		state = 0;
+		state = 0
+
+		avgLight = 0.0
+		counterLight = 0.0
 
 		previousTime = int(round(time.time() * 1000));
 
@@ -233,10 +236,14 @@ class pirThread (threading.Thread):
 			#return reading
 			global lightNow
 			returnMap = map(reading, 0, 10000, 100, 0)
-			if(lightNow != returnMap):
+			if(counterLight < 100):
 				lightNow = returnMap
-				print "light: "+str(returnMap)+""
-				r = requests.get("http://home.tomasharkema.nl/light/"+str(returnMap)+"/")
+				avgLight = avgLight + returnMap
+				counterLight = counterLight + 1
+			else:
+				avg = avgLight / counterLight
+				print "light: "+str(avg)+""
+				r = requests.get("http://home.tomasharkema.nl/light/"+str(avg)+"/")
 
 
 
