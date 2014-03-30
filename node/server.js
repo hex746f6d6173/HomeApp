@@ -1167,7 +1167,30 @@ function networkDiscovery() {
         });
     });
 }
+app.get('/api/cpu/', function(req, res) {
+    cpu = [];
+    mem = [];
+    returnN = [];
+    homeDB.cpu.find(function(err, docs) {
+        docs.forEach(function(item) {
+            cpu.push([docs.time, item.cpu]);
+            mem.push([docs.time, item.mem]);
+        });
+        returnN.push({
+            label: "CPU",
+            data: cpu,
+            color: "#FF0000"
+        });
+        returnN.push({
+            label: "MEM",
+            data: mem,
+            color: "#FFFF00"
+        });
+        res.send(returnN).end();
+    });
 
+
+});
 app.get('/agenda/', function(req, res) {
     console.log("asdasdasa\n");
     var ret = {};
