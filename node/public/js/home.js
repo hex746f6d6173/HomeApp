@@ -410,6 +410,23 @@ $(document).ready(function() {
         $(".cpu").html("CPU: " + (Math.round(data * 100) / 100));
     });
     socket.on("mem", function(data) {
+
+        if (data < 0.5) {
+            $(".mem").css({
+                background: green
+            });
+        }
+        if (data >= 0.5 && data < 0.75) {
+            $(".mem").css({
+                background: orange
+            });
+        }
+        if (data >= 0.75) {
+            $(".mem").css({
+                background: red
+            });
+        }
+
         $(".mem").html("Mem: " + (Math.round(data * 100)) + "%");
     });
     socket.on("log", function(data) {
