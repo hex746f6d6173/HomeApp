@@ -488,7 +488,9 @@ app.get('/deviceHis', function(req, res) {
 app.get('/api/totalGraph', function(req, res) {
     var ret = [];
     var deviceHisArray = [];
-    homeDB.deviceHis.find(function(err, docs) {
+    homeDB.deviceHis.find().sort({
+        time, -1
+    }, function(err, docs) {
         docs.forEach(function(doc) {
 
             if (deviceHisArray[doc.name] === undefined) {
