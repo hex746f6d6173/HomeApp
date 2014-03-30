@@ -1087,9 +1087,9 @@ function networkDiscovery() {
             var self = this;
 
             //console.log(item);
-            var time = new Date().getTime();
 
             pingSession.pingHost(item.ip, function(error, target) {
+                var time = new Date().getTime();
                 if (error) {
                     var thisState = 0;
                 } else {
@@ -1315,4 +1315,4 @@ setTimeout(function() {
     log.add("NETWORKDISC FROM TIMEOUT");
     networkDiscovery();
 
-}, 60 * 1000);
+}, 30 * 1000);
