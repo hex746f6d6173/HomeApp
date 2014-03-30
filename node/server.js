@@ -1203,7 +1203,7 @@ app.get('/agenda/', function(req, res) {
                 label: "Device History " + key,
                 data: deviceHisArray[key].data
             });*/
-            i
+            i++;
             deviceHisArray[key].data.forEach(function(item) {
                 if (item[1] == 1) {
                     deviceHisArray[key].state = 1;
@@ -1215,7 +1215,7 @@ app.get('/agenda/', function(req, res) {
                     if (item[1] == 0) {
                         var diff = item[0] - deviceHisArray[key].begin;
 
-                        if (diff > 1000 * 60 * 60) {
+                        if (diff > 1000 * 60 * 10) {
                             ret.push({
                                 id: i,
                                 title: key,
