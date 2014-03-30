@@ -1346,13 +1346,15 @@ app.get('/agenda/', function(req, res) {
                 thisEnd = new Date(ret[key].end).getTime();
                 thisDiff = thisEnd - thisBegin;
 
-                if (prefName == "") {
+                /*if (prefName == "") {
                     prefName = ret[key].title;
-                }
+                }*/
 
                 if (prefName != ret[key].title) {
-                    //console.log("PUT EM ERIN door nieuwe naam");
-                    //returnN.push(ret[key]);
+                    if (oldElement == 0) {
+                        console.log("PUT EM ERIN door nieuwe naam");
+                        returnN.push(ret[key]);
+                    }
                     console.log("END: ", ret[key].end);
                     console.log("NEW TYPE!!");
                     oldElement = 0;
