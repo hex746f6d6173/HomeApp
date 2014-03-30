@@ -248,7 +248,7 @@ class pirThread (threading.Thread):
 			else:
 				avg = avgLight / counterLight
 				print "light: "+str(avg)+""
-				r = requests.get("http://home.tomasharkema.nl/light/"+str(avg)+"/")
+				r = requests.get("http://home.tomasharkema.nl/light/"+str(round(avg))+"/")
 				avgLight = 0.0
 				counterLight = 0
 
