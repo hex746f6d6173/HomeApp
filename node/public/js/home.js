@@ -467,7 +467,7 @@ $(document).ready(function() {
     $('#calendar').fullCalendar({
 
         editable: false,
-        defaultView: 'agendaWeek',
+        defaultView: 'agendaDay',
         events: "/agenda/",
 
         eventDrop: function(event, delta) {
