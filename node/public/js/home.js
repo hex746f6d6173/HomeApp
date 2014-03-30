@@ -121,11 +121,11 @@ $(document).ready(function() {
 
             var beginDate = new Date(y.begin);
 
-            if (dataPerDate[beginDate.getDay() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()] == undefined) {
-                dataPerDate[beginDate.getDay() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()] = [];
+            if (dataPerDate[beginDate.getDate() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()] == undefined) {
+                dataPerDate[beginDate.getDate() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()] = [];
             }
             if (lengthSleep > (1000 * 60 * 10))
-                dataPerDate[beginDate.getDay() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()].push({
+                dataPerDate[beginDate.getDate() + "-" + beginDate.getMonth() + "-" + beginDate.getFullYear()].push({
                     "begin": y.begin,
                     "end": y.end,
                     "len": lengthSleep
