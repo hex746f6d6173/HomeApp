@@ -509,28 +509,26 @@ app.get('/api/totalGraph', function(req, res) {
             });
         });
 
+        homeDB.pir.find(function(err, pir) {
 
+            var pirData = [];
+            pir.forEach(function(item) {
+                if (item.time > (new Date().getTime() - (1000 * 60 * 60 * 24)))
+                    pirData.push([item.time, item.pir]);
+
+            });
+
+            ret.push({
+                label: "PIR history",
+                data: pirData,
+                color: "#FFFFFF"
+            });
+
+
+            res.send(ret).end();
+        });
     });
 
-
-
-    var pir = JSON.parse(localStorage.getItem("pir"));
-    var pirData = [];
-    pir.forEach(function(item) {
-        if (item[0] > (new Date().getTime() - (1000 * 60 * 60 * 24)))
-            pirData.push(item);
-
-    });
-
-    ret.push({
-        label: "PIR history",
-        data: pirData,
-        color: "#FFFFFF"
-    });
-
-    localStorage.getItem("lightsLumen")
-
-    res.send(ret).end();
 });
 app.get('/light/:l', function(req, res) {
     var time = new Date().getTime();
@@ -606,7 +604,6 @@ app.get('/pir/:a/:b', function(req, res) {
 
     var time = new Date().getTime();
 
-    var pirs = JSON.parse(localStorage.getItem("pir"));
 
     if (req.params.b == 1) {
         homeDB.pir.save({
