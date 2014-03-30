@@ -57,7 +57,7 @@ lastCommand = ""
 
 lightNow = -1
 
-io.setmode(io.BCM)
+
 
 background = True
 
@@ -177,10 +177,6 @@ class pirThread (threading.Thread):
 		RCpin = 23
 		light_pin = 22
 
-		io.setup(pir_pin, io.IN)         # activate input
-
-		io.setup(bed_pin, io.IN)
-
 
 		state = 0
 
@@ -201,6 +197,11 @@ class pirThread (threading.Thread):
 		pirNoSended = 0
 
 		while True:
+			io.setmode(io.BCM)
+			io.setup(pir_pin, io.IN)
+
+			io.setup(bed_pin, io.IN)
+
 			if io.input(pir_pin):
 				if (state == 0) :
 					state = 1
@@ -275,7 +276,7 @@ class pirThread (threading.Thread):
 						socketIO.wait_for_callbacks(seconds=1000)
 						background = True
 					
-
+			io.cleanup()
 			time.sleep(2)
 
 class tempThread (threading.Thread):
