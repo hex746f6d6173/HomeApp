@@ -20,6 +20,30 @@ import sys
 import subprocess
 import datetime
 
+pid = str(os.getpid())
+pidfile = "/tmp/server.pid"
+
+def is_process_running(process_id):
+    try:
+        os.kill(process_id, 0)
+        return True
+    except OSError:
+        return False
+
+if os.path.exists(pidfile):
+    print("pid running")
+    pid_running = int(open(pidfile).read())
+    if(is_process_running(pid_running)):
+        sys.exit()
+    
+else:
+    file(pidfile, 'w').write(pid)
+
+def goodbye():
+    os.remove(pidfile)
+
+atexit.register(goodbye)
+
 import logging
 logging.basicConfig(filename='server.log',level=logging.DEBUG)
 
