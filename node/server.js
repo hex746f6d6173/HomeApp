@@ -1294,7 +1294,6 @@ app.get('/agenda/', function(req, res) {
             pirs.forEach(function(item) {
                 if (item.pir == 0 && !pirForHaveFirst) {
                     pirForHaveFirst = true;
-                    console.log("\n\nFIRST");
                     pirForEnd = item.time;
                     pirForBegin = 0;
                     pirForState = 0;
@@ -1302,7 +1301,6 @@ app.get('/agenda/', function(req, res) {
                 }
 
                 if (item.pir == 1 && pirForState == 1) {
-                    console.log("NEW END");
                     ret[i] = {
                         id: i,
                         title: "PIR",
@@ -1316,7 +1314,6 @@ app.get('/agenda/', function(req, res) {
                 if (item.pir == 1) {
                     pirForState = 1;
                     pirForHaveFirst = false;
-                    console.log("END");
                     pirForBegin = item.time;
                     ret[i] = {
                         id: i,
@@ -1331,11 +1328,76 @@ app.get('/agenda/', function(req, res) {
                 }
             });
             var returnN = [];
+
+            var oldEnd = -1;
+            var oldBegin = -1;
+            var prefName = "";
+
+            var oldElement = 0;
+            returnNN = [];
             for (key in ret) {
-                //console.log("ITEMS", ret[key]);
-                //if (ret[key].duration > 1000 * 60 * 10)
-                returnN.push(ret[key]);
+                returnNN.push(ret[key]);
             }
+            ret = returnNN;
+            ret.reverse();
+            for (key in ret) {
+
+                thisBegin = new Date(ret[key].start).getTime();
+                thisEnd = new Date(ret[key].end).getTime();
+                thisDiff = thisEnd - thisBegin;
+
+                if (prefName == "") {
+                    prefName = ret[key].title;
+                }
+
+                if (prefName != ret[key].title) {
+                    //console.log("PUT EM ERIN door nieuwe naam");
+                    //returnN.push(ret[key]);
+                    console.log("END: ", ret[key].end);
+                    console.log("NEW TYPE!!");
+                    oldElement = 0;
+                    oldBegin = -1;
+                    oldEnd = -1;
+                    prefName = ret[key].title;
+                }
+
+                if (oldElement == 0) {
+                    oldElement = ret[key];
+                    oldBegin = thisBegin;
+                    oldEnd = thisEnd;
+                    console.log("START: ", ret[key].start);
+                } else {
+
+                    diff = thisBegin - oldEnd;
+
+                    console.log("CHECK TO COMBINE", diff);
+
+                    if (diff < 2000000) {
+                        console.log("COMBINE!!", oldElement.end, "->", ret[key].end);
+                        oldEnd = thisEnd;
+                        oldElement.end = ret[key].end;
+
+                    } else {
+                        console.log("NOMORE COMBINE!!");
+                        console.log("END: ", ret[key].end);
+                        console.log("PUT EM ERIN door grote diff");
+                        returnN.push(oldElement);
+                        oldElement = 0;
+                    }
+
+
+                }
+
+
+
+                //console.log(ret[key].title, thisBegin, thisEnd, thisDiff);
+
+
+                prefName = ret[key].title;
+            }
+
+            returnN.push(oldElement);
+
             res.send(returnN).end();
         });
 
