@@ -30,7 +30,10 @@ var mongojs = require('mongojs'),
     bedState = 0,
     bedTime = 0,
     cpuLoad = 0,
-    memLoad = 0;;
+    memLoad = 0,
+    pirLock = 0,
+    pirLastOn = 0,
+    pirLastOff = 0;
 
 
 function toHHMMSS(string) {
@@ -52,7 +55,7 @@ function toHHMMSS(string) {
     return time;
 }
 
-var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log", "deviceHis", "pir", "light", "temp", "bed", "sleep", "cpu", "switchHis"]);
+var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log", "deviceHis", "pir", "light", "temp", "bed", "sleep", "cpu", "switchHis", "history"]);
 
 var homeDB = {
     switches: db.collection('swiches'),
@@ -67,6 +70,7 @@ var homeDB = {
     sleep: db.collection('sleep'),
     cpu: db.collection('cpu'),
     switchHis: db.collection('switchHis'),
+    history: db.collection('history'),
     deviceHis: db.collection('deviceHis')
 };
 
@@ -316,6 +320,42 @@ var flipSwitch = function(a, to, fn) {
                 stream.on('exit', function(code, signal) {
                     //console.log('Stream :: exit :: code: ' + code + ', signal: ' + signal);
 
+                    if (newState === 1) {
+                        if (docs[0].lock === undefined || docs[0].lock === 0) {
+                            homeDB.switches.update({
+                                id: docs[0].id
+                            }, {
+                                $set: {
+                                    lastOn: new Date().getTime(),
+                                    lock: 1
+                                }
+                            });
+                        }
+                    } else {
+                        homeDB.switches.update({
+                            id: docs[0].id
+                        }, {
+                            $set: {
+                                lastOff: new Date().getTime(),
+                                lock: 0
+                            }
+                        });
+
+                        homeDB.switches.findOne({
+                            id: docs[0].id
+                        }, function(err, s) {
+                            console.log("INTO HISTORY", s.lastOn, s.lastOff);
+                            homeDB.history.save({
+                                title: s.name,
+                                color: "#FF9900",
+                                start: new Date(s.lastOn).toISOString(),
+                                end: new Date().toISOString(),
+                                allDay: false,
+                                duration: new Date().getTime() - s.lastOn
+                            });
+                        });
+
+                    }
 
 
                     console.log("updated", docs, newState);
@@ -643,22 +683,39 @@ app.get('/pir/:a/:b', function(req, res) {
 
     var time = new Date().getTime();
 
-
     if (req.params.b == 1) {
         homeDB.pir.save({
             time: time,
             pir: "1"
         });
+
+        if (pirLock === 0) {
+            pirLastOn = time;
+            pirLock = 1;
+        }
+
     } else if (req.params.b == 0) {
 
         //log.add("PIR 0, diffTime:" + ((lastOffTime + (1000 * 60 * 5)) - time));
         if ((lastOffTime + (1000 * 60 * 5)) < time) {
             lastOffTime = time;
-
+            pirLastOff = time;
+            pirLock = 0;
             homeDB.pir.save({
                 time: time,
                 pir: "0"
             });
+            console.log("INTO HISTORY", pirLastOn, pirLastOn);
+            homeDB.history.save({
+                title: "PIR",
+                color: "#FFFF66",
+                start: new Date(pirLastOn).toISOString(),
+                end: new Date(time).toISOString(),
+                allDay: false,
+                duration: time - pirLastOn
+            });
+
+
         }
 
     }
@@ -1109,12 +1166,54 @@ function networkDiscovery() {
 
                 if (thisState != item.state) {
 
+                    /*if (newState === 1) {
+                        if (docs[0].lock === undefined || docs[0].lock === 0) {
+                            homeDB.switches.update({
+                                id: docs[0].id
+                            }, {
+                                $set: {
+                                    lastOn: new Date().getTime(),
+                                    lock: 1
+                                }
+                            });
+                        }
+                    } else {
+                        homeDB.switches.update({
+                            id: docs[0].id
+                        }, {
+                            $set: {
+                                lastOff: new Date().getTime(),
+                                lock: 0
+                            }
+                        });
+
+                        homeDB.switches.findOne({
+                            id: docs[0].id
+                        }, function(err, s) {
+                            console.log("INTO HISTORY", s.lastOn, s.lastOff);
+                            homeDB.history.save({
+                                title: s.name,
+                                color: "#FF9900",
+                                start: new Date(s.lastOn).toISOString(),
+                                end: new Date(s.lastOff).toISOString(),
+                                allDay: false,
+                                duration: s.lastOff - s.lastOn
+                            });
+                        });
+
+                    }*/
+
+
+
+
                     var evalExecute = true;
 
                     if (itemDisc[item.name])
                         evalExecute = false
 
                     itemDisc[item.name] = thisState;
+
+
 
                     homeDB.devices.update({
                         id: item.id
@@ -1126,18 +1225,40 @@ function networkDiscovery() {
                         console.log("update DEVICE", err, docs);
                     });
 
+
                     item.state = thisState;
 
                     io.sockets.emit('deviceChange', item);
 
                     if (thisState === 1) {
                         log.add("NETWORKDISC " + item.name + " came online");
-
+                        if (item.lock === undefined || item.lock === 0) {
+                            homeDB.devices.update({
+                                id: item.id
+                            }, {
+                                $set: {
+                                    lastOn: new Date().getTime(),
+                                    lock: 1
+                                }
+                            });
+                        }
                         homeDB.deviceHis.save({
                             name: item.name,
                             time: time,
                             state: "1"
                         });
+
+                        homeDB.devices.update({
+                            id: item.id
+                        }, {
+                            $set: {
+                                lastUp: time
+                            }
+                        }, function(err, docs) {
+                            console.log("update DEVICE", err, docs);
+                        });
+
+
 
                         if (item.onSwitchOn !== undefined) {
                             if (evalExecute)
@@ -1148,10 +1269,42 @@ function networkDiscovery() {
                     if (thisState === 0) {
                         log.add("NETWORKDISC " + item.name + " went offline");
 
+                        homeDB.devices.update({
+                            id: item.id
+                        }, {
+                            $set: {
+                                lastOff: new Date().getTime(),
+                                lock: 0
+                            }
+                        });
+
                         homeDB.deviceHis.save({
                             name: item.name,
                             time: time,
                             state: "0"
+                        });
+                        homeDB.devices.update({
+                            id: item.id
+                        }, {
+                            $set: {
+                                lastDown: time
+                            }
+                        }, function(err, docs) {
+                            console.log("update DEVICE", err, docs);
+                        });
+
+                        homeDB.devices.findOne({
+                            id: item.id
+                        }, function(err, s) {
+                            console.log("INTO HISTORY", s.lastOn, s.lastOff);
+                            homeDB.history.save({
+                                title: s.name,
+                                color: s.color,
+                                start: new Date(s.lastOn).toISOString(),
+                                end: new Date(time).toISOString(),
+                                allDay: false,
+                                duration: time - s.lastOn
+                            });
                         });
 
                         if (item.onSwitchOff !== undefined) {
@@ -1197,6 +1350,16 @@ app.get('/api/cpu/:min/', function(req, res) {
     });
 
 
+});
+app.get('/agenda2/', function(req, res) {
+    homeDB.history.find(function(err, docs) {
+        var t = 0;
+        docs.forEach(function(item) {
+            item.id = t;
+            t++;
+        });
+        res.send(docs).end();
+    });
 });
 app.get('/agenda/', function(req, res) {
     console.log("asdasdasa\n");
@@ -1452,12 +1615,12 @@ app.get('/agenda/', function(req, res) {
                             devicesArray.forEach(function(item) {
                                 if (item.name == ret[key].title) {
                                     ret[key].color = item.color;
-                                    if (ret[key].duration > minDuration || ret[key].title == "PIR")
+                                    if (ret[key].duration > minDuration)
                                         returnNN.push(ret[key]);
                                     teller++;
                                 }
                             });
-                            if (teller == 0 && (ret[key].duration > minDuration || ret[key].title == "PIR")) {
+                            if (teller == 0 && ret[key].duration > minDuration) {
                                 returnNN.push(ret[key]);
                             }
 
