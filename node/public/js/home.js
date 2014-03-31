@@ -129,7 +129,7 @@ function brandOption(id, brand) {
 }
 $(document).ready(function() {
 
-    timezoneJS.timezone.zoneFileBasePath = "tz";
+    timezoneJS.timezone.zoneFileBasePath = "/js/tz";
     timezoneJS.timezone.defaultZoneFile = [];
     timezoneJS.timezone.init({
         async: false
