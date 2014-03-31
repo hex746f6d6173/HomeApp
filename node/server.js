@@ -1186,8 +1186,8 @@ app.get('/agenda/', function(req, res) {
     homeDB.devices.find(function(err, devicesArray) {
         homeDB.deviceHis.find({
             time: {
-                $gt: parseInt(req.query.start) * 1000,
-                $lt: parseInt(req.query.end) * 1000
+                $gt: (parseInt(req.query.start) * 1000) - (1000 * 60 * 60 * 5),
+                $lt: (parseInt(req.query.end) * 1000) + (1000 * 60 * 60 * 5)
             }
         }).sort({
             time: -1
@@ -1236,8 +1236,8 @@ app.get('/agenda/', function(req, res) {
                         ret[i] = {
                             id: i,
                             title: key,
-                            start: new Date(parseInt(item[0])).toISOString(),
-                            end: new Date(deviceHisArray[key].end).toISOString(),
+                            start: new Date(parseInt(item[0]) + (1000 * 60 * 60 * 2)).toISOString(),
+                            end: new Date(deviceHisArray[key].end + (1000 * 60 * 60 * 2)).toISOString(),
                             allDay: false
                         };
                     }
@@ -1297,8 +1297,8 @@ app.get('/agenda/', function(req, res) {
             console.log("PIRS");
             homeDB.pir.find({
                 time: {
-                    $gt: parseInt(req.query.start) * 1000,
-                    $lt: parseInt(req.query.end) * 1000
+                    $gt: (parseInt(req.query.start) * 1000) - (1000 * 60 * 60 * 5),
+                    $lt: (parseInt(req.query.end) * 1000) + (1000 * 60 * 60 * 5)
                 }
             }).sort({
                 time: -1
@@ -1323,8 +1323,8 @@ app.get('/agenda/', function(req, res) {
                             id: i,
                             title: "PIR",
                             color: "#FFFF66",
-                            start: new Date(parseInt(item.time)).toISOString(),
-                            end: new Date(pirForEnd).toISOString(),
+                            start: new Date(parseInt(item.time) + (1000 * 60 * 60 * 2)).toISOString(),
+                            end: new Date(pirForEnd + (1000 * 60 * 60 * 2)).toISOString(),
                             allDay: false
                         };
                     }
@@ -1337,8 +1337,8 @@ app.get('/agenda/', function(req, res) {
                             id: i,
                             title: "PIR",
                             color: "#FFFF66",
-                            start: new Date(parseInt(item.time)).toISOString(),
-                            end: new Date(pirForEnd).toISOString(),
+                            start: new Date(parseInt(item.time) + (1000 * 60 * 60 * 2)).toISOString(),
+                            end: new Date(pirForEnd + (1000 * 60 * 60 * 2)).toISOString(),
                             allDay: false,
                             duration: pirForEnd - item.time
                         };
@@ -1349,8 +1349,8 @@ app.get('/agenda/', function(req, res) {
 
                 homeDB.bed.find({
                     time: {
-                        $gt: parseInt(req.query.start) * 1000,
-                        $lt: parseInt(req.query.end) * 1000
+                        $gt: (parseInt(req.query.start) * 1000) - (1000 * 60 * 60 * 5),
+                        $lt: (parseInt(req.query.end) * 1000) + (1000 * 60 * 60 * 5)
                     }
                 }).sort({
                     time: -1
@@ -1376,8 +1376,8 @@ app.get('/agenda/', function(req, res) {
                                 id: i,
                                 title: "bed",
                                 color: "#663300",
-                                start: new Date(parseInt(item.time)).toISOString(),
-                                end: new Date(bedForEnd).toISOString(),
+                                start: new Date(parseInt(item.time) + (1000 * 60 * 60 * 2)).toISOString(),
+                                end: new Date(bedForEnd + (1000 * 60 * 60 * 2)).toISOString(),
                                 allDay: false
                             };
                         }
@@ -1390,8 +1390,8 @@ app.get('/agenda/', function(req, res) {
                                 id: i,
                                 title: "bed",
                                 color: "#663300",
-                                start: new Date(parseInt(item.time)).toISOString(),
-                                end: new Date(bedForEnd).toISOString(),
+                                start: new Date(parseInt(item.time) + (1000 * 60 * 60 * 2)).toISOString(),
+                                end: new Date(bedForEnd + (1000 * 60 * 60 * 2)).toISOString(),
                                 allDay: false,
                                 duration: bedForEnd - item.time
                             };
