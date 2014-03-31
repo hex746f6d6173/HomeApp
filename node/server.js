@@ -1440,12 +1440,12 @@ app.get('/agenda/', function(req, res) {
                             devicesArray.forEach(function(item) {
                                 if (item.name == ret[key].title) {
                                     ret[key].color = item.color;
-                                    if (ret[key].duration > minDuration || ret[key].title == "PIR")
+                                    if (ret[key].duration > minDuration)
                                         returnNN.push(ret[key]);
                                     teller++;
                                 }
                             });
-                            if (teller == 0 && (ret[key].duration > minDuration || ret[key].title == "PIR")) {
+                            if (teller == 0 && ret[key].duration > minDuration) {
                                 returnNN.push(ret[key]);
                             }
 
