@@ -1322,7 +1322,7 @@ app.get('/agenda/', function(req, res) {
                         ret[i] = {
                             id: i,
                             title: "PIR",
-                            color: "white",
+                            color: "#FFFF66",
                             start: new Date(parseInt(item.time)).toISOString(),
                             end: new Date(pirForEnd).toISOString(),
                             allDay: false
@@ -1336,7 +1336,7 @@ app.get('/agenda/', function(req, res) {
                         ret[i] = {
                             id: i,
                             title: "PIR",
-                            color: "white",
+                            color: "#FFFF66",
                             start: new Date(parseInt(item.time)).toISOString(),
                             end: new Date(pirForEnd).toISOString(),
                             allDay: false,
@@ -1375,7 +1375,7 @@ app.get('/agenda/', function(req, res) {
                             ret[i] = {
                                 id: i,
                                 title: "bed",
-                                color: "red",
+                                color: "#663300",
                                 start: new Date(parseInt(item.time)).toISOString(),
                                 end: new Date(bedForEnd).toISOString(),
                                 allDay: false
@@ -1389,7 +1389,7 @@ app.get('/agenda/', function(req, res) {
                             ret[i] = {
                                 id: i,
                                 title: "bed",
-                                color: "red",
+                                color: "#663300",
                                 start: new Date(parseInt(item.time)).toISOString(),
                                 end: new Date(bedForEnd).toISOString(),
                                 allDay: false,
@@ -1399,16 +1399,18 @@ app.get('/agenda/', function(req, res) {
                         }
                     });
                     returnNN = [];
+                    var minDuration = 300000;
                     for (key in ret) {
                         teller = 0;
                         devicesArray.forEach(function(item) {
                             if (item.name == ret[key].title) {
                                 ret[key].color = item.color;
-                                returnNN.push(ret[key]);
+                                if (ret[key].duration > minDuration)
+                                    returnNN.push(ret[key]);
                                 teller++;
                             }
                         });
-                        if (teller == 0) {
+                        if (teller == 0 && ret[key].duration > minDuration) {
                             returnNN.push(ret[key]);
                         }
 
