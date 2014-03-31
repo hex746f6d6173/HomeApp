@@ -545,6 +545,7 @@ $(document).ready(function() {
         defaultView: 'agendaDay',
         events: "/agenda/",
         timezone: 'local',
+        timeFormat: 'H(:mm)',
         eventDrop: function(event, delta) {
             alert(event.title + ' was moved ' + delta + ' days\n' +
                 '(should probably update your database)');
