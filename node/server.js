@@ -345,14 +345,15 @@ var flipSwitch = function(a, to, fn) {
                             id: docs[0].id
                         }, function(err, s) {
                             console.log("INTO HISTORY", s.lastOn, s.lastOff);
-                            homeDB.history.save({
-                                title: s.name,
-                                color: "#FF9900",
-                                start: new Date(s.lastOn).toISOString(),
-                                end: new Date().toISOString(),
-                                allDay: false,
-                                duration: new Date().getTime() - s.lastOn
-                            });
+                            if (s.lastOn !== undefined)
+                                homeDB.history.save({
+                                    title: s.name,
+                                    color: "#FF9900",
+                                    start: new Date(s.lastOn).toISOString(),
+                                    end: new Date(new Date().getTime()).toISOString(),
+                                    allDay: false,
+                                    duration: new Date().getTime() - s.lastOn
+                                });
                         });
 
                     }
@@ -706,14 +707,15 @@ app.get('/pir/:a/:b', function(req, res) {
                 pir: "0"
             });
             console.log("INTO HISTORY", pirLastOn, pirLastOn);
-            homeDB.history.save({
-                title: "PIR",
-                color: "#FFFF66",
-                start: new Date(pirLastOn).toISOString(),
-                end: new Date(time).toISOString(),
-                allDay: false,
-                duration: time - pirLastOn
-            });
+            if (pirLastOn !== 0)
+                homeDB.history.save({
+                    title: "PIR",
+                    color: "#FFFF66",
+                    start: new Date(pirLastOn).toISOString(),
+                    end: new Date(time).toISOString(),
+                    allDay: false,
+                    duration: time - pirLastOn
+                });
 
 
         }
@@ -1297,14 +1299,15 @@ function networkDiscovery() {
                             id: item.id
                         }, function(err, s) {
                             console.log("INTO HISTORY", s.lastOn, s.lastOff);
-                            homeDB.history.save({
-                                title: s.name,
-                                color: s.color,
-                                start: new Date(s.lastOn).toISOString(),
-                                end: new Date(time).toISOString(),
-                                allDay: false,
-                                duration: time - s.lastOn
-                            });
+                            if (s.lastOn !== undefined)
+                                homeDB.history.save({
+                                    title: s.name,
+                                    color: s.color,
+                                    start: new Date(s.lastOn).toISOString(),
+                                    end: new Date(time).toISOString(),
+                                    allDay: false,
+                                    duration: time - s.lastOn
+                                });
                         });
 
                         if (item.onSwitchOff !== undefined) {
