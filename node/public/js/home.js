@@ -34,6 +34,7 @@ function plot() {
         $.plot("#plot", [d], {
             xaxis: {
                 mode: "time",
+                timezone: "browser",
                 min: min,
                 max: now
             },
@@ -51,6 +52,7 @@ function plot() {
         $.plot("#cpu", d, {
             xaxis: {
                 mode: "time",
+                timezone: "browser",
                 min: min,
                 max: now
             },
@@ -92,6 +94,7 @@ function plot() {
         $.plot("#lLights", [d], {
             xaxis: {
                 mode: "time",
+                timezone: "browser",
                 min: min,
                 max: now
             },
@@ -125,6 +128,12 @@ function brandOption(id, brand) {
 
 }
 $(document).ready(function() {
+
+    timezoneJS.timezone.zoneFileBasePath = "/js/tz";
+    timezoneJS.timezone.defaultZoneFile = "europe";
+    timezoneJS.timezone.init({
+        async: false
+    });
 
     var timeOut = "a";
 
@@ -535,7 +544,7 @@ $(document).ready(function() {
         editable: false,
         defaultView: 'agendaDay',
         events: "/agenda/",
-
+        timezone: 'local',
         eventDrop: function(event, delta) {
             alert(event.title + ' was moved ' + delta + ' days\n' +
                 '(should probably update your database)');
