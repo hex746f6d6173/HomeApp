@@ -1257,7 +1257,6 @@ app.get('/agenda/', function(req, res) {
                         allDay: false,
                         duration: deviceHisArray[key].end - item[0]
                     };
-
                 }
 
 
@@ -1324,7 +1323,7 @@ app.get('/agenda/', function(req, res) {
                     ret[i] = {
                         id: i,
                         title: "PIR",
-                        color: "white",
+                        color: "yellow",
                         start: new Date(parseInt(item.time)).toISOString(),
                         end: new Date(pirForEnd).toISOString(),
                         allDay: false
@@ -1338,7 +1337,7 @@ app.get('/agenda/', function(req, res) {
                     ret[i] = {
                         id: i,
                         title: "PIR",
-                        color: "white",
+                        color: "yellow",
                         start: new Date(parseInt(item.time)).toISOString(),
                         end: new Date(pirForEnd).toISOString(),
                         allDay: false,
@@ -1346,59 +1345,33 @@ app.get('/agenda/', function(req, res) {
                     };
 
                 }
+                i++;
             });
 
 
-            homeDB.bed.find({
-                time: {
-                    $gt: parseInt(req.query.start) * 1000,
-                    $lt: parseInt(req.query.end) * 1000
+            homeDB.sleep.find({
+                begin: {
+                    $gt: (parseInt(req.query.start) * 1000) - 10000,
+                    $lt: (parseInt(req.query.end) * 1000) - 10000
+                },
+                end: {
+                    $gt: (parseInt(req.query.start) * 1000) - 10000,
+                    $lt: (parseInt(req.query.end) * 1000) - 10000
                 }
             }).sort({
                 time: -1
             }, function(err, beds) {
-
-                console.log(beds);
-                bedFori = 0;
-                bedForBegin = 0;
-                bedForEnd = 0;
-                bedForState = 0;
-                bedForHaveFirst = false;
                 beds.forEach(function(item) {
-                    if (item.bed == 0 && !bedForHaveFirst) {
-                        bedForHaveFirst = true;
-                        bedForEnd = item.time;
-                        bedForBegin = 0;
-                        bedForState = 0;
-                        i++;
-                    }
-
-                    if (item.bed == 1 && bedForState == 1) {
-                        ret[i] = {
-                            id: i,
-                            title: "bed",
-                            color: "red",
-                            start: new Date(parseInt(item.time)).toISOString(),
-                            end: new Date(bedForEnd).toISOString(),
-                            allDay: false
-                        };
-                    }
-
-                    if (item.bed == 1) {
-                        bedForState = 1;
-                        bedForHaveFirst = false;
-                        bedForBegin = item.time;
-                        ret[i] = {
-                            id: i,
-                            title: "bed",
-                            color: "red",
-                            start: new Date(parseInt(item.time)).toISOString(),
-                            end: new Date(bedForEnd).toISOString(),
-                            allDay: false,
-                            duration: bedForEnd - item.time
-                        };
-
-                    }
+                    ret[i] = {
+                        id: i,
+                        title: "bed",
+                        color: "red",
+                        start: new Date(parseInt(item.begin)).toISOString(),
+                        end: new Date(item.end).toISOString(),
+                        allDay: false,
+                        duration: bedForEnd - item.time
+                    };
+                    i++;
                 });
 
                 var returnN = [];
