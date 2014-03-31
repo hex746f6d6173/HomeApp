@@ -1399,7 +1399,7 @@ app.get('/agenda/', function(req, res) {
                         }
                     });
                     returnNN = [];
-                    var minDuration = 300000;
+                    var minDuration = 400000;
                     for (key in ret) {
                         teller = 0;
                         devicesArray.forEach(function(item) {
