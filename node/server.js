@@ -52,7 +52,7 @@ function toHHMMSS(string) {
     return time;
 }
 
-var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log", "deviceHis", "pir", "light", "temp", "bed", "sleep", "cpu"]);
+var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log", "deviceHis", "pir", "light", "temp", "bed", "sleep", "cpu", "switchHis"]);
 
 var homeDB = {
     switches: db.collection('swiches'),
@@ -66,6 +66,7 @@ var homeDB = {
     bed: db.collection('bed'),
     sleep: db.collection('sleep'),
     cpu: db.collection('cpu'),
+    switchHis: db.collection('switchHis'),
     deviceHis: db.collection('deviceHis')
 };
 
@@ -329,6 +330,12 @@ var flipSwitch = function(a, to, fn) {
                         io.sockets.emit("switched", {
                             switch: docs[0],
                             id: id
+                        });
+                        homeDB.switchHis.save({
+                            time: new Date().getTime(),
+                            switchID: id,
+                            state: newState,
+                            name: docs[0].name
                         });
                     });
 
@@ -1260,34 +1267,7 @@ app.get('/agenda/', function(req, res) {
 
 
                     console.log(i, item[1], deviceHisArray[key].begin, deviceHisArray[key].end, deviceHisArray[key].haveFirst);
-                    /*
-                console.log(item);
-                if (item[1] == 0 && item[1] != deviceHisArray[key].state) {
-                    deviceHisArray[key].i = i;
-                    deviceHisArray[key].state = 0;
-                    deviceHisArray[key].end = item[0];
-                    console.log("END", key, item[0], i);
-                    deviceHisArray[key].state == 1;
-                }
-                if (item[1] != deviceHisArray[key].state) {
 
-                    deviceHisArray[key].state = item[1];
-                    var diff = deviceHisArray[key].end - item[0];
-                    console.log("BEG", key, item[0], deviceHisArray[key].i, diff);
-
-                    if (diff > 1) {
-                        ret[i] = {
-                            id: i,
-                            title: key,
-                            start: new Date(parseInt(item[0])).toISOString(),
-                            end: new Date(deviceHisArray[key].end).toISOString(),
-                            allDay: false
-                        };
-                        console.log("\n\n");
-                        i++;
-                    }
-
-                }*/
 
 
                 });
@@ -1398,98 +1378,81 @@ app.get('/agenda/', function(req, res) {
 
                         }
                     });
-                    returnNN = [];
-                    var minDuration = 400000;
-                    for (key in ret) {
-                        teller = 0;
-                        devicesArray.forEach(function(item) {
-                            if (item.name == ret[key].title) {
-                                ret[key].color = item.color;
-                                if (ret[key].duration > minDuration)
-                                    returnNN.push(ret[key]);
-                                teller++;
+
+
+                    homeDB.switchHis.find({
+                        time: {
+                            $gt: (parseInt(req.query.start) * 1000) - (1000 * 60 * 60 * 5),
+                            $lt: (parseInt(req.query.end) * 1000) + (1000 * 60 * 60 * 5)
+                        }
+                    }).sort({
+                        time: -1
+                    }, function(err, switchHis) {
+
+                        console.log(switchHis);
+                        switcherFori = 0;
+                        switcherForBegin = 0;
+                        switcherForEnd = 0;
+                        switcherForState = 0;
+                        switcherForHaveFirst = false;
+                        switchHis.forEach(function(item) {
+                            if (item.switcher == 0 && !switcherForHaveFirst) {
+                                switcherForHaveFirst = true;
+                                switcherForEnd = item.time;
+                                switcherForBegin = 0;
+                                switcherForState = 0;
+                                i++;
+                            }
+
+                            if (item.switcher == 1 && switcherForState == 1) {
+                                ret[i] = {
+                                    id: i,
+                                    title: item.name,
+                                    color: "#FF9900",
+                                    start: new Date(parseInt(item.time) + (1000 * 60 * 60 * 2)).toISOString(),
+                                    end: new Date(switcherForEnd + (1000 * 60 * 60 * 2)).toISOString(),
+                                    allDay: false
+                                };
+                            }
+
+                            if (item.switcher == 1) {
+                                switcherForState = 1;
+                                switcherForHaveFirst = false;
+                                switcherForBegin = item.time;
+                                ret[i] = {
+                                    id: i,
+                                    title: item.name,
+                                    color: "#FF9900",
+                                    start: new Date(parseInt(item.time) + (1000 * 60 * 60 * 2)).toISOString(),
+                                    end: new Date(switcherForEnd + (1000 * 60 * 60 * 2)).toISOString(),
+                                    allDay: false,
+                                    duration: switcherForEnd - item.time
+                                };
+
                             }
                         });
-                        if (teller == 0 && ret[key].duration > minDuration) {
-                            returnNN.push(ret[key]);
+
+
+                        returnNN = [];
+                        var minDuration = 400000;
+                        for (key in ret) {
+                            teller = 0;
+                            devicesArray.forEach(function(item) {
+                                if (item.name == ret[key].title) {
+                                    ret[key].color = item.color;
+                                    if (ret[key].duration > minDuration || ret[key].title == "PIR")
+                                        returnNN.push(ret[key]);
+                                    teller++;
+                                }
+                            });
+                            if (teller == 0 && (ret[key].duration > minDuration || ret[key].title == "PIR")) {
+                                returnNN.push(ret[key]);
+                            }
+
+
                         }
-
-
-                    }
-                    /*
-                var returnN = [];
-
-                var oldEnd = -1;
-                var oldBegin = -1;
-                var prefName = "";
-
-                var oldElement = 0;
-                returnNN = [];
-
-                for (key in ret) {
-                    returnNN.push(ret[key]);
-                }
-                ret = returnNN;
-                ret.reverse();
-                for (key in ret) {
-
-                    thisBegin = new Date(ret[key].start).getTime();
-                    thisEnd = new Date(ret[key].end).getTime();
-                    thisDiff = thisEnd - thisBegin;
-
-                    
-
-                    if (prefName != ret[key].title) {
-                        if (oldElement == 0) {
-                            console.log("PUT EM ERIN door nieuwe naam");
-                            returnN.push(ret[key]);
-                        }
-                        console.log("END: ", ret[key].end);
-                        console.log("NEW TYPE!!");
-                        oldElement = 0;
-                        oldBegin = -1;
-                        oldEnd = -1;
-                        prefName = ret[key].title;
-                    }
-
-                    if (oldElement == 0) {
-                        oldElement = ret[key];
-                        oldBegin = thisBegin;
-                        oldEnd = thisEnd;
-                        console.log("START: ", ret[key].start);
-                    } else {
-
-                        diff = thisBegin - oldEnd;
-
-                        console.log("CHECK TO COMBINE", diff);
-
-                        if (diff < 2000000) {
-                            console.log("COMBINE!!", oldElement.end, "->", ret[key].end);
-                            oldEnd = thisEnd;
-                            oldElement.end = ret[key].end;
-
-                        } else {
-                            console.log("NOMORE COMBINE!!");
-                            console.log("END: ", ret[key].end);
-                            console.log("PUT EM ERIN door grote diff");
-                            returnN.push(oldElement);
-                            oldElement = 0;
-                        }
-
-
-                    }
-
-
-
-                    //console.log(ret[key].title, thisBegin, thisEnd, thisDiff);
-
-
-                    prefName = ret[key].title;
-                }
-
-                returnN.push(oldElement);
-                */
-                    res.send(returnNN).end();
+                        res.send(returnNN).end();
+                    });
                 });
             });
         });
