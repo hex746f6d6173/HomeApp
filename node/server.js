@@ -363,11 +363,15 @@ app.get('/switches', function(req, res) {
 
 
 });
-app.get('/api/temps', function(req, res) {
+app.get('/api/temps/:min/', function(req, res) {
 
 
 
-    homeDB.temp.find(function(err, temps) {
+    homeDB.temp.find({
+        time: {
+            $gt: parseInt(req.params.min)
+        }
+    }, function(err, temps) {
 
         var parseTemps = [];
 
@@ -432,9 +436,13 @@ app.get('/api/sleep', function(req, res) {
     });
 });
 
-app.get('/api/lights', function(req, res) {
+app.get('/api/lights/:min/', function(req, res) {
 
-    homeDB.light.find(function(err, docs) {
+    homeDB.light.find({
+        time: {
+            $gt: parseInt(req.params.min)
+        }
+    }, function(err, docs) {
 
 
         var parseLights = [];
@@ -1161,11 +1169,15 @@ function networkDiscovery() {
         });
     });
 }
-app.get('/api/cpu/', function(req, res) {
+app.get('/api/cpu/:min/', function(req, res) {
     cpu = [];
     mem = [];
     returnN = [];
-    homeDB.cpu.find(function(err, docs) {
+    homeDB.cpu.find({
+        time: {
+            $gt: parseInt(req.params.min)
+        }
+    }, function(err, docs) {
         docs.forEach(function(item) {
             cpu.push([item.time, item.cpu]);
             mem.push([item.time, item.mem]);

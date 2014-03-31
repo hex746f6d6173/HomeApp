@@ -30,7 +30,7 @@ function plot() {
 
     console.log(now, min);
 
-    $.getJSON("/api/temps", function(d) {
+    $.getJSON("/api/temps/" + min + "/", function(d) {
         $.plot("#plot", [d], {
             xaxis: {
                 mode: "time",
@@ -48,7 +48,7 @@ function plot() {
             }
         });
     });
-    $.getJSON("/api/cpu/", function(d) {
+    $.getJSON("/api/cpu/" + min + "/", function(d) {
         $.plot("#cpu", d, {
             xaxis: {
                 mode: "time",
@@ -90,7 +90,7 @@ function plot() {
             }
         });
     });*/
-    $.getJSON("/api/lights", function(d) {
+    $.getJSON("/api/lights/" + min + "/", function(d) {
         $.plot("#lLights", [d], {
             xaxis: {
                 mode: "time",
