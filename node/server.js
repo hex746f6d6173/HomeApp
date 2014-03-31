@@ -1053,11 +1053,6 @@ c.on('close', function(had_error) {
     //console.log('Connection :: close');
     state.sshPending = false;
     state.ssh = false;
-    setTimeout(function() {
-        state.sshPending = false;
-        state.ssh = false;
-        cConnect();
-    }, 15000);
 
     io.sockets.emit('state', state);
     log.add("SSH CLOSE");
@@ -1175,7 +1170,8 @@ app.get('/api/cpu/', function(req, res) {
         returnN.push({
             label: "MEM",
             data: mem,
-            color: "#FFFF00"
+            color: "#FFFF00",
+            yaxis: 2
         });
         res.send(returnN).end();
     });
@@ -1587,5 +1583,9 @@ setInterval(function() {
     log.add("NETWORKDISC FROM TIMEOUT");
     networkDiscovery();
     log.add("CPU LOAD");
+    if (!state.ssh) {
+        log.add("SSH CONNECT FROM TIMEOUT");
+        cConnect();
+    }
     cpuLoadFN();
 }, 60 * 1000);

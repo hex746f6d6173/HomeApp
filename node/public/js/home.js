@@ -54,6 +54,13 @@ function plot() {
                 min: min,
                 max: now
             },
+            yaxes: [{
+                //[First axis]
+                //leave this empty, if there`s nothing to configure
+            }, {
+                //[Second axis]
+                position: "right" //set this axis to appear on the right of chart
+            }],
             series: {
                 lines: {
                     show: true
