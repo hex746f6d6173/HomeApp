@@ -1170,7 +1170,8 @@ app.get('/api/cpu/', function(req, res) {
         returnN.push({
             label: "MEM",
             data: mem,
-            color: "#FFFF00"
+            color: "#FFFF00",
+            yaxis: 2
         });
         res.send(returnN).end();
     });
