@@ -130,7 +130,7 @@ function brandOption(id, brand) {
 $(document).ready(function() {
 
     timezoneJS.timezone.zoneFileBasePath = "/js/tz";
-    timezoneJS.timezone.defaultZoneFile = [];
+    timezoneJS.timezone.defaultZoneFile = "europe";
     timezoneJS.timezone.init({
         async: false
     });
@@ -544,7 +544,7 @@ $(document).ready(function() {
         editable: false,
         defaultView: 'agendaDay',
         events: "/agenda/",
-
+        timezone: 'local',
         eventDrop: function(event, delta) {
             alert(event.title + ' was moved ' + delta + ' days\n' +
                 '(should probably update your database)');
