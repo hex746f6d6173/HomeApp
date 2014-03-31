@@ -543,7 +543,10 @@ $(document).ready(function() {
 
         editable: false,
         defaultView: 'agendaDay',
-        events: "/agenda/",
+        eventSources: [
+            "/agenda/",
+            "/agenda2/"
+        ],
         timezone: 'local',
         timeFormat: 'H(:mm)',
         eventDrop: function(event, delta) {
@@ -557,6 +560,5 @@ $(document).ready(function() {
         }
 
     });
-
 
 });
