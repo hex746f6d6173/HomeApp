@@ -1022,26 +1022,8 @@ io.sockets.on('connection', function(socket) {
                 event: "refresh"
             });
             pulling = true;
-            c.exec("cd /var/www/home/node && sudo git pull", function(err, stream) {
-                if (err) throw err;
-                log.add("PI GIT PULL");
 
-                stream.on('data', function(data, extended) {
-                    log.add("PI GIT PULL DATA: " + data);
-                });
-                stream.on('end', function() {
-                    //console.log('Stream :: EOF');
-                });
-                stream.on('close', function() {
-                    //console.log('Stream :: close');
-                });
-                stream.on('exit', function(code, signal) {
-                    //console.log('Stream :: exit :: code: ' + code + ', signal: ' + signal);
-
-                });
-
-            });
-            exec("git pull && npm install", function(error, stdout, stderr) {
+            exec("git pull", function(error, stdout, stderr) {
                 log.add("stdout: " + stdout);
                 console.log("GIT PULL", error, stdout, stderr);
                 io.sockets.emit("refreshE", {
@@ -1064,12 +1046,12 @@ io.sockets.on('connection', function(socket) {
                         });
                         log.add("Updated to: " + newVersion, true);
                         setTimeout(function() {
-                            childd = exec("forever restartall", function(error, stdout, stderr) {});
+                            childd = exec("cd /var/www/pi/raspberrypi/node && forever restart server.js", function(error, stdout, stderr) {});
                         }, 10000);
                     } else {
                         log.add("No updated to: " + newVersion + ", same version");
                         setTimeout(function() {
-                            childd = exec("forever restartall", function(error, stdout, stderr) {});
+                            childd = exec("cd /var/www/pi/raspberrypi/node && forever restart server.js", function(error, stdout, stderr) {});
                         }, 10000);
                     }
 
@@ -1365,8 +1347,8 @@ app.get('/agenda2/', function(req, res) {
             docs.forEach(function(item) {
                 item.id = t;
 
-                item.start = (new Date(item.start).getTime() + (1000 * 60 * 60 * 2));
-                item.end = (new Date(item.start).getTime() + (1000 * 60 * 60 * 2))
+                item.start = new Date(new Date(item.start).getTime() + (1000 * 60 * 60 * 2)).toISOString();
+                item.end = new Date(new Date(item.start).getTime() + (1000 * 60 * 60 * 2)).toISOString();
 
                 if (item.duration > minDuration) {
                     returnN.push(item);
