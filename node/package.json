@@ -16,6 +16,8 @@
         "node-localstorage": "*",
         "net-ping": "*",
         "connect-offline": "*",
-        "mongojs": "*"
+        "mongojs": "*",
+        "icalendar": "*",
+        "MD5": "*"
     }
 }
