@@ -1336,7 +1336,7 @@ app.get('/api/cpu/:min/', function(req, res) {
 
 
 });
-app.get('/agenda2/', function(req, res) {
+app.get('/agenda/', function(req, res) {
     var minDuration = 1000000;
     homeDB.history.find(function(err, docs) {
         homeDB.sleep.find(function(err, sleeps) {
