@@ -1422,6 +1422,7 @@ app.get('/agenda/cal/', function(req, res) {
                 ical.addComponent(event[i]);
             }
             res.setHeader("Content-type", "text/calendar");
+
             res.send(ical.toString()).end();
         });
     });
