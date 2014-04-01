@@ -544,8 +544,7 @@ $(document).ready(function() {
         editable: false,
         defaultView: 'agendaDay',
         eventSources: [
-            //"/agenda/",
-            "/agenda2/"
+            "/agenda/"
         ],
         timezone: 'local',
         timeFormat: 'H(:mm)',
