@@ -11,8 +11,10 @@ var mongojs = require('mongojs'),
         log: false
     }),
     Connection = require('ssh2'),
+    md5 = require('MD5'),
     c = new Connection(),
     request = require("request"),
+    icalendar = require("icalendar"),
     state = {
         ssh: false
     }, thisConfig = require("./this.json"),
@@ -1372,6 +1374,59 @@ app.get('/agenda/', function(req, res) {
         });
     });
 });
+
+app.get('/agenda/cal/', function(req, res) {
+    var minDuration = 1000000;
+    homeDB.history.find(function(err, docs) {
+        homeDB.sleep.find(function(err, sleeps) {
+            var t = 0;
+
+            var returnN = [];
+            var event = {};
+            var ical = new icalendar.iCalendar();
+
+            docs.forEach(function(item) {
+
+
+                item.id = t;
+
+                item.start = new Date(new Date(item.start).getTime() + (1000 * 60 * 60 * 2)).toISOString();
+                item.end = new Date(new Date(item.end).getTime() + (1000 * 60 * 60 * 2)).toISOString();
+
+                if (item.duration > minDuration) {
+                    event[t] = new icalendar.VEvent(md5(JSON.stringify(item)));
+                    event[t].setSummary(item.title);
+                    event[t].setDate(new Date(item.start), new Date(item.end));
+                    event[t].toString();
+                }
+                t++;
+            });
+            sleeps.forEach(function(sleep) {
+                returnN.push({
+                    id: t,
+                    title: "bed",
+                    color: "#663300",
+                    start: new Date(parseInt(sleep.begin) + (1000 * 60 * 60 * 2)).toISOString(),
+                    end: new Date(parseInt(sleep.end) + (1000 * 60 * 60 * 2)).toISOString(),
+                    allDay: false,
+                    duration: sleep.end - sleep.begin
+                });
+                event[t] = new icalendar.VEvent(md5(JSON.stringify(sleep)));
+                event[t].setSummary("Bed");
+                event[t].setDate(new Date(parseInt(sleep.begin) + (1000 * 60 * 60 * 2)), new Date(parseInt(sleep.end) + (1000 * 60 * 60 * 2)));
+                event[t].toString();
+                t++;
+            });
+
+            for (i in event) {
+                ical.addComponent(event[i]);
+            }
+            res.setHeader("Content-type", "text/calendar");
+            res.send(ical.toString()).end();
+        });
+    });
+});
+
 app.get('/bigdata', function(req, res) {
 
     var returnn = {};
