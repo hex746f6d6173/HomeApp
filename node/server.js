@@ -1356,14 +1356,30 @@ app.get('/api/cpu/:min/', function(req, res) {
 });
 app.get('/agenda2/', function(req, res) {
     homeDB.history.find(function(err, docs) {
-        var t = 0;
-        docs.forEach(function(item) {
-            item.id = t;
-            t++;
+        homeDB.sleep.find(function(err, sleeps) {
+            var t = 0;
+            docs.forEach(function(item) {
+                item.id = t;
+                t++;
+            });
+            sleeps.forEach(function(sleep) {
+                docs.push({
+                    id: t,
+                    title: "bed",
+                    color: "#663300",
+                    start: new Date(parseInt(sleep.begin) + (1000 * 60 * 60 * 2)).toISOString(),
+                    end: new Date(sleep.end).toISOString(),
+                    allDay: false,
+                    duration: sleep.end - sleep.begin
+                });
+                t++;
+            });
+
+            res.send(docs).end();
         });
-        res.send(docs).end();
     });
 });
+
 app.get('/agenda/', function(req, res) {
     console.log("asdasdasa\n");
     var ret = {};
