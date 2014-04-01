@@ -1365,8 +1365,8 @@ app.get('/agenda2/', function(req, res) {
             docs.forEach(function(item) {
                 item.id = t;
 
-                item.start = (new Date(item.start).getTime() + (1000 * 60 * 60 * 2));
-                item.end = (new Date(item.start).getTime() + (1000 * 60 * 60 * 2))
+                item.start = new Date(new Date(item.start).getTime() + (1000 * 60 * 60 * 2)).toISOString();
+                item.end = new Date(new Date(item.start).getTime() + (1000 * 60 * 60 * 2)).toISOString();
 
                 if (item.duration > minDuration) {
                     returnN.push(item);
