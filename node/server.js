@@ -1355,15 +1355,26 @@ app.get('/api/cpu/:min/', function(req, res) {
 
 });
 app.get('/agenda2/', function(req, res) {
+    var minDuration = 400000;
     homeDB.history.find(function(err, docs) {
         homeDB.sleep.find(function(err, sleeps) {
             var t = 0;
+
+            var returnN = [];
+
             docs.forEach(function(item) {
                 item.id = t;
+
+                item.start = (new Date(item.start).getTime() + (1000 * 60 * 60 * 2));
+                item.end = (new Date(item.start).getTime() + (1000 * 60 * 60 * 2))
+
+                if (item.duration > minDuration) {
+                    returnN.push(item);
+                }
                 t++;
             });
             sleeps.forEach(function(sleep) {
-                docs.push({
+                returnN.push({
                     id: t,
                     title: "bed",
                     color: "#663300",
@@ -1375,7 +1386,7 @@ app.get('/agenda2/', function(req, res) {
                 t++;
             });
 
-            res.send(docs).end();
+            res.send(returnN).end();
         });
     });
 });
