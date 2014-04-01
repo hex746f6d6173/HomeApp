@@ -1348,7 +1348,7 @@ app.get('/agenda2/', function(req, res) {
                 item.id = t;
 
                 item.start = new Date(new Date(item.start).getTime() + (1000 * 60 * 60 * 2)).toISOString();
-                item.end = new Date(new Date(item.start).getTime() + (1000 * 60 * 60 * 2)).toISOString();
+                item.end = new Date(new Date(item.end).getTime() + (1000 * 60 * 60 * 2)).toISOString();
 
                 if (item.duration > minDuration) {
                     returnN.push(item);
@@ -1361,7 +1361,7 @@ app.get('/agenda2/', function(req, res) {
                     title: "bed",
                     color: "#663300",
                     start: new Date(parseInt(sleep.begin) + (1000 * 60 * 60 * 2)).toISOString(),
-                    end: new Date(sleep.end).toISOString(),
+                    end: new Date(parseInt(sleep.end) + (1000 * 60 * 60 * 2)).toISOString(),
                     allDay: false,
                     duration: sleep.end - sleep.begin
                 });
