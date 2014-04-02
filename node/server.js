@@ -251,7 +251,40 @@ function cConnect() {
     log.add("SSH CONNECT");
     if (state.ssh === false) {
         if (state.sshPending === false) {
+            c = new Connection();
             c.connect(thisConfig.sshCred);
+            c.on('ready', function() {
+                //console.log('Connection :: ready');
+                state.ssh = true;
+                state.sshPending = false;
+                io.sockets.emit('state', state);
+                log.add("SSH CONNECTED");
+            });
+
+            c.on('error', function(err) {
+                //console.log('Connection :: error :: ' + err);
+                state.sshPending = false;
+                state.ssh = false;
+                io.sockets.emit('state', state);
+                log.add("SSH ERROR " + err);
+            });
+            c.on('end', function() {
+                //console.log('Connection :: end');
+                state.sshPending = false;
+                state.ssh = false;
+                io.sockets.emit('state', state);
+                log.add("SSH END");
+            });
+            c.on('close', function(had_error) {
+                //console.log('Connection :: close');
+                state.sshPending = false;
+                state.ssh = false;
+
+                io.sockets.emit('state', state);
+                log.add("SSH CLOSE");
+            });
+
+            io.sockets.emit('state', state);
             state.sshPending = true;
             log.add("SSH PENDING");
         } else {
@@ -1086,38 +1119,6 @@ io.sockets.on('connection', function(socket) {
 //console.log(thisConfig.use);
 
 
-c.on('ready', function() {
-    //console.log('Connection :: ready');
-    state.ssh = true;
-    state.sshPending = false;
-    io.sockets.emit('state', state);
-    log.add("SSH CONNECTED");
-});
-
-c.on('error', function(err) {
-    //console.log('Connection :: error :: ' + err);
-    state.sshPending = false;
-    state.ssh = false;
-    io.sockets.emit('state', state);
-    log.add("SSH ERROR " + err);
-});
-c.on('end', function() {
-    //console.log('Connection :: end');
-    state.sshPending = false;
-    state.ssh = false;
-    io.sockets.emit('state', state);
-    log.add("SSH END");
-});
-c.on('close', function(had_error) {
-    //console.log('Connection :: close');
-    state.sshPending = false;
-    state.ssh = false;
-
-    io.sockets.emit('state', state);
-    log.add("SSH CLOSE");
-});
-
-io.sockets.emit('state', state);
 
 cConnect();
 
@@ -1390,8 +1391,8 @@ app.get('/agenda/cal/', function(req, res) {
 
                 item.id = t;
 
-                item.start = new Date(new Date(item.start).getTime() + (1000 * 60 * 60 * 2)).toISOString();
-                item.end = new Date(new Date(item.end).getTime() + (1000 * 60 * 60 * 2)).toISOString();
+                item.start = new Date(new Date(item.start).getTime()).toISOString();
+                item.end = new Date(new Date(item.end).getTime()).toISOString();
 
                 if (item.duration > minDuration) {
                     event[t] = new icalendar.VEvent(md5(JSON.stringify(item)));
@@ -1406,14 +1407,14 @@ app.get('/agenda/cal/', function(req, res) {
                     id: t,
                     title: "bed",
                     color: "#663300",
-                    start: new Date(parseInt(sleep.begin) + (1000 * 60 * 60 * 2)).toISOString(),
-                    end: new Date(parseInt(sleep.end) + (1000 * 60 * 60 * 2)).toISOString(),
+                    start: new Date(parseInt(sleep.begin)).toISOString(),
+                    end: new Date(parseInt(sleep.end)).toISOString(),
                     allDay: false,
                     duration: sleep.end - sleep.begin
                 });
                 event[t] = new icalendar.VEvent(md5(JSON.stringify(sleep)));
                 event[t].setSummary("Bed");
-                event[t].setDate(new Date(parseInt(sleep.begin) + (1000 * 60 * 60 * 2)), new Date(parseInt(sleep.end) + (1000 * 60 * 60 * 2)));
+                event[t].setDate(new Date(parseInt(sleep.begin)), new Date(parseInt(sleep.end)));
                 event[t].toString();
                 t++;
             });
