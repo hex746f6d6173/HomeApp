@@ -251,7 +251,40 @@ function cConnect() {
     log.add("SSH CONNECT");
     if (state.ssh === false) {
         if (state.sshPending === false) {
+            c = new Connection();
             c.connect(thisConfig.sshCred);
+            c.on('ready', function() {
+                //console.log('Connection :: ready');
+                state.ssh = true;
+                state.sshPending = false;
+                io.sockets.emit('state', state);
+                log.add("SSH CONNECTED");
+            });
+
+            c.on('error', function(err) {
+                //console.log('Connection :: error :: ' + err);
+                state.sshPending = false;
+                state.ssh = false;
+                io.sockets.emit('state', state);
+                log.add("SSH ERROR " + err);
+            });
+            c.on('end', function() {
+                //console.log('Connection :: end');
+                state.sshPending = false;
+                state.ssh = false;
+                io.sockets.emit('state', state);
+                log.add("SSH END");
+            });
+            c.on('close', function(had_error) {
+                //console.log('Connection :: close');
+                state.sshPending = false;
+                state.ssh = false;
+
+                io.sockets.emit('state', state);
+                log.add("SSH CLOSE");
+            });
+
+            io.sockets.emit('state', state);
             state.sshPending = true;
             log.add("SSH PENDING");
         } else {
@@ -1086,38 +1119,6 @@ io.sockets.on('connection', function(socket) {
 //console.log(thisConfig.use);
 
 
-c.on('ready', function() {
-    //console.log('Connection :: ready');
-    state.ssh = true;
-    state.sshPending = false;
-    io.sockets.emit('state', state);
-    log.add("SSH CONNECTED");
-});
-
-c.on('error', function(err) {
-    //console.log('Connection :: error :: ' + err);
-    state.sshPending = false;
-    state.ssh = false;
-    io.sockets.emit('state', state);
-    log.add("SSH ERROR " + err);
-});
-c.on('end', function() {
-    //console.log('Connection :: end');
-    state.sshPending = false;
-    state.ssh = false;
-    io.sockets.emit('state', state);
-    log.add("SSH END");
-});
-c.on('close', function(had_error) {
-    //console.log('Connection :: close');
-    state.sshPending = false;
-    state.ssh = false;
-
-    io.sockets.emit('state', state);
-    log.add("SSH CLOSE");
-});
-
-io.sockets.emit('state', state);
 
 cConnect();
 
