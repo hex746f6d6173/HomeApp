@@ -292,7 +292,7 @@ class pirThread (threading.Thread):
 			else:
 				if (bed != "0"):
 					logging.debug('BED NEE WAIT 10 SEC')
-					time.sleep(10)
+					time.sleep(20)
 					if (io.input(bed_pin) != True):
 						print "NEE"
 						logging.debug('BED NEE')
