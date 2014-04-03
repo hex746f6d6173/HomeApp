@@ -299,6 +299,7 @@ class pirThread (threading.Thread):
 						requests.get("http://192.168.0.100:4000/bed/"+bed+"/")
 						background = True
 					
+			io.cleanup()
 			time.sleep(2)
 
 class tempThread (threading.Thread):
