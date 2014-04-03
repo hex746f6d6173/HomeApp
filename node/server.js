@@ -76,6 +76,27 @@ var homeDB = {
     deviceHis: db.collection('deviceHis')
 };
 
+homeDB.history.find(function(err, docs) {
+
+    docs.forEach(function(item) {
+        if (typeof item.start == "string" || typeof item.start == "string") {
+            homeDB.history.update({
+                _id: item._id
+            }, {
+                start: new Date(item.start).getTime(),
+                end: new Date(item.end).getTime(),
+                title: item.title,
+                color: item.color,
+                allDay: item.allDay,
+                duration: item.duration
+            }, {
+                upsert: true
+            });
+        }
+    });
+
+});
+
 homeDB.switches.find(function(err, docs) {
     if (docs.length === 0) {
         console.log("install SWITCHES");
@@ -384,8 +405,8 @@ var flipSwitch = function(a, to, fn) {
                                 homeDB.history.save({
                                     title: s.name,
                                     color: "#FF9900",
-                                    start: new Date(s.lastOn).toISOString(),
-                                    end: new Date(new Date().getTime()).toISOString(),
+                                    start: s.lastOn.toISOString(),
+                                    end: new Date().getTime(),
                                     allDay: false,
                                     duration: new Date().getTime() - s.lastOn
                                 });
@@ -746,8 +767,8 @@ app.get('/pir/:a/:b', function(req, res) {
                 homeDB.history.save({
                     title: "PIR",
                     color: "#FFFF66",
-                    start: new Date(pirLastOn).toISOString(),
-                    end: new Date(time).toISOString(),
+                    start: pirLastOn,
+                    end: time,
                     allDay: false,
                     duration: time - pirLastOn
                 });
@@ -1291,8 +1312,8 @@ function networkDiscovery() {
                                 homeDB.history.save({
                                     title: s.name,
                                     color: s.color,
-                                    start: new Date(s.lastOn).toISOString(),
-                                    end: new Date(time).toISOString(),
+                                    start: s.lastOn,
+                                    end: time,
                                     allDay: false,
                                     duration: time - s.lastOn
                                 });
@@ -1344,8 +1365,22 @@ app.get('/api/cpu/:min/', function(req, res) {
 });
 app.get('/agenda/', function(req, res) {
     var minDuration = 1000000;
-    homeDB.history.find(function(err, docs) {
-        homeDB.sleep.find(function(err, sleeps) {
+    homeDB.history.find({
+        start: {
+            $gt: (parseInt(req.query.start) * 1000) - (1000 * 60 * 60 * 5)
+        },
+        end: {
+            $lt: (parseInt(req.query.end) * 1000) + (1000 * 60 * 60 * 5)
+        }
+    }, function(err, docs) {
+        homeDB.sleep.find({
+            start: {
+                $gt: (parseInt(req.query.start) * 1000) - (1000 * 60 * 60 * 5)
+            },
+            end: {
+                $lt: (parseInt(req.query.end) * 1000) + (1000 * 60 * 60 * 5)
+            }
+        }, function(err, sleeps) {
             var t = 0;
 
             var returnN = [];
