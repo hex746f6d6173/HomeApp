@@ -879,6 +879,73 @@ app.get('/pir/:a/:b', function(req, res) {
 
 });
 var timeOut = "a";
+
+app.get('/bed/:bed/', function(req, res) {
+    data = req.params.bed;
+    var time = new Date().getTime();
+
+    homeDB.bed.save({
+        time: time,
+        bed: data
+    });
+
+    if (data == "1") {
+        if (timeOut == "a") {
+            bedTime = time;
+            bedState = 2;
+            io.sockets.emit('sleepStatus', {
+                "bedTime": bedTime,
+                "status": 2
+            });
+            log.add("Slapen beginnen", false);
+        } else {
+            bedState = 2;
+            io.sockets.emit('sleepStatus', {
+                "bedTime": bedTime,
+                "status": 2
+            });
+            log.add("Slapen hervatten", false);
+
+            clearTimeout(timeOut);
+            timeOut = "a";
+        }
+
+    } else {
+        sleepedTime = time - bedTime;
+
+
+        if (timeOut == "a") {
+            bedState = 1;
+            io.sockets.emit('sleepStatus', {
+                "bedTime": bedTime,
+                "status": 1
+            });
+            log.add("Slapen wachten op 10 minuten", false);
+            timeOut = setTimeout(function() {
+                timeOut = "a";
+                bedState = 0;
+                io.sockets.emit('sleepStatus', {
+                    "bedTime": bedTime,
+                    "status": 0
+                });
+                log.add("Tijd geslapen: " + toHHMMSS(sleepedTime / 1000), true);
+
+                homeDB.sleep.save({
+                    begin: bedTime,
+                    end: time
+                });
+
+            }, 1000 * 60 * 10);
+        } else {
+
+            clearTimeout(timeOut);
+            timeOut = "a";
+        }
+
+    }
+    res.send(JSON.stringify(req.params.bed)).end();
+});
+
 io.sockets.on('connection', function(socket) {
     cConnect();
     networkDiscovery();
@@ -958,71 +1025,7 @@ io.sockets.on('connection', function(socket) {
 
 
 
-    socket.on('bed', function(data) {
 
-        var time = new Date().getTime();
-
-        homeDB.bed.save({
-            time: time,
-            bed: data
-        });
-
-        if (data == "1") {
-            if (timeOut == "a") {
-                bedTime = time;
-                bedState = 2;
-                io.sockets.emit('sleepStatus', {
-                    "bedTime": bedTime,
-                    "status": 2
-                });
-                log.add("Slapen beginnen", false);
-            } else {
-                bedState = 2;
-                io.sockets.emit('sleepStatus', {
-                    "bedTime": bedTime,
-                    "status": 2
-                });
-                log.add("Slapen hervatten", false);
-
-                clearTimeout(timeOut);
-                timeOut = "a";
-            }
-
-        } else {
-            sleepedTime = time - bedTime;
-
-
-            if (timeOut == "a") {
-                bedState = 1;
-                io.sockets.emit('sleepStatus', {
-                    "bedTime": bedTime,
-                    "status": 1
-                });
-                log.add("Slapen wachten op 10 minuten", false);
-                timeOut = setTimeout(function() {
-                    timeOut = "a";
-                    bedState = 0;
-                    io.sockets.emit('sleepStatus', {
-                        "bedTime": bedTime,
-                        "status": 0
-                    });
-                    log.add("Tijd geslapen: " + toHHMMSS(sleepedTime / 1000), true);
-
-                    homeDB.sleep.save({
-                        begin: bedTime,
-                        end: time
-                    });
-
-                }, 1000 * 60 * 10);
-            } else {
-
-                clearTimeout(timeOut);
-                timeOut = "a";
-            }
-
-        }
-
-    });
 
     socket.on('setAlarm', function(data) {
         alarmArm = data;
