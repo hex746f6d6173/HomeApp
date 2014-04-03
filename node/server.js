@@ -943,7 +943,7 @@ app.get('/bed/:bed/', function(req, res) {
         }
 
     }
-
+    res.send(JSON.stringify(req.params.bed)).end();
 });
 
 io.sockets.on('connection', function(socket) {
