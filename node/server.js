@@ -411,7 +411,7 @@ var flipSwitch = function(a, to, fn) {
                                 homeDB.history.save({
                                     title: s.name,
                                     color: "#FF9900",
-                                    start: s.lastOn.toISOString(),
+                                    start: s.lastOn,
                                     end: new Date().getTime(),
                                     allDay: false,
                                     duration: new Date().getTime() - s.lastOn
@@ -458,7 +458,6 @@ var flipSwitch = function(a, to, fn) {
     });
 }
 
-//app.get('/switch/:brand/:code/:switch/:switchTo/', flipSwitch);
 
 app.get('/switches', function(req, res) {
 
