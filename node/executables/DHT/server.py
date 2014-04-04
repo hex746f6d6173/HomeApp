@@ -85,7 +85,7 @@ lightNow = -1
 
 background = True
 
-socketIO = SocketIO('home.tomasharkema.nl', 80)
+socketIO = SocketIO('192.168.0.100', 4000)
 
 def updateUI():
 	global tempratuur
@@ -170,6 +170,7 @@ class SocThread (threading.Thread):
 		socketIO.wait_for_callbacks(seconds=1000)
 		socketIO.wait()
 
+
 def map (x, in_min, in_max, out_min, out_max):
 	
 	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
@@ -209,7 +210,7 @@ class pirThread (threading.Thread):
 
 		previousTime = int(round(time.time() * 1000));
 
-		requests.get("http://home.tomasharkema.nl/pir/1/0/")
+		requests.get("http://192.168.0.100:4000/pir/1/0/")
 
 		initTime = int(round(time.time() * 1000));
 
@@ -234,7 +235,7 @@ class pirThread (threading.Thread):
 					pir = "1"
 					logging.debug('PIR')
 					previousTime = int(round(time.time() * 1000))
-					r = requests.get("http://home.tomasharkema.nl/pir/1/1/")
+					r = requests.get("http://192.168.0.100:4000/pir/1/1/")
 					time.sleep(1)
 					r.connection.close()
 					pirNoSended = 0
@@ -247,7 +248,7 @@ class pirThread (threading.Thread):
 						global pir
 						pir = "0"
 						logging.debug('NO PIR')
-						r = requests.get("http://home.tomasharkema.nl/pir/1/0/")
+						r = requests.get("http://192.168.0.100:4000/pir/1/0/")
 						time.sleep(1)
 						r.connection.close()
 						pirNoSended = 1
@@ -273,7 +274,7 @@ class pirThread (threading.Thread):
 			else:
 				avg = avgLight / counterLight
 				print "light: "+str(avg)+""
-				r = requests.get("http://home.tomasharkema.nl/light/"+str(round(avg))+"/")
+				r = requests.get("http://192.168.0.100:4000/light/"+str(round(avg))+"/")
 				avgLight = 0.0
 				counterLight = 0
 
@@ -284,20 +285,18 @@ class pirThread (threading.Thread):
 					print "JA"
 					logging.debug('BED JA')
 					bed = "1"
-					socketIO.emit('bed', bed)
-					socketIO.wait_for_callbacks(seconds=1000)
+					requests.get("http://192.168.0.100:4000/bed/"+bed+"/")
 					background = False
 					
 			else:
 				if (bed != "0"):
 					logging.debug('BED NEE WAIT 10 SEC')
-					time.sleep(10)
+					time.sleep(20)
 					if (io.input(bed_pin) != True):
 						print "NEE"
 						logging.debug('BED NEE')
 						bed = "0"
-						socketIO.emit('bed', bed)
-						socketIO.wait_for_callbacks(seconds=1000)
+						requests.get("http://192.168.0.100:4000/bed/"+bed+"/")
 						background = True
 					
 			io.cleanup()
@@ -341,8 +340,8 @@ class tempThread (threading.Thread):
 
 			# Append the data in the spreadsheet, including a timestamp
 
-			#print "http://home.tomasharkema.nl/temp/%.1f/" % temp
-			r = requests.get("http://home.tomasharkema.nl/temp/%.1f/" % temp)
+			#print "http://192.168.0.100:4000/temp/%.1f/" % temp
+			r = requests.get("http://192.168.0.100:4000/temp/%.1f/" % temp)
 			
 
 			time.sleep(30)

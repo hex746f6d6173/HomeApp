@@ -11,8 +11,10 @@ var mongojs = require('mongojs'),
         log: false
     }),
     Connection = require('ssh2'),
+    md5 = require('MD5'),
     c = new Connection(),
     request = require("request"),
+    icalendar = require("icalendar"),
     state = {
         ssh: false
     }, thisConfig = require("./this.json"),
@@ -30,7 +32,17 @@ var mongojs = require('mongojs'),
     bedState = 0,
     bedTime = 0,
     cpuLoad = 0,
-    memLoad = 0;;
+    memLoad = 0,
+    pirLock = 0,
+    pirLastOn = 0,
+    pirLastOff = 0;
+
+Array.prototype.contains = function(k) {
+    for (p in this)
+        if (this[p] === k)
+            return p;
+    return -1;
+}
 
 function toHHMMSS(string) {
     var sec_num = parseInt(string, 10); // don't forget the second param
@@ -51,7 +63,7 @@ function toHHMMSS(string) {
     return time;
 }
 
-var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log", "deviceHis", "pir", "light", "temp", "bed", "sleep", "cpu"]);
+var db = mongojs("server", ["swiches", "devices", "clients", "misc", "log", "deviceHis", "pir", "light", "temp", "bed", "sleep", "cpu", "switchHis", "history"]);
 
 var homeDB = {
     switches: db.collection('swiches'),
@@ -65,8 +77,31 @@ var homeDB = {
     bed: db.collection('bed'),
     sleep: db.collection('sleep'),
     cpu: db.collection('cpu'),
+    switchHis: db.collection('switchHis'),
+    history: db.collection('history'),
     deviceHis: db.collection('deviceHis')
 };
+
+homeDB.history.find(function(err, docs) {
+
+    docs.forEach(function(item) {
+        if (typeof item.start == "string" || typeof item.start == "string") {
+            homeDB.history.update({
+                _id: item._id
+            }, {
+                start: new Date(item.start).getTime(),
+                end: new Date(item.end).getTime(),
+                title: item.title,
+                color: item.color,
+                allDay: item.allDay,
+                duration: item.duration
+            }, {
+                upsert: true
+            });
+        }
+    });
+
+});
 
 homeDB.switches.find(function(err, docs) {
     if (docs.length === 0) {
@@ -243,7 +278,40 @@ function cConnect() {
     log.add("SSH CONNECT");
     if (state.ssh === false) {
         if (state.sshPending === false) {
+            c = new Connection();
             c.connect(thisConfig.sshCred);
+            c.on('ready', function() {
+                //console.log('Connection :: ready');
+                state.ssh = true;
+                state.sshPending = false;
+                io.sockets.emit('state', state);
+                log.add("SSH CONNECTED");
+            });
+
+            c.on('error', function(err) {
+                //console.log('Connection :: error :: ' + err);
+                state.sshPending = false;
+                state.ssh = false;
+                io.sockets.emit('state', state);
+                log.add("SSH ERROR " + err);
+            });
+            c.on('end', function() {
+                //console.log('Connection :: end');
+                state.sshPending = false;
+                state.ssh = false;
+                io.sockets.emit('state', state);
+                log.add("SSH END");
+            });
+            c.on('close', function(had_error) {
+                //console.log('Connection :: close');
+                state.sshPending = false;
+                state.ssh = false;
+
+                io.sockets.emit('state', state);
+                log.add("SSH CLOSE");
+            });
+
+            io.sockets.emit('state', state);
             state.sshPending = true;
             log.add("SSH PENDING");
         } else {
@@ -314,6 +382,43 @@ var flipSwitch = function(a, to, fn) {
                 stream.on('exit', function(code, signal) {
                     //console.log('Stream :: exit :: code: ' + code + ', signal: ' + signal);
 
+                    if (newState === 1) {
+                        if (docs[0].lock === undefined || docs[0].lock === 0) {
+                            homeDB.switches.update({
+                                id: docs[0].id
+                            }, {
+                                $set: {
+                                    lastOn: new Date().getTime(),
+                                    lock: 1
+                                }
+                            });
+                        }
+                    } else {
+                        homeDB.switches.update({
+                            id: docs[0].id
+                        }, {
+                            $set: {
+                                lastOff: new Date().getTime(),
+                                lock: 0
+                            }
+                        });
+
+                        homeDB.switches.findOne({
+                            id: docs[0].id
+                        }, function(err, s) {
+                            console.log("INTO HISTORY", s.lastOn, s.lastOff);
+                            if (s.lastOn !== undefined)
+                                homeDB.history.save({
+                                    title: s.name,
+                                    color: "#FF9900",
+                                    start: s.lastOn,
+                                    end: new Date().getTime(),
+                                    allDay: false,
+                                    duration: new Date().getTime() - s.lastOn
+                                });
+                        });
+
+                    }
 
 
                     console.log("updated", docs, newState);
@@ -328,6 +433,12 @@ var flipSwitch = function(a, to, fn) {
                         io.sockets.emit("switched", {
                             switch: docs[0],
                             id: id
+                        });
+                        homeDB.switchHis.save({
+                            time: new Date().getTime(),
+                            switchID: id,
+                            state: newState,
+                            name: docs[0].name
                         });
                     });
 
@@ -347,7 +458,6 @@ var flipSwitch = function(a, to, fn) {
     });
 }
 
-//app.get('/switch/:brand/:code/:switch/:switchTo/', flipSwitch);
 
 app.get('/switches', function(req, res) {
 
@@ -355,11 +465,15 @@ app.get('/switches', function(req, res) {
 
 
 });
-app.get('/api/temps', function(req, res) {
+app.get('/api/temps/:min/', function(req, res) {
 
 
 
-    homeDB.temp.find(function(err, temps) {
+    homeDB.temp.find({
+        time: {
+            $gt: parseInt(req.params.min)
+        }
+    }, function(err, temps) {
 
         var parseTemps = [];
 
@@ -424,9 +538,13 @@ app.get('/api/sleep', function(req, res) {
     });
 });
 
-app.get('/api/lights', function(req, res) {
+app.get('/api/lights/:min/', function(req, res) {
 
-    homeDB.light.find(function(err, docs) {
+    homeDB.light.find({
+        time: {
+            $gt: parseInt(req.params.min)
+        }
+    }, function(err, docs) {
 
 
         var parseLights = [];
@@ -579,15 +697,6 @@ app.get('/light/:l', function(req, res) {
 
 });
 
-setInterval(function() {
-    if (lightsLume === 0) {
-        var time = new Date().getTime();
-        homeDB.light.save({
-            time: time,
-            light: 0
-        });
-    }
-}, 10 * 60 * 1000);
 
 var lastTimeTemp = "a";
 
@@ -636,22 +745,40 @@ app.get('/pir/:a/:b', function(req, res) {
 
     var time = new Date().getTime();
 
-
     if (req.params.b == 1) {
         homeDB.pir.save({
             time: time,
             pir: "1"
         });
+
+        if (pirLock === 0) {
+            pirLastOn = time;
+            pirLock = 1;
+        }
+
     } else if (req.params.b == 0) {
 
         //log.add("PIR 0, diffTime:" + ((lastOffTime + (1000 * 60 * 5)) - time));
         if ((lastOffTime + (1000 * 60 * 5)) < time) {
             lastOffTime = time;
-
+            pirLastOff = time;
+            pirLock = 0;
             homeDB.pir.save({
                 time: time,
                 pir: "0"
             });
+            console.log("INTO HISTORY", pirLastOn, pirLastOn);
+            if (pirLastOn !== 0)
+                homeDB.history.save({
+                    title: "PIR",
+                    color: "#FFFF66",
+                    start: pirLastOn,
+                    end: time,
+                    allDay: false,
+                    duration: time - pirLastOn
+                });
+
+
         }
 
     }
@@ -778,6 +905,73 @@ app.get('/pir/:a/:b', function(req, res) {
 
 });
 var timeOut = "a";
+
+app.get('/bed/:bed/', function(req, res) {
+    data = req.params.bed;
+    var time = new Date().getTime();
+
+    homeDB.bed.save({
+        time: time,
+        bed: data
+    });
+
+    if (data == "1") {
+        if (timeOut == "a") {
+            bedTime = time;
+            bedState = 2;
+            io.sockets.emit('sleepStatus', {
+                "bedTime": bedTime,
+                "status": 2
+            });
+            log.add("Slapen beginnen", false);
+        } else {
+            bedState = 2;
+            io.sockets.emit('sleepStatus', {
+                "bedTime": bedTime,
+                "status": 2
+            });
+            log.add("Slapen hervatten", false);
+
+            clearTimeout(timeOut);
+            timeOut = "a";
+        }
+
+    } else {
+        sleepedTime = time - bedTime;
+
+
+        if (timeOut == "a") {
+            bedState = 1;
+            io.sockets.emit('sleepStatus', {
+                "bedTime": bedTime,
+                "status": 1
+            });
+            log.add("Slapen wachten op 10 minuten", false);
+            timeOut = setTimeout(function() {
+                timeOut = "a";
+                bedState = 0;
+                io.sockets.emit('sleepStatus', {
+                    "bedTime": bedTime,
+                    "status": 0
+                });
+                log.add("Tijd geslapen: " + toHHMMSS(sleepedTime / 1000), true);
+
+                homeDB.sleep.save({
+                    begin: bedTime,
+                    end: time
+                });
+
+            }, 1000 * 60 * 10);
+        } else {
+
+            clearTimeout(timeOut);
+            timeOut = "a";
+        }
+
+    }
+    res.send(JSON.stringify(req.params.bed)).end();
+});
+
 io.sockets.on('connection', function(socket) {
     cConnect();
     networkDiscovery();
@@ -857,71 +1051,7 @@ io.sockets.on('connection', function(socket) {
 
 
 
-    socket.on('bed', function(data) {
 
-        var time = new Date().getTime();
-
-        homeDB.bed.save({
-            time: time,
-            bed: data
-        });
-
-        if (data == "1") {
-            if (timeOut == "a") {
-                bedTime = time;
-                bedState = 2;
-                io.sockets.emit('sleepStatus', {
-                    "bedTime": bedTime,
-                    "status": 2
-                });
-                log.add("Slapen beginnen", false);
-            } else {
-                bedState = 2;
-                io.sockets.emit('sleepStatus', {
-                    "bedTime": bedTime,
-                    "status": 2
-                });
-                log.add("Slapen hervatten", false);
-
-                clearTimeout(timeOut);
-                timeOut = "a";
-            }
-
-        } else {
-            sleepedTime = time - bedTime;
-
-
-            if (timeOut == "a") {
-                bedState = 1;
-                io.sockets.emit('sleepStatus', {
-                    "bedTime": bedTime,
-                    "status": 1
-                });
-                log.add("Slapen wachten op 10 minuten", false);
-                timeOut = setTimeout(function() {
-                    timeOut = "a";
-                    bedState = 0;
-                    io.sockets.emit('sleepStatus', {
-                        "bedTime": bedTime,
-                        "status": 0
-                    });
-                    log.add("Tijd geslapen: " + toHHMMSS(sleepedTime / 1000), true);
-
-                    homeDB.sleep.save({
-                        begin: bedTime,
-                        end: time
-                    });
-
-                }, 1000 * 60 * 10);
-            } else {
-
-                clearTimeout(timeOut);
-                timeOut = "a";
-            }
-
-        }
-
-    });
 
     socket.on('setAlarm', function(data) {
         alarmArm = data;
@@ -956,26 +1086,8 @@ io.sockets.on('connection', function(socket) {
                 event: "refresh"
             });
             pulling = true;
-            c.exec("cd /var/www/home/node && sudo git pull", function(err, stream) {
-                if (err) throw err;
-                log.add("PI GIT PULL");
 
-                stream.on('data', function(data, extended) {
-                    log.add("PI GIT PULL DATA: " + data);
-                });
-                stream.on('end', function() {
-                    //console.log('Stream :: EOF');
-                });
-                stream.on('close', function() {
-                    //console.log('Stream :: close');
-                });
-                stream.on('exit', function(code, signal) {
-                    //console.log('Stream :: exit :: code: ' + code + ', signal: ' + signal);
-
-                });
-
-            });
-            exec("git pull && npm install", function(error, stdout, stderr) {
+            exec("git pull", function(error, stdout, stderr) {
                 log.add("stdout: " + stdout);
                 console.log("GIT PULL", error, stdout, stderr);
                 io.sockets.emit("refreshE", {
@@ -998,12 +1110,12 @@ io.sockets.on('connection', function(socket) {
                         });
                         log.add("Updated to: " + newVersion, true);
                         setTimeout(function() {
-                            childd = exec("forever restartall", function(error, stdout, stderr) {});
+                            childd = exec("cd /var/www/pi/raspberrypi/node && forever restart server.js", function(error, stdout, stderr) {});
                         }, 10000);
                     } else {
                         log.add("No updated to: " + newVersion + ", same version");
                         setTimeout(function() {
-                            childd = exec("forever restartall", function(error, stdout, stderr) {});
+                            childd = exec("cd /var/www/pi/raspberrypi/node && forever restart server.js", function(error, stdout, stderr) {});
                         }, 10000);
                     }
 
@@ -1036,43 +1148,6 @@ io.sockets.on('connection', function(socket) {
 //console.log(thisConfig.use);
 
 
-c.on('ready', function() {
-    //console.log('Connection :: ready');
-    state.ssh = true;
-    state.sshPending = false;
-    io.sockets.emit('state', state);
-    log.add("SSH CONNECTED");
-});
-
-c.on('error', function(err) {
-    //console.log('Connection :: error :: ' + err);
-    state.sshPending = false;
-    state.ssh = false;
-    io.sockets.emit('state', state);
-    log.add("SSH ERROR " + err);
-});
-c.on('end', function() {
-    //console.log('Connection :: end');
-    state.sshPending = false;
-    state.ssh = false;
-    io.sockets.emit('state', state);
-    log.add("SSH END");
-});
-c.on('close', function(had_error) {
-    //console.log('Connection :: close');
-    state.sshPending = false;
-    state.ssh = false;
-    setTimeout(function() {
-        state.sshPending = false;
-        state.ssh = false;
-        cConnect();
-    }, 15000);
-
-    io.sockets.emit('state', state);
-    log.add("SSH CLOSE");
-});
-
-io.sockets.emit('state', state);
 
 cConnect();
 
@@ -1107,12 +1182,54 @@ function networkDiscovery() {
 
                 if (thisState != item.state) {
 
+                    /*if (newState === 1) {
+                        if (docs[0].lock === undefined || docs[0].lock === 0) {
+                            homeDB.switches.update({
+                                id: docs[0].id
+                            }, {
+                                $set: {
+                                    lastOn: new Date().getTime(),
+                                    lock: 1
+                                }
+                            });
+                        }
+                    } else {
+                        homeDB.switches.update({
+                            id: docs[0].id
+                        }, {
+                            $set: {
+                                lastOff: new Date().getTime(),
+                                lock: 0
+                            }
+                        });
+
+                        homeDB.switches.findOne({
+                            id: docs[0].id
+                        }, function(err, s) {
+                            console.log("INTO HISTORY", s.lastOn, s.lastOff);
+                            homeDB.history.save({
+                                title: s.name,
+                                color: "#FF9900",
+                                start: new Date(s.lastOn).toISOString(),
+                                end: new Date(s.lastOff).toISOString(),
+                                allDay: false,
+                                duration: s.lastOff - s.lastOn
+                            });
+                        });
+
+                    }*/
+
+
+
+
                     var evalExecute = true;
 
                     if (itemDisc[item.name])
                         evalExecute = false
 
                     itemDisc[item.name] = thisState;
+
+
 
                     homeDB.devices.update({
                         id: item.id
@@ -1124,18 +1241,40 @@ function networkDiscovery() {
                         console.log("update DEVICE", err, docs);
                     });
 
+
                     item.state = thisState;
 
                     io.sockets.emit('deviceChange', item);
 
                     if (thisState === 1) {
                         log.add("NETWORKDISC " + item.name + " came online");
-
+                        if (item.lock === undefined || item.lock === 0) {
+                            homeDB.devices.update({
+                                id: item.id
+                            }, {
+                                $set: {
+                                    lastOn: new Date().getTime(),
+                                    lock: 1
+                                }
+                            });
+                        }
                         homeDB.deviceHis.save({
                             name: item.name,
                             time: time,
                             state: "1"
                         });
+
+                        homeDB.devices.update({
+                            id: item.id
+                        }, {
+                            $set: {
+                                lastUp: time
+                            }
+                        }, function(err, docs) {
+                            console.log("update DEVICE", err, docs);
+                        });
+
+
 
                         if (item.onSwitchOn !== undefined) {
                             if (evalExecute)
@@ -1146,10 +1285,43 @@ function networkDiscovery() {
                     if (thisState === 0) {
                         log.add("NETWORKDISC " + item.name + " went offline");
 
+                        homeDB.devices.update({
+                            id: item.id
+                        }, {
+                            $set: {
+                                lastOff: new Date().getTime(),
+                                lock: 0
+                            }
+                        });
+
                         homeDB.deviceHis.save({
                             name: item.name,
                             time: time,
                             state: "0"
+                        });
+                        homeDB.devices.update({
+                            id: item.id
+                        }, {
+                            $set: {
+                                lastDown: time
+                            }
+                        }, function(err, docs) {
+                            console.log("update DEVICE", err, docs);
+                        });
+
+                        homeDB.devices.findOne({
+                            id: item.id
+                        }, function(err, s) {
+                            console.log("INTO HISTORY", s.lastOn, s.lastOff);
+                            if (s.lastOn !== undefined)
+                                homeDB.history.save({
+                                    title: s.name,
+                                    color: s.color,
+                                    start: s.lastOn,
+                                    end: time,
+                                    allDay: false,
+                                    duration: time - s.lastOn
+                                });
                         });
 
                         if (item.onSwitchOff !== undefined) {
@@ -1167,11 +1339,15 @@ function networkDiscovery() {
         });
     });
 }
-app.get('/api/cpu/', function(req, res) {
+app.get('/api/cpu/:min/', function(req, res) {
     cpu = [];
     mem = [];
     returnN = [];
-    homeDB.cpu.find(function(err, docs) {
+    homeDB.cpu.find({
+        time: {
+            $gt: parseInt(req.params.min)
+        }
+    }, function(err, docs) {
         docs.forEach(function(item) {
             cpu.push([item.time, item.cpu]);
             mem.push([item.time, item.mem]);
@@ -1184,7 +1360,8 @@ app.get('/api/cpu/', function(req, res) {
         returnN.push({
             label: "MEM",
             data: mem,
-            color: "#FFFF00"
+            color: "#FFFF00",
+            yaxis: 2
         });
         res.send(returnN).end();
     });
@@ -1192,303 +1369,150 @@ app.get('/api/cpu/', function(req, res) {
 
 });
 app.get('/agenda/', function(req, res) {
-    console.log("asdasdasa\n");
-    var ret = {};
-    var deviceHisArray = [];
-    homeDB.deviceHis.find({
-        time: {
-            $gt: parseInt(req.query.start) * 1000,
-            $lt: parseInt(req.query.end) * 1000
+    var minDuration = 1000000;
+    homeDB.history.find({
+        start: {
+            $gt: (parseInt(req.query.start) * 1000) - (1000 * 60 * 60 * 5)
+        },
+        end: {
+            $lt: (parseInt(req.query.end) * 1000) + (1000 * 60 * 60 * 5)
         }
-    }).sort({
-        time: -1
     }, function(err, docs) {
-        docs.forEach(function(doc) {
-
-            if (doc.name != "PI" && doc.name != "Printer") {
-                if (deviceHisArray[doc.name] === undefined) {
-                    deviceHisArray[doc.name] = {
-                        name: doc.name,
-                        data: []
-                    }
-                }
-
-                deviceHisArray[doc.name].data.push([parseInt(doc.time), doc.state]);
-
-                deviceHisArray[doc.name].begin = -1;
-                deviceHisArray[doc.name].end = -1;
-
-                deviceHisArray[doc.name].state = 0;
-                deviceHisArray[doc.name].haveFirst = false;
-                deviceHisArray[doc.name].i = 0;
+        homeDB.sleep.find({
+            begin: {
+                $gt: (parseInt(req.query.start) * 1000) - (1000 * 60 * 60 * 5)
+            },
+            end: {
+                $lt: (parseInt(req.query.end) * 1000) + (1000 * 60 * 60 * 5)
             }
-        });
-        var i = 0;
-        for (key in deviceHisArray) {
-            /*ret.push({
-                label: "Device History " + key,
-                data: deviceHisArray[key].data
-            });*/
-            i++;
+        }, function(err, sleeps) {
+            var t = 0;
 
-            deviceHisArray[key].data.forEach(function(item) {
+            var returnN = [];
+            var previousStarts = [];
+            var previousEnds = [];
+            docs.forEach(function(item) {
+                item.id = t;
+                positionOfElement = previousStarts.contains(item.start);
+                if (positionOfElement > -1) {
 
-                if (item[1] == 0 && !deviceHisArray[key].haveFirst) {
-                    deviceHisArray[key].haveFirst = true;
-                    console.log("\n\nFIRST");
-                    deviceHisArray[key].end = item[0];
-                    deviceHisArray[key].begin = 0;
-                    deviceHisArray[key].state = 0;
-                    i++;
-                }
+                    if (previousEnds[positionOfElement] < item.end) {
 
-                if (item[1] == 1 && deviceHisArray[key].state == 1) {
-                    console.log("NEW END");
-                    ret[i] = {
-                        id: i,
-                        title: key,
-                        start: new Date(parseInt(item[0])).toISOString(),
-                        end: new Date(deviceHisArray[key].end).toISOString(),
-                        allDay: false
-                    };
-                }
+                        previousEnds[positionOfElement] = item.end;
+                        returnN[positionOfElement].end = new Date(new Date(item.end).getTime() + (1000 * 60 * 60 * 2)).toISOString();
 
-                if (item[1] == 1) {
-                    deviceHisArray[key].state = 1;
-                    deviceHisArray[key].haveFirst = false;
-                    console.log("END");
-                    deviceHisArray[key].begin = item[0];
-                    ret[i] = {
-                        id: i,
-                        title: key,
-                        start: new Date(parseInt(item[0])).toISOString(),
-                        end: new Date(deviceHisArray[key].end).toISOString(),
-                        allDay: false,
-                        duration: deviceHisArray[key].end - item[0]
-                    };
-
-                }
-
-
-                console.log(i, item[1], deviceHisArray[key].begin, deviceHisArray[key].end, deviceHisArray[key].haveFirst);
-                /*
-                console.log(item);
-                if (item[1] == 0 && item[1] != deviceHisArray[key].state) {
-                    deviceHisArray[key].i = i;
-                    deviceHisArray[key].state = 0;
-                    deviceHisArray[key].end = item[0];
-                    console.log("END", key, item[0], i);
-                    deviceHisArray[key].state == 1;
-                }
-                if (item[1] != deviceHisArray[key].state) {
-
-                    deviceHisArray[key].state = item[1];
-                    var diff = deviceHisArray[key].end - item[0];
-                    console.log("BEG", key, item[0], deviceHisArray[key].i, diff);
-
-                    if (diff > 1) {
-                        ret[i] = {
-                            id: i,
-                            title: key,
-                            start: new Date(parseInt(item[0])).toISOString(),
-                            end: new Date(deviceHisArray[key].end).toISOString(),
-                            allDay: false
-                        };
-                        console.log("\n\n");
-                        i++;
                     }
 
-                }*/
+                } else {
 
 
+
+                    if (item.duration > minDuration) {
+                        previousStarts.push(item.start);
+                        previousEnds.push(item.end);
+                        item.start = new Date(new Date(item.start).getTime() + (1000 * 60 * 60 * 2)).toISOString();
+                        item.end = new Date(new Date(item.end).getTime() + (1000 * 60 * 60 * 2)).toISOString();
+                        returnN.push(item);
+                    }
+                }
+
+
+                t++;
             });
-
-
-        }
-        console.log("PIRS");
-        homeDB.pir.find({
-            time: {
-                $gt: parseInt(req.query.start) * 1000,
-                $lt: parseInt(req.query.end) * 1000
-            }
-        }).sort({
-            time: -1
-        }, function(err, pirs) {
-            console.log(pirs);
-            pirFori = 0;
-            pirForBegin = 0;
-            pirForEnd = 0;
-            pirForState = 0;
-            pirForHaveFirst = false;
-            pirs.forEach(function(item) {
-                if (item.pir == 0 && !pirForHaveFirst) {
-                    pirForHaveFirst = true;
-                    pirForEnd = item.time;
-                    pirForBegin = 0;
-                    pirForState = 0;
-                    i++;
-                }
-
-                if (item.pir == 1 && pirForState == 1) {
-                    ret[i] = {
-                        id: i,
-                        title: "PIR",
-                        color: "white",
-                        start: new Date(parseInt(item.time)).toISOString(),
-                        end: new Date(pirForEnd).toISOString(),
-                        allDay: false
-                    };
-                }
-
-                if (item.pir == 1) {
-                    pirForState = 1;
-                    pirForHaveFirst = false;
-                    pirForBegin = item.time;
-                    ret[i] = {
-                        id: i,
-                        title: "PIR",
-                        color: "white",
-                        start: new Date(parseInt(item.time)).toISOString(),
-                        end: new Date(pirForEnd).toISOString(),
-                        allDay: false,
-                        duration: pirForEnd - item.time
-                    };
-
-                }
-            });
-
-
-            homeDB.bed.find({
-                time: {
-                    $gt: parseInt(req.query.start) * 1000,
-                    $lt: parseInt(req.query.end) * 1000
-                }
-            }).sort({
-                time: -1
-            }, function(err, beds) {
-
-                console.log(beds);
-                bedFori = 0;
-                bedForBegin = 0;
-                bedForEnd = 0;
-                bedForState = 0;
-                bedForHaveFirst = false;
-                beds.forEach(function(item) {
-                    if (item.bed == 0 && !bedForHaveFirst) {
-                        bedForHaveFirst = true;
-                        bedForEnd = item.time;
-                        bedForBegin = 0;
-                        bedForState = 0;
-                        i++;
-                    }
-
-                    if (item.bed == 1 && bedForState == 1) {
-                        ret[i] = {
-                            id: i,
-                            title: "bed",
-                            color: "red",
-                            start: new Date(parseInt(item.time)).toISOString(),
-                            end: new Date(bedForEnd).toISOString(),
-                            allDay: false
-                        };
-                    }
-
-                    if (item.bed == 1) {
-                        bedForState = 1;
-                        bedForHaveFirst = false;
-                        bedForBegin = item.time;
-                        ret[i] = {
-                            id: i,
-                            title: "bed",
-                            color: "red",
-                            start: new Date(parseInt(item.time)).toISOString(),
-                            end: new Date(bedForEnd).toISOString(),
-                            allDay: false,
-                            duration: bedForEnd - item.time
-                        };
-
-                    }
+            sleeps.forEach(function(sleep) {
+                returnN.push({
+                    id: t,
+                    title: "bed",
+                    color: "#663300",
+                    start: new Date(parseInt(sleep.begin) + (1000 * 60 * 60 * 2)).toISOString(),
+                    end: new Date(parseInt(sleep.end) + (1000 * 60 * 60 * 2)).toISOString(),
+                    allDay: false,
+                    duration: sleep.end - sleep.begin
                 });
-
-                var returnN = [];
-
-                var oldEnd = -1;
-                var oldBegin = -1;
-                var prefName = "";
-
-                var oldElement = 0;
-                returnNN = [];
-                for (key in ret) {
-                    returnNN.push(ret[key]);
-                }
-                ret = returnNN;
-                ret.reverse();
-                for (key in ret) {
-
-                    thisBegin = new Date(ret[key].start).getTime();
-                    thisEnd = new Date(ret[key].end).getTime();
-                    thisDiff = thisEnd - thisBegin;
-
-                    /*if (prefName == "") {
-                    prefName = ret[key].title;
-                }*/
-
-                    if (prefName != ret[key].title) {
-                        if (oldElement == 0) {
-                            console.log("PUT EM ERIN door nieuwe naam");
-                            returnN.push(ret[key]);
-                        }
-                        console.log("END: ", ret[key].end);
-                        console.log("NEW TYPE!!");
-                        oldElement = 0;
-                        oldBegin = -1;
-                        oldEnd = -1;
-                        prefName = ret[key].title;
-                    }
-
-                    if (oldElement == 0) {
-                        oldElement = ret[key];
-                        oldBegin = thisBegin;
-                        oldEnd = thisEnd;
-                        console.log("START: ", ret[key].start);
-                    } else {
-
-                        diff = thisBegin - oldEnd;
-
-                        console.log("CHECK TO COMBINE", diff);
-
-                        if (diff < 2000000) {
-                            console.log("COMBINE!!", oldElement.end, "->", ret[key].end);
-                            oldEnd = thisEnd;
-                            oldElement.end = ret[key].end;
-
-                        } else {
-                            console.log("NOMORE COMBINE!!");
-                            console.log("END: ", ret[key].end);
-                            console.log("PUT EM ERIN door grote diff");
-                            returnN.push(oldElement);
-                            oldElement = 0;
-                        }
-
-
-                    }
-
-
-
-                    //console.log(ret[key].title, thisBegin, thisEnd, thisDiff);
-
-
-                    prefName = ret[key].title;
-                }
-
-                returnN.push(oldElement);
-
-                res.send(returnN).end();
+                t++;
             });
+
+            res.send(returnN).end();
         });
     });
+});
+
+app.get('/agenda/cal/', function(req, res) {
+    var minDuration = 1000000;
+    homeDB.history.find(function(err, docs) {
+        homeDB.sleep.find(function(err, sleeps) {
+            var t = 0;
+
+            var returnN = [];
+            var event = {};
+            var ical = new icalendar.iCalendar();
+
+            var previousStarts = [];
+            var previousEnds = [];
+
+            docs.forEach(function(item) {
 
 
+                item.id = t;
+
+
+                positionOfElement = previousStarts.contains(item.start);
+                if (positionOfElement > -1) {
+                    console.log("Already contains");
+
+                    if (previousEnds[positionOfElement] < item.end) {
+
+                        previousEnds[positionOfElement] = item.end;
+                        returnN[positionOfElement].end = new Date(new Date(item.end).getTime() + (1000 * 60 * 60 * 2)).toISOString();
+
+                    }
+
+                } else {
+
+
+                    if (item.duration > minDuration) {
+                        previousStarts.push(item.start);
+                        previousEnds.push(item.end);
+                        item.start = new Date(new Date(item.start).getTime()).toISOString();
+                        item.end = new Date(new Date(item.end).getTime()).toISOString();
+                        event[t] = new icalendar.VEvent(md5(JSON.stringify(item)));
+                        event[t].setSummary(item.title);
+                        event[t].setDate(new Date(item.start), new Date(item.end));
+                        event[t].toString();
+                    }
+                }
+
+
+
+
+
+                t++;
+            });
+            sleeps.forEach(function(sleep) {
+                returnN.push({
+                    id: t,
+                    title: "bed",
+                    color: "#663300",
+                    start: new Date(parseInt(sleep.begin)).toISOString(),
+                    end: new Date(parseInt(sleep.end)).toISOString(),
+                    allDay: false,
+                    duration: sleep.end - sleep.begin
+                });
+                event[t] = new icalendar.VEvent(md5(JSON.stringify(sleep)));
+                event[t].setSummary("Bed");
+                event[t].setDate(new Date(parseInt(sleep.begin)), new Date(parseInt(sleep.end)));
+                event[t].toString();
+                t++;
+            });
+
+            for (i in event) {
+                ical.addComponent(event[i]);
+            }
+            res.setHeader("Content-type", "text/calendar");
+
+            res.send(ical.toString()).end();
+        });
+    });
 });
 
 app.get('/bigdata', function(req, res) {
@@ -1592,9 +1616,13 @@ function cpuLoadFN() {
 cpuLoadFN();
 networkDiscovery();
 
-setTimeout(function() {
+setInterval(function() {
     log.add("NETWORKDISC FROM TIMEOUT");
     networkDiscovery();
     log.add("CPU LOAD");
+    if (!state.ssh) {
+        log.add("SSH CONNECT FROM TIMEOUT");
+        cConnect();
+    }
     cpuLoadFN();
 }, 60 * 1000);

@@ -30,10 +30,11 @@ function plot() {
 
     console.log(now, min);
 
-    $.getJSON("/api/temps", function(d) {
+    $.getJSON("/api/temps/" + min + "/", function(d) {
         $.plot("#plot", [d], {
             xaxis: {
                 mode: "time",
+                timezone: "browser",
                 min: min,
                 max: now
             },
@@ -47,13 +48,21 @@ function plot() {
             }
         });
     });
-    $.getJSON("/api/cpu/", function(d) {
+    $.getJSON("/api/cpu/" + min + "/", function(d) {
         $.plot("#cpu", d, {
             xaxis: {
                 mode: "time",
+                timezone: "browser",
                 min: min,
                 max: now
             },
+            yaxes: [{
+                //[First axis]
+                //leave this empty, if there`s nothing to configure
+            }, {
+                //[Second axis]
+                position: "right" //set this axis to appear on the right of chart
+            }],
             series: {
                 lines: {
                     show: true
@@ -81,10 +90,11 @@ function plot() {
             }
         });
     });*/
-    $.getJSON("/api/lights", function(d) {
+    $.getJSON("/api/lights/" + min + "/", function(d) {
         $.plot("#lLights", [d], {
             xaxis: {
                 mode: "time",
+                timezone: "browser",
                 min: min,
                 max: now
             },
@@ -118,6 +128,12 @@ function brandOption(id, brand) {
 
 }
 $(document).ready(function() {
+
+    timezoneJS.timezone.zoneFileBasePath = "/js/tz";
+    timezoneJS.timezone.defaultZoneFile = "europe";
+    timezoneJS.timezone.init({
+        async: false
+    });
 
     var timeOut = "a";
 
@@ -527,8 +543,11 @@ $(document).ready(function() {
 
         editable: false,
         defaultView: 'agendaDay',
-        events: "/agenda/",
-
+        eventSources: [
+            "/agenda/"
+        ],
+        timezone: 'local',
+        timeFormat: 'H(:mm)',
         eventDrop: function(event, delta) {
             alert(event.title + ' was moved ' + delta + ' days\n' +
                 '(should probably update your database)');
@@ -540,6 +559,5 @@ $(document).ready(function() {
         }
 
     });
-
 
 });

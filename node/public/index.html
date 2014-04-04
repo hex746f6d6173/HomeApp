@@ -27,7 +27,8 @@
     <script src="/js/jquery.flot.time.js" type="text/javascript"></script>
     <script src="/js/jquery.flot.resize.js" type="text/javascript"></script>
     <script src="/js/fullcalendar.min.js" type="text/javascript"></script>
-
+    <script src="/js/date.js" type="text/javascript"></script>
+    
     <script src="/js/home.js"></script>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/fullcalendar.css">
@@ -55,18 +56,18 @@
   		<div class="container">
         <div class="page" id="home">
 
-        <div class="well" id="sleepStatus">
+        <div class="well" id="sleepStatus" style="display:hidden;">
         <div class="time">
 
         </div>
         </div>
 
         <div class="set misc">
-              <span class="tempwrap well" id="misc-0" style="background:rgb(27,242,0)"><span class="glyphicon glyphicon-cloud"></span> <span class="temp"></span> &deg;C</span>
+              <span class="tempwrap well" id="misc-0" style="background:rgb(27,242,0)"><span class="glyphicon glyphicon-cloud"></span> <span class="temp">0</span> &deg;C</span>
 
               <span class="tempwrap well" id="misc-3" style="background:rgb(27,242,0)"><span class="glyphicon glyphicon-fire"></span> <span class="lightsLume"></span> L</span>
-              <a class="cpu well" id="misc-cpu" style="background:rgb(27,242,0)"></a>
-              <a class="mem well" id="misc-cpu" style="background:rgb(27,242,0)"></a>
+              <a class="cpu well" id="misc-cpu" style="background:rgb(27,242,0)">CPU: 0</a>
+              <a class="mem well" id="misc-cpu" style="background:rgb(27,242,0)">Mem: 0%</a>
 
               <a class="alarm well" id="misc-1" style="background:rgb(27,242,0)"><span class="glyphicon glyphicon-cloud"></span> Alarm</a>
 
@@ -111,7 +112,7 @@
         </select>
         <div id="calendar"></div>
         <h4>Log:</h4>
-        <code class="log set"></code>
+        <code class="log set hidden-xs"></code>
 
         </div>
         <div class="page" id="config">
@@ -121,6 +122,7 @@
           <input type="submit" value="Submit"/>
           </form>
         </div>
+        <a href='https://gemnasium.com/5ef54a8bdd821807800ba01809099fc8'><img src="https://gemnasium.com/59f0dbc96309409f943855d3ac366cdc.svg" alt="Dependency Status" /></a>
   		</div>
   </body>
 </html>
