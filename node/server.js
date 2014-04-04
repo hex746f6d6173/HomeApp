@@ -458,7 +458,6 @@ var flipSwitch = function(a, to, fn) {
     });
 }
 
-//app.get('/switch/:brand/:code/:switch/:switchTo/', flipSwitch);
 
 app.get('/switches', function(req, res) {
 
