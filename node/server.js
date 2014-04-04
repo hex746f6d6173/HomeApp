@@ -411,7 +411,7 @@ var flipSwitch = function(a, to, fn) {
                                 homeDB.history.save({
                                     title: s.name,
                                     color: "#FF9900",
-                                    start: s.lastOn.toISOString(),
+                                    start: new Date(s.lastOn).toISOString(),
                                     end: new Date().getTime(),
                                     allDay: false,
                                     duration: new Date().getTime() - s.lastOn
