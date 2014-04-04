@@ -7,4 +7,4 @@ if [ -e "${PIDFILE}" ] && (ps -u $USER -f | grep "[ ]$(cat ${PIDFILE})[ ]"); the
     exit 99
 fi
 echo "RUN!"
-nohup ./server.py >/dev/null 2>&1&
+nohup ./server.py&
