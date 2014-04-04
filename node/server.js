@@ -37,6 +37,12 @@ var mongojs = require('mongojs'),
     pirLastOn = 0,
     pirLastOff = 0;
 
+Array.prototype.contains = function(k) {
+    for (p in this)
+        if (this[p] === k)
+            return p;
+    return -1;
+}
 
 function toHHMMSS(string) {
     var sec_num = parseInt(string, 10); // don't forget the second param
@@ -1384,16 +1390,34 @@ app.get('/agenda/', function(req, res) {
             var t = 0;
 
             var returnN = [];
-
+            var previousStarts = [];
+            var previousEnds = [];
             docs.forEach(function(item) {
                 item.id = t;
+                positionOfElement = previousStarts.contains(item.start);
+                if (positionOfElement > -1) {
 
-                item.start = new Date(new Date(item.start).getTime() + (1000 * 60 * 60 * 2)).toISOString();
-                item.end = new Date(new Date(item.end).getTime() + (1000 * 60 * 60 * 2)).toISOString();
+                    if (previousEnds[positionOfElement] < item.end) {
 
-                if (item.duration > minDuration) {
-                    returnN.push(item);
+                        previousEnds[positionOfElement] = item.end;
+                        returnN[positionOfElement].end = new Date(new Date(item.end).getTime() + (1000 * 60 * 60 * 2)).toISOString();
+
+                    }
+
+                } else {
+
+
+
+                    if (item.duration > minDuration) {
+                        previousStarts.push(item.start);
+                        previousEnds.push(item.end);
+                        item.start = new Date(new Date(item.start).getTime() + (1000 * 60 * 60 * 2)).toISOString();
+                        item.end = new Date(new Date(item.end).getTime() + (1000 * 60 * 60 * 2)).toISOString();
+                        returnN.push(item);
+                    }
                 }
+
+
                 t++;
             });
             sleeps.forEach(function(sleep) {
@@ -1424,20 +1448,45 @@ app.get('/agenda/cal/', function(req, res) {
             var event = {};
             var ical = new icalendar.iCalendar();
 
+            var previousStarts = [];
+            var previousEnds = [];
+
             docs.forEach(function(item) {
 
 
                 item.id = t;
 
-                item.start = new Date(new Date(item.start).getTime()).toISOString();
-                item.end = new Date(new Date(item.end).getTime()).toISOString();
 
-                if (item.duration > minDuration) {
-                    event[t] = new icalendar.VEvent(md5(JSON.stringify(item)));
-                    event[t].setSummary(item.title);
-                    event[t].setDate(new Date(item.start), new Date(item.end));
-                    event[t].toString();
+                positionOfElement = previousStarts.contains(item.start);
+                if (positionOfElement > -1) {
+                    console.log("Already contains");
+
+                    if (previousEnds[positionOfElement] < item.end) {
+
+                        previousEnds[positionOfElement] = item.end;
+                        returnN[positionOfElement].end = new Date(new Date(item.end).getTime() + (1000 * 60 * 60 * 2)).toISOString();
+
+                    }
+
+                } else {
+
+
+                    if (item.duration > minDuration) {
+                        previousStarts.push(item.start);
+                        previousEnds.push(item.end);
+                        item.start = new Date(new Date(item.start).getTime()).toISOString();
+                        item.end = new Date(new Date(item.end).getTime()).toISOString();
+                        event[t] = new icalendar.VEvent(md5(JSON.stringify(item)));
+                        event[t].setSummary(item.title);
+                        event[t].setDate(new Date(item.start), new Date(item.end));
+                        event[t].toString();
+                    }
                 }
+
+
+
+
+
                 t++;
             });
             sleeps.forEach(function(sleep) {
