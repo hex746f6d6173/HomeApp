@@ -1380,7 +1380,7 @@ app.get('/agenda/', function(req, res) {
         }
     }, function(err, docs) {
         homeDB.sleep.find({
-            start: {
+            begin: {
                 $gt: (parseInt(req.query.start) * 1000) - (1000 * 60 * 60 * 5)
             },
             end: {
