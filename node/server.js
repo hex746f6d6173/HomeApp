@@ -1460,7 +1460,7 @@ app.get('/agenda/cal/', function(req, res) {
                 if (positionOfElement > -1) {
                     console.log("Already contains");
 
-                    if (previousEnds[positionOfElement] < item.end) {
+                    if (previousEnds[positionOfElement] < item.end && previousEnds[positionOfElement] !== undefined) {
 
                         previousEnds[positionOfElement] = item.end;
                         returnN[positionOfElement].end = new Date(new Date(item.end).getTime() + (1000 * 60 * 60 * 2)).toISOString();
