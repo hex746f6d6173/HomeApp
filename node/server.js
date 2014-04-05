@@ -37,6 +37,26 @@ var mongojs = require('mongojs'),
     pirLastOn = 0,
     pirLastOff = 0;
 
+if (typeof localStorage === "undefined" || localStorage === null) {
+    var LocalStorage = require('node-localstorage').LocalStorage;
+    localStorage = new LocalStorage('./scratch');
+}
+
+if (localStorage.getItem("clients") === null) {
+    localStorage.setItem("clients", JSON.stringify({}));
+}
+
+if (localStorage.getItem("log") === null || localStorage.getItem("log") == "")
+    localStorage.setItem("log", "[]");
+
+
+if (localStorage.getItem("bedTime") === null)
+    localStorage.setItem("bedTime", "0");
+
+if (localStorage.getItem("bedState") === null)
+    localStorage.setItem("bedState", "0");
+
+
 Array.prototype.contains = function(k) {
     for (p in this)
         if (this[p] === k)
@@ -134,18 +154,6 @@ homeDB.misc.find(function(err, docs) {
         });
     }
 });
-
-if (typeof localStorage === "undefined" || localStorage === null) {
-    var LocalStorage = require('node-localstorage').LocalStorage;
-    localStorage = new LocalStorage('./scratch');
-}
-
-if (localStorage.getItem("clients") === null) {
-    localStorage.setItem("clients", JSON.stringify({}));
-}
-
-if (localStorage.getItem("log") === null || localStorage.getItem("log") == "")
-    localStorage.setItem("log", "[]");
 
 var log = {
     log: JSON.parse(localStorage.getItem("log")),
@@ -1460,7 +1468,7 @@ app.get('/agenda/cal/', function(req, res) {
                 if (positionOfElement > -1) {
                     console.log("Already contains");
 
-                    if (previousEnds[positionOfElement] < item.end) {
+                    if (previousEnds[positionOfElement] < item.end && previousEnds[positionOfElement] !== undefined) {
 
                         previousEnds[positionOfElement] = item.end;
                         returnN[positionOfElement].end = new Date(new Date(item.end).getTime() + (1000 * 60 * 60 * 2)).toISOString();
