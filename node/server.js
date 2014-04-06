@@ -924,7 +924,7 @@ app.get('/bed/:bed/', function(req, res) {
     });
 
     if (data == "1") {
-        if (timeOut == "a") {
+        if (timeOut == "a" && bedState !== 2) {
             bedTime = time;
             bedState = 2;
             io.sockets.emit('sleepStatus', {
