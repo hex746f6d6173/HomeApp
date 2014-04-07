@@ -725,23 +725,19 @@ app.get('/temp/:t', function(req, res) {
 
     var Dtemp = temp - newTemp;
 
-    if (newTemp < 45 && Dtemp < 5 && Dtemp > -5) {
 
-        if (req.params.t != temp) {
+    if (req.params.t != temp) {
 
-            temp = newTemp;
+        temp = newTemp;
 
-            log.add("TEMPRATUUR UPDATE: " + temp);
-            io.sockets.emit('temp', temp);
-        }
-
-        homeDB.temp.save({
-            time: time,
-            temp: newTemp
-        });
-    } else {
-        log.add("TEMPRATUUR NO UPDATE: " + newTemp + ", DIFF " + Dtemp);
+        log.add("TEMPRATUUR UPDATE: " + temp);
+        io.sockets.emit('temp', temp);
     }
+
+    homeDB.temp.save({
+        time: time,
+        temp: newTemp
+    });
 });
 var persistState = 0;
 var timeSwitch = 0;
