@@ -280,7 +280,13 @@ $(document).ready(function() {
                 color = green;
             }
 
-            html += '<div class="col-md-3"><a class="switch well" id="switch-' + y.id + '" style="background:' + color + '"><h3><span class="' + y.icon + '"></span> ' + y.name + '</h3></a></div>';
+            var needsConfirm = "false";
+
+            if (y.needsConfirm !== undefined)
+                if (y.needsConfirm)
+                    needsConfirm = "true";
+
+            html += '<div class="col-md-3"><a class="switch well" id="switch-' + y.id + '" style="background:' + color + '" data-needsconfim="' + needsConfirm + '"><h3><span class="' + y.icon + '"></span> ' + y.name + '</h3></a></div>';
             configHtml += '<div class="well">'
             configHtml += '<input type="text" id="configsFrom-' + y.id + '-name" value="' + y.name + '">'
             configHtml += brandOption(y.id, y.brand);
@@ -293,19 +299,26 @@ $(document).ready(function() {
         $(".switches").html(html + "</div>");
         $(".configs").html(configHtml + "");
         $(".switch").each(function() {
+            var self = this;
             $(this).click(function(e) {
                 e.preventDefault();
                 $(this).css({
                     "background": orange
                 });
-                socket.emit("switch", {
-                    id: parseInt($(this).attr("id").replace("switch-", ""))
-                });
+
+                var confimation = true;
+
+                if ($(self).attr("data-needsconfim") === "true")
+                    confimation = confirm("Weet je zeker dat je deze knop wilt omswitchen?");
+
+                if (confimation)
+                    socket.emit("switch", {
+                        id: parseInt($(this).attr("id").replace("switch-", ""))
+                    });
             });
         });
 
         localStorage.setItem("switches", JSON.stringify(data));
-
     });
 
     socket.on("clients", function(data) {
