@@ -100,9 +100,12 @@ def updateUI():
 	GMT = Zone(1,False,'GMT')
 	localtime = datetime.datetime.now(GMT).strftime("%H:%M:%S")
 	
-	if(background):
+	lcd.lcd_noBacklight()
+
+	if(state == 1):
 		lcd.lcd_backlight()
-	else:
+
+	if(not background):
 		lcd.lcd_noBacklight()
 
 	#lcd.lcd_clear()
