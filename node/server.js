@@ -1227,12 +1227,12 @@ function networkDiscovery() {
 
 
                     var evalExecute = true;
-
+                    /*
                     if (itemDisc[item.name])
                         evalExecute = false
 
                     itemDisc[item.name] = thisState;
-
+                    */
 
 
                     homeDB.devices.update({
