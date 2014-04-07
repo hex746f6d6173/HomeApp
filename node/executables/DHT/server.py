@@ -81,7 +81,7 @@ lastCommand = ""
 
 lightNow = -1
 
-
+state = 0
 
 background = True
 
@@ -95,6 +95,8 @@ def updateUI():
 	global pir
 	global background
 	global sleepRow
+	global state
+
 	GMT = Zone(1,False,'GMT')
 	localtime = datetime.datetime.now(GMT).strftime("%H:%M:%S")
 	
@@ -203,7 +205,6 @@ class pirThread (threading.Thread):
 		light_pin = 22
 
 
-		state = 0
 
 		avgLight = 0.0
 		counterLight = 0
@@ -216,8 +217,7 @@ class pirThread (threading.Thread):
 
 		global bed
 		global background
-
-		state = 0
+		global state
 
 		pirNoSended = 0
 
