@@ -1443,8 +1443,12 @@ app.get('/agenda/', function(req, res) {
 
 app.get('/agenda/cal/', function(req, res) {
     var minDuration = 1000000;
-    homeDB.history.find(function(err, docs) {
-        homeDB.sleep.find(function(err, sleeps) {
+    homeDB.history.find().sort({
+        _id: 1
+    }).limit(50, function(err, docs) {
+        homeDB.sleep.find().sort({
+            _id: 1
+        }).limit(50, function(err, sleeps) {
             var t = 0;
 
             var returnN = [];
