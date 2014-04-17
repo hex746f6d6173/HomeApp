@@ -100,16 +100,12 @@ def updateUI():
 	GMT = Zone(1,False,'GMT')
 	localtime = datetime.datetime.now(GMT).strftime("%H:%M:%S")
 	
-	lcd.lcd_noBacklight()
-
-	if(state == 1):
+	if(background):
 		lcd.lcd_backlight()
-
-	if(not background):
+	else:
 		lcd.lcd_noBacklight()
 
-	if(datetime.datetime.now(GMT).strftime("%S") == "00"):
-		lcd.lcd_clear()
+	#lcd.lcd_clear()
 
 	if(int(sleepStatus)>1):
 		sleepRow = "sleeptime:"+  time.strftime('%H:%M:%S', time.gmtime(float(int(datetime.datetime.now().strftime("%s")) - int(int(sleepTime) / 1000))))

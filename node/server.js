@@ -1443,8 +1443,12 @@ app.get('/agenda/', function(req, res) {
 
 app.get('/agenda/cal/', function(req, res) {
     var minDuration = 1000000;
-    homeDB.history.find(function(err, docs) {
-        homeDB.sleep.find(function(err, sleeps) {
+    homeDB.history.find().sort({
+        _id: 1
+    }).limit(50, function(err, docs) {
+        homeDB.sleep.find().sort({
+            _id: 1
+        }).limit(50, function(err, sleeps) {
             var t = 0;
 
             var returnN = [];
@@ -1455,11 +1459,7 @@ app.get('/agenda/cal/', function(req, res) {
             var previousEnds = [];
 
             docs.forEach(function(item) {
-
-
                 item.id = t;
-
-
                 positionOfElement = previousStarts.contains(item.start);
                 if (positionOfElement > -1) {
                     console.log("Already contains");
@@ -1470,10 +1470,7 @@ app.get('/agenda/cal/', function(req, res) {
                         returnN[positionOfElement].end = new Date(new Date(item.end).getTime() + (1000 * 60 * 60 * 2)).toISOString();
 
                     }
-
                 } else {
-
-
                     if (item.duration > minDuration) {
                         previousStarts.push(item.start);
                         previousEnds.push(item.end);
