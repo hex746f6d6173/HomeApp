@@ -1459,11 +1459,7 @@ app.get('/agenda/cal/', function(req, res) {
             var previousEnds = [];
 
             docs.forEach(function(item) {
-
-
                 item.id = t;
-
-
                 positionOfElement = previousStarts.contains(item.start);
                 if (positionOfElement > -1) {
                     console.log("Already contains");
@@ -1474,10 +1470,7 @@ app.get('/agenda/cal/', function(req, res) {
                         returnN[positionOfElement].end = new Date(new Date(item.end).getTime() + (1000 * 60 * 60 * 2)).toISOString();
 
                     }
-
                 } else {
-
-
                     if (item.duration > minDuration) {
                         previousStarts.push(item.start);
                         previousEnds.push(item.end);
